@@ -32,5 +32,9 @@ coverage
 /cypress/videos/
 /cypress/screenshots/
 
-# Vitest
-__screenshots__/
+*storybook.log
+storybook-static
+
+# Auto-imports
+auto-imports.d.ts
+components.d.ts
