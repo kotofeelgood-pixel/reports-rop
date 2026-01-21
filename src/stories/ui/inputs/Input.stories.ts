@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/vue3-vite'
 import InputComponent from './InputComponent.vue'
-import type { InputSize, InputColor, InputType, TagColor } from './model'
+import type { InputSize, InputColor, InputType, TagColor } from './Input/model'
 
 const meta = {
   title: 'UI/Inputs/Input',
@@ -98,7 +98,7 @@ const meta = {
     color: 'air-primary',
     size: 'md',
   },
-} satisfies Meta<typeof InputComponent>
+} as Meta<typeof InputComponent>
 
 export default meta
 type Story = StoryObj<typeof meta>
