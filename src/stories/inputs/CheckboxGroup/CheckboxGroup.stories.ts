@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/vue3-vite'
-import CheckboxGroupComponent from '../../../../components/inputs/CheckboxGroup/CheckboxGroupComponent.vue'
+import CheckboxGroupComponent from '../../../components/inputs/CheckboxGroup/CheckboxGroupComponent.vue'
 import type { CheckboxSize, CheckboxColor, CheckboxGroupVariant, CheckboxGroupOrientation, CheckboxIndicator } from '../../../components/inputs/CheckboxGroup/model'
 
 const meta = {

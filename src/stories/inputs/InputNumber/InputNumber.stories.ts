@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/vue3-vite'
-import InputNumberComponent from '../../../../components/inputs/InputNumber/InputNumberComponent.vue'
+import InputNumberComponent from '../../../components/inputs/InputNumber/InputNumberComponent.vue'
 import type { InputSize, InputColor, TagColor, InputNumberOrientation } from '../../../components/inputs/InputNumber/model'
 
 const meta = {

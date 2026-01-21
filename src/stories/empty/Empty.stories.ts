@@ -2,12 +2,12 @@ import type { Meta, StoryObj } from '@storybook/vue3-vite'
 import EmptyComponent from '../../components/empty/EmptyComponent.vue'
 import type { EmptyModel } from '../../components/empty/model'
 import type { ButtonProps } from '@bitrix24/b24ui-nuxt'
-import FolderEmptyIcon from '@bitrix24/b24icons-vue/outline/FolderEmptyIcon'
+import FolderIcon from '@bitrix24/b24icons-vue/outline/FolderIcon'
 import SearchIcon from '@bitrix24/b24icons-vue/outline/SearchIcon'
-import FileEmptyIcon from '@bitrix24/b24icons-vue/outline/FileEmptyIcon'
-import InboxIcon from '@bitrix24/b24icons-vue/outline/InboxIcon'
+import FileIcon from '@bitrix24/b24icons-vue/outline/FileIcon'
+import MailSendIcon from '@bitrix24/b24icons-vue/outline/MailSendIcon'
 import RocketIcon from '@bitrix24/b24icons-vue/main/RocketIcon'
-import PlusIcon from '@bitrix24/b24icons-vue/outline/PlusIcon'
+import PlusLIcon from '@bitrix24/b24icons-vue/outline/PlusLIcon'
 
 const meta = {
   title: 'Data/Empty',
@@ -41,7 +41,7 @@ export const WithIcon: Story = {
   args: {
     title: 'Папка пуста',
     description: 'В этой папке пока нет файлов',
-    icon: FolderEmptyIcon,
+    icon: FolderIcon,
   },
 }
 
@@ -49,10 +49,10 @@ export const WithAction: Story = {
   args: {
     title: 'Нет элементов',
     description: 'Создайте первый элемент, чтобы начать работу',
-    icon: PlusIcon,
+    icon: PlusLIcon,
     action: {
       label: 'Создать элемент',
-      icon: PlusIcon,
+      icon: PlusLIcon,
       color: 'air-primary',
     } as ButtonProps,
   },
@@ -76,7 +76,7 @@ export const NoAction: Story = {
   args: {
     title: 'Нет данных',
     description: 'Здесь пока ничего нет',
-    icon: FileEmptyIcon,
+    icon: FileIcon,
     action: false,
   },
 }
@@ -101,12 +101,12 @@ export const WithCustomSlots: Story = {
   render: (args) => ({
     components: { EmptyComponent },
     setup() {
-      return { args, FolderEmptyIcon }
+      return { args, FolderIcon }
     },
     template: `
       <EmptyComponent v-bind="args">
         <template #icon>
-          <FolderEmptyIcon class="w-24 h-24 text-gray-400" />
+          <FolderIcon class="w-24 h-24 text-gray-400" />
         </template>
         <template #title>
           <h2 class="text-2xl font-bold text-gray-800">Кастомный заголовок</h2>
@@ -128,10 +128,10 @@ export const EmptyFolder: Story = {
   args: {
     title: 'Папка пуста',
     description: 'В этой папке пока нет файлов или папок',
-    icon: FolderEmptyIcon,
+    icon: FolderIcon,
     action: {
       label: 'Добавить файл',
-      icon: PlusIcon,
+      icon: PlusLIcon,
       color: 'air-primary',
     } as ButtonProps,
   },
@@ -154,7 +154,7 @@ export const EmptyInbox: Story = {
   args: {
     title: 'Входящие пусты',
     description: 'У вас пока нет новых сообщений',
-    icon: InboxIcon,
+    icon: MailSendIcon,
   },
 }
 
@@ -162,10 +162,10 @@ export const EmptyWithLongDescription: Story = {
   args: {
     title: 'Нет данных для отображения',
     description: 'Здесь пока ничего нет. Это может быть связано с тем, что вы еще не создали ни одного элемента, или все элементы были удалены. Вы можете создать новый элемент, используя кнопку ниже, или вернуться к списку всех элементов.',
-    icon: FileEmptyIcon,
+    icon: FileIcon,
     action: {
       label: 'Создать элемент',
-      icon: PlusIcon,
+      icon: PlusLIcon,
       color: 'air-primary',
       size: 'lg',
     } as ButtonProps,
@@ -176,10 +176,10 @@ export const EmptyList: Story = {
   args: {
     title: 'Список пуст',
     description: 'Добавьте первый элемент в список',
-    icon: PlusIcon,
+    icon: PlusLIcon,
     action: {
       label: 'Добавить элемент',
-      icon: PlusIcon,
+      icon: PlusLIcon,
       color: 'air-primary',
     } as ButtonProps,
   },
@@ -192,7 +192,7 @@ export const InContext: Story = {
     icon: RocketIcon,
     action: {
       label: 'Создать задачу',
-      icon: PlusIcon,
+      icon: PlusLIcon,
       color: 'air-primary',
     } as ButtonProps,
   },
@@ -215,10 +215,10 @@ export const EmptyTable: Story = {
   args: {
     title: 'Нет данных',
     description: 'В таблице пока нет записей. Добавьте первую запись, чтобы начать работу.',
-    icon: FileEmptyIcon,
+    icon: FileIcon,
     action: {
       label: 'Добавить запись',
-      icon: PlusIcon,
+      icon: PlusLIcon,
       color: 'air-primary',
     } as ButtonProps,
   },
@@ -254,10 +254,10 @@ export const EmptyCard: Story = {
   args: {
     title: 'Нет элементов',
     description: 'Создайте первый элемент, чтобы начать работу',
-    icon: PlusIcon,
+    icon: PlusLIcon,
     action: {
       label: 'Создать',
-      icon: PlusIcon,
+      icon: PlusLIcon,
       color: 'air-primary',
     } as ButtonProps,
   },

@@ -1,8 +1,8 @@
 import type { Meta, StoryObj } from '@storybook/vue3-vite'
 import AvatarGroupComponent from '../../components/avatar-group/AvatarGroupComponent.vue'
-import AvatarComponent from '../avatar/AvatarComponent.vue'
+import AvatarComponent from '../../components/avatar/AvatarComponent.vue'
 import type { AvatarGroupModel } from '../../components/avatar-group/model'
-import type { AvatarSize } from '../avatar/model'
+import type { AvatarSize } from '../../components/avatar/model'
 
 const meta = {
   title: 'Element/AvatarGroup',
