@@ -71,7 +71,7 @@ const meta = {
     list: { control: 'text' },
     readonly: { control: 'boolean' },
     searchTerm: { control: 'text' },
-  } as Record<string, any>,
+  } as Record<string, unknown>,
   args: {
     placeholder: 'Выберите опцию',
     color: 'air-primary',
