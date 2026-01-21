@@ -13,7 +13,6 @@ export type TagColor = "air-primary" | "air-primary-success" | "air-primary-aler
 export type InputType = "number" | "image" | "text" | "button" | "search" | "time" | "color" | "checkbox" | "date" | "datetime-local" | "email" | "file" | "hidden" | "month" | "password" | "radio" | "range" | "reset" | "submit" | "tel" | "url" | "week" | string
 
 export interface InputModel {
-  as?: string;
   id?: string;
   name?: string;
   type?: InputType;

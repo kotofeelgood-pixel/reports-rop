@@ -7,7 +7,6 @@ const meta = {
   component: InputComponent,
   tags: ['autodocs'],
   argTypes: {
-    as: { control: 'text' },
     id: { control: 'text' },
     name: { control: 'text' },
     type: {
