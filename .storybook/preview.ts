@@ -4,7 +4,7 @@ import { setup } from '@storybook/vue3'
 import { createRouter, createMemoryHistory } from 'vue-router'
 import b24UiPlugin from '@bitrix24/b24ui-nuxt/vue-plugin'
 import ToastWrapper from './ToastWrapper.vue'
-import { useToast } from '@bitrix24/b24ui-nuxt'
+
 
 const router = createRouter({
   history: createMemoryHistory(),
@@ -46,9 +46,6 @@ setup((app) => {
   app.use(b24UiPlugin)
   app.use(router)
   // Регистрируем useToast глобально
-  app.config.globalProperties.useToast = useToast
-  // Также делаем доступным через provide/inject
-  app.provide('useToast', useToast)
 })
 
 const preview: Preview = {
