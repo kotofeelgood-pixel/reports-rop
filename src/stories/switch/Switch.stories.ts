@@ -5,7 +5,7 @@ import RocketIcon from '@bitrix24/b24icons-vue/main/RocketIcon'
 import { ref } from 'vue'
 
 const meta = {
-  title: 'UI/Switch',
+  title: 'Form/Switch',
   component: SwitchComponent,
   tags: ['autodocs'],
   argTypes: {

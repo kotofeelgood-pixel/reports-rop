@@ -9,7 +9,7 @@ import ProductIcon from '@bitrix24/b24icons-vue/outline/ProductIcon'
 import LinkIcon from '@bitrix24/b24icons-vue/outline/LinkIcon'
 
 const meta = {
-  title: 'UI/Breadcrumb',
+  title: 'Navigation/Breadcrumb',
   component: BreadcrumbComponent,
   tags: ['autodocs'],
   argTypes: {

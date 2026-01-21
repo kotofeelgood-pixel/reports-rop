@@ -3,11 +3,12 @@ import AlertComponent from '../../components/alert/AlertComponent.vue'
 import type { AlertModel, AlertColor, AlertSize, AlertOrientation } from '../../components/alert/model'
 import type { ButtonProps } from '@bitrix24/b24ui-nuxt'
 import RocketIcon from '@bitrix24/b24icons-vue/main/RocketIcon'
+import { commonMeta } from '../meta'
 
 const meta = {
-  title: 'UI/Alert',
+  ...commonMeta,
+  title: 'Element/Alert',
   component: AlertComponent,
-  tags: ['autodocs'],
   argTypes: {
     title: { control: 'text' },
     description: { control: 'text' },

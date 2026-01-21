@@ -4,7 +4,7 @@ import type { RangeModel, RangeColor, RangeSize, RangeOrientation } from '../../
 import { ref } from 'vue'
 
 const meta = {
-  title: 'UI/Range',
+  title: 'Form/Range',
   component: RangeComponent,
   tags: ['autodocs'],
   argTypes: {

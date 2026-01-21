@@ -3,7 +3,7 @@ import ProgressComponent from '../../components/progress/ProgressComponent.vue'
 import type { ProgressModel, ProgressSize, ProgressColor, ProgressOrientation, ProgressAnimation } from '../../components/progress/model'
 
 const meta = {
-  title: 'UI/Progress',
+  title: 'Element/Progress',
   component: ProgressComponent,
   tags: ['autodocs'],
   argTypes: {

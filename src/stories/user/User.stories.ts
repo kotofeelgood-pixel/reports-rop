@@ -3,7 +3,7 @@ import UserComponent from '../../components/user/UserComponent.vue'
 import type { UserModel, UserSize, UserOrientation } from '../../components/user/model'
 
 const meta = {
-  title: 'UI/User',
+  title: 'Data/User',
   component: UserComponent,
   tags: ['autodocs'],
   argTypes: {

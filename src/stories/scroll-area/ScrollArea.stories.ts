@@ -4,7 +4,7 @@ import type { ScrollAreaModel } from '../../components/scroll-area/model'
 import { ref } from 'vue'
 
 const meta = {
-  title: 'UI/ScrollArea',
+  title: 'Data/ScrollArea',
   component: ScrollAreaComponent,
   tags: ['autodocs'],
   argTypes: {

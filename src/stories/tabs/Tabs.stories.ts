@@ -10,7 +10,7 @@ import FolderIcon from '@bitrix24/b24icons-vue/outline/FolderIcon'
 import RocketIcon from '@bitrix24/b24icons-vue/main/RocketIcon'
 
 const meta = {
-  title: 'UI/Tabs',
+  title: 'Navigation/Tabs',
   component: TabsComponent,
   tags: ['autodocs'],
   argTypes: {

@@ -6,7 +6,7 @@ import LocationIcon from '@bitrix24/b24icons-vue/outline/LocationIcon'
 import DeliveryIcon from '@bitrix24/b24icons-vue/outline/DeliveryIcon'
 
 const meta = {
-  title: 'UI/Stepper',
+  title: 'Navigation/Stepper',
   component: StepperComponent,
   tags: ['autodocs'],
   argTypes: {

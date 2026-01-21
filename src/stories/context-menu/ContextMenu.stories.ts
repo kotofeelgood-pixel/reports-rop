@@ -12,7 +12,7 @@ import FileIcon from '@bitrix24/b24icons-vue/outline/FileIcon'
 import SpinnerIcon from '@bitrix24/b24icons-vue/specialized/SpinnerIcon'
 
 const meta = {
-  title: 'UI/ContextMenu',
+  title: 'Overlay/ContextMenu',
   component: ContextMenuComponent,
   tags: ['autodocs'],
   argTypes: {

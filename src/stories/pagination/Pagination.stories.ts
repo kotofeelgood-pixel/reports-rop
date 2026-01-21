@@ -4,7 +4,7 @@ import type { PaginationModel, PaginationColor, PaginationActiveColor, Paginatio
 import { ref } from 'vue'
 
 const meta = {
-  title: 'UI/Pagination',
+  title: 'Navigation/Pagination',
   component: PaginationComponent,
   tags: ['autodocs'],
   argTypes: {

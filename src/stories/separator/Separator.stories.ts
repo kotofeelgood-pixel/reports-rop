@@ -4,7 +4,7 @@ import type { SeparatorModel, SeparatorOrientation, SeparatorAccent, SeparatorSi
 import RocketIcon from '@bitrix24/b24icons-vue/main/RocketIcon'
 
 const meta = {
-  title: 'UI/Separator',
+  title: 'Element/Separator',
   component: SeparatorComponent,
   tags: ['autodocs'],
   argTypes: {

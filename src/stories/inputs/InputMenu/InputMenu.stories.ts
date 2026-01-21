@@ -3,7 +3,7 @@ import InputMenuComponent from '../../../../components/inputs/InputMenu/InputMen
 import type { InputSize, InputColor, TagColor, InputMenuModel } from '../../../components/inputs/InputMenu/model'
 
 const meta = {
-  title: 'UI/Inputs/InputMenu',
+  title: 'Form/InputMenu',
   component: InputMenuComponent,
   tags: ['autodocs'],
   argTypes: {

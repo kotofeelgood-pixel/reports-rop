@@ -10,7 +10,7 @@ import RocketIcon from '@bitrix24/b24icons-vue/main/RocketIcon'
 import PlusIcon from '@bitrix24/b24icons-vue/outline/PlusIcon'
 
 const meta = {
-  title: 'UI/Empty',
+  title: 'Data/Empty',
   component: EmptyComponent,
   tags: ['autodocs'],
   argTypes: {

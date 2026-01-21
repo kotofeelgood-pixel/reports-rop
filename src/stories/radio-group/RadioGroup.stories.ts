@@ -5,7 +5,7 @@ import type { RadioGroupItem } from '@bitrix24/b24ui-nuxt'
 import { ref } from 'vue'
 
 const meta = {
-  title: 'UI/RadioGroup',
+  title: 'Form/RadioGroup',
   component: RadioGroupComponent,
   tags: ['autodocs'],
   argTypes: {

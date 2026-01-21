@@ -5,7 +5,7 @@ import type { AvatarGroupModel } from '../../components/avatar-group/model'
 import type { AvatarSize } from '../avatar/model'
 
 const meta = {
-  title: 'UI/AvatarGroup',
+  title: 'Element/AvatarGroup',
   component: AvatarGroupComponent,
   tags: ['autodocs'],
   argTypes: {

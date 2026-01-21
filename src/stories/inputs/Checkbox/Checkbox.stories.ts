@@ -3,7 +3,7 @@ import CheckboxComponent from '../../../../components/inputs/Checkbox/CheckboxCo
 import type { CheckboxSize, CheckboxColor, CheckboxVariant, CheckboxIndicator } from '../../../components/inputs/Checkbox/model'
 
 const meta = {
-  title: 'UI/Inputs/Checkbox',
+  title: 'Form/Checkbox',
   component: CheckboxComponent,
   tags: ['autodocs'],
   argTypes: {

@@ -7,7 +7,7 @@ import AiStarsIcon from '@bitrix24/b24icons-vue/outline/AiStarsIcon'
 import RocketIcon from '@bitrix24/b24icons-vue/outline/RocketIcon'
 
 const meta = {
-  title: 'UI/PageLinks',
+  title: 'Page/PageLinks',
   component: PageLinksComponent,
   tags: ['autodocs'],
   argTypes: {

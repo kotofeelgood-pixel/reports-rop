@@ -9,7 +9,7 @@ import Shield2DefendedIcon from '@bitrix24/b24icons-vue/main/Shield2DefendedIcon
 import { ref } from 'vue'
 
 const meta = {
-  title: 'UI/SelectMenu',
+  title: 'Form/SelectMenu',
   component: SelectMenuComponent,
   tags: ['autodocs'],
   argTypes: {

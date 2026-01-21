@@ -3,7 +3,7 @@ import CheckboxGroupComponent from '../../../../components/inputs/CheckboxGroup/
 import type { CheckboxSize, CheckboxColor, CheckboxGroupVariant, CheckboxGroupOrientation, CheckboxIndicator } from '../../../components/inputs/CheckboxGroup/model'
 
 const meta = {
-  title: 'UI/Inputs/CheckboxGroup',
+  title: 'Form/CheckboxGroup',
   component: CheckboxGroupComponent,
   tags: ['autodocs'],
   argTypes: {

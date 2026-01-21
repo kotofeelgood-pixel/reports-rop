@@ -27,7 +27,7 @@ import NodeIcon from '@bitrix24/b24icons-vue/file-type/NodeIcon'
 import CrmSearchIcon from '@bitrix24/b24icons-vue/crm/CrmSearchIcon'
 
 const meta = {
-  title: 'UI/CommandPalette',
+  title: 'Navigation/CommandPalette',
   component: CommandPaletteComponent,
   tags: ['autodocs'],
   argTypes: {

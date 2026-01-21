@@ -5,7 +5,7 @@ import type { TableColumn } from '@bitrix24/b24ui-nuxt'
 import { h, resolveComponent } from 'vue'
 
 const meta = {
-  title: 'UI/Table',
+  title: 'Data/Table',
   component: TableComponent,
   tags: ['autodocs'],
   argTypes: {

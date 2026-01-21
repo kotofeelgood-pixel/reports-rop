@@ -5,11 +5,12 @@ import SmartActivityIcon from '@bitrix24/b24icons-vue/outline/SmartActivityIcon'
 import FeedbackIcon from '@bitrix24/b24icons-vue/outline/FeedbackIcon'
 import RocketIcon from '@bitrix24/b24icons-vue/outline/RocketIcon'
 import type { AccordionItem } from '@bitrix24/b24ui-nuxt'
+import { commonMeta } from '../meta'
 
 const meta = {
-  title: 'UI/Accordion',
+  ...commonMeta,
+  title: 'Data/Accordion',
   component: AccordionComponent,
-  tags: ['autodocs'],
   argTypes: {
     items: { control: 'object' },
     trailingIcon: { control: 'object' },

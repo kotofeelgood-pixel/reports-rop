@@ -3,7 +3,7 @@ import ColorModeSwitchComponent from '../../components/color-mode-switch/ColorMo
 import type { ColorModeSwitchModel, ColorModeSwitchSize, ColorModeSwitchColor } from '../../components/color-mode-switch/model'
 
 const meta = {
-  title: 'UI/ColorModeSwitch',
+  title: 'Color Mode/ColorModeSwitch',
   component: ColorModeSwitchComponent,
   tags: ['autodocs'],
   argTypes: {

@@ -6,7 +6,7 @@ import { ref } from 'vue'
 import RocketIcon from '@bitrix24/b24icons-vue/main/RocketIcon'
 
 const meta = {
-  title: 'UI/Modal',
+  title: 'Overlay/Modal',
   component: ModalComponent,
   tags: ['autodocs'],
   argTypes: {

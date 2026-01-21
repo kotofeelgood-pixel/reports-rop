@@ -13,7 +13,7 @@ const jitiStubPlugin = (): Plugin => {
     },
     load(id) {
       if (id === '\0jiti-stub') {
-        return 'export default {}; export const createJiti = () => ({});'
+        return 'export default {}; export const createJiti = () => ({}); export const jiti = () => ({});'
       }
       return null
     },
@@ -22,18 +22,21 @@ const jitiStubPlugin = (): Plugin => {
 
 const config: StorybookConfig = {
   "stories": [
-    "../src/**/*.mdx",
     "../src/**/*.stories.@(js|jsx|mjs|ts|tsx)"
   ],
-  "addons": [
-    "@storybook/addon-docs"
-  ],
+  "addons": [],
   "framework": "@storybook/vue3-vite",
   async viteFinal(config) {
     return mergeConfig(config, {
       plugins: [jitiStubPlugin()],
       optimizeDeps: {
         exclude: ['jiti'],
+        include: [],
+      },
+      resolve: {
+        alias: {
+          'jiti': '\0jiti-stub',
+        },
       },
       build: {
         rollupOptions: {

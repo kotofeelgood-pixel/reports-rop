@@ -6,7 +6,7 @@ import RocketIcon from '@bitrix24/b24icons-vue/main/RocketIcon'
 import CircleCrossIcon from '@bitrix24/b24icons-vue/outline/CircleCrossIcon'
 
 const meta = {
-  title: 'UI/Banner',
+  title: 'Element/Banner',
   component: BannerComponent,
   tags: ['autodocs'],
   argTypes: {

@@ -1,11 +1,12 @@
 import type { Meta, StoryObj } from '@storybook/vue3-vite'
 import ButtonComponent from '../../components/buttons/ButtonComponent.vue'
 import type { ButtonSize, ButtonColor } from '../../components/buttons/model'
+import { commonMeta } from '../meta'
 
 const meta = {
-  title: 'UI/Buttons/Button',
+  ...commonMeta,
+  title: 'Element/Button',
   component: ButtonComponent,
-  tags: ['autodocs'],
   argTypes: {
     label: { control: 'text' },
     size: {

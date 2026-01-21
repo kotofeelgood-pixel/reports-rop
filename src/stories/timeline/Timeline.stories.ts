@@ -8,7 +8,7 @@ import MoreMIcon from '@bitrix24/b24icons-vue/outline/MoreMIcon'
 import InfoIcon from '@bitrix24/b24icons-vue/button/InfoIcon'
 
 const meta = {
-  title: 'UI/Timeline',
+  title: 'Data/Timeline',
   component: TimelineComponent,
   tags: ['autodocs'],
   argTypes: {

@@ -1,5 +1,5 @@
 <template>
-  <B24App :toaster="{}">
+  <B24App>
     <slot />
   </B24App>
 </template>

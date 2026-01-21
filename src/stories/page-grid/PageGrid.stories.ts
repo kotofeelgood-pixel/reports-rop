@@ -7,7 +7,7 @@ import TaskIcon from '@bitrix24/b24icons-vue/outline/TaskIcon'
 import HrAutomationIcon from '@bitrix24/b24icons-vue/main/HrAutomationIcon'
 
 const meta = {
-  title: 'UI/PageGrid',
+  title: 'Page/PageGrid',
   component: PageGridComponent,
   tags: ['autodocs'],
   argTypes: {

@@ -5,7 +5,7 @@ import RocketIcon from '@bitrix24/b24icons-vue/main/RocketIcon'
 import { ref } from 'vue'
 
 const meta = {
-  title: 'UI/Textarea',
+  title: 'Form/Textarea',
   component: TextareaComponent,
   tags: ['autodocs'],
   argTypes: {

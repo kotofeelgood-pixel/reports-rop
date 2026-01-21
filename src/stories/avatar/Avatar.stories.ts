@@ -4,7 +4,7 @@ import type { AvatarModel, AvatarSize } from '../../components/avatar/model'
 import RocketIcon from '@bitrix24/b24icons-vue/main/RocketIcon'
 
 const meta = {
-  title: 'UI/Avatar',
+  title: 'Element/Avatar',
   component: AvatarComponent,
   tags: ['autodocs'],
   argTypes: {

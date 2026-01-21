@@ -4,7 +4,7 @@ import type { PinInputModel, PinInputColor, PinInputSize, PinInputType } from '.
 import { ref } from 'vue'
 
 const meta = {
-  title: 'UI/PinInput',
+  title: 'Form/PinInput',
   component: PinInputComponent,
   tags: ['autodocs'],
   argTypes: {

@@ -1,14 +1,16 @@
 import type { Meta, StoryObj } from '@storybook/vue3-vite'
+import { ref } from 'vue'
 import FileUploadComponent from '../../components/file-upload/FileUploadComponent.vue'
 import type { FileUploadModel, FileUploadColor, FileUploadVariant, FileUploadSize, FileUploadLayout, FileUploadPosition } from '../../components/file-upload/model'
 import RocketIcon from '@bitrix24/b24icons-vue/main/RocketIcon'
 import ImageIcon from '@bitrix24/b24icons-vue/outline/ImageIcon'
 import UploadIcon from '@bitrix24/b24icons-vue/outline/UploadIcon'
+import { commonMeta } from '../meta'
 
 const meta = {
-  title: 'UI/FileUpload',
+  ...commonMeta,
+  title: 'Form/FileUpload',
   component: FileUploadComponent,
-  tags: ['autodocs'],
   argTypes: {
     id: { control: 'text' },
     name: { control: 'text' },
@@ -421,8 +423,6 @@ export const WithDefaultSlot: Story = {
   render: (args) => ({
     components: { FileUploadComponent },
     setup() {
-      // eslint-disable-next-line @typescript-eslint/no-var-requires
-      const { ref } = require('vue')
       const file = ref<File | null>(null)
       
       function createObjectUrl(file: File | null): string | undefined {

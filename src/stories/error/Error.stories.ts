@@ -4,11 +4,12 @@ import type { ErrorModel } from '../../components/error/model'
 import type { ButtonProps } from '@bitrix24/b24ui-nuxt'
 import RocketIcon from '@bitrix24/b24icons-vue/main/RocketIcon'
 import HomeIcon from '@bitrix24/b24icons-vue/outline/HomeIcon'
+import { commonMeta } from '../meta'
 
 const meta = {
-  title: 'UI/Error',
+  ...commonMeta,
+  title: 'Layout/Error',
   component: ErrorComponent,
-  tags: ['autodocs'],
   argTypes: {
     error: { control: 'object' },
     redirect: { control: 'text' },

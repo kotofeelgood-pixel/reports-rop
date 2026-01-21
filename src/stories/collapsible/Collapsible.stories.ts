@@ -3,7 +3,7 @@ import CollapsibleComponent from '../../components/collapsible/CollapsibleCompon
 import type { CollapsibleModel } from '../../components/collapsible/model'
 
 const meta = {
-  title: 'UI/Collapsible',
+  title: 'Element/Collapsible',
   component: CollapsibleComponent,
   tags: ['autodocs'],
   argTypes: {

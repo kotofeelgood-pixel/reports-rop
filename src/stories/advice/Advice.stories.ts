@@ -3,11 +3,12 @@ import AdviceComponent from '../../components/advice/AdviceComponent.vue'
 import type { AdviceModel, AdviceAngle } from '../../components/advice/model'
 import RocketIcon from '@bitrix24/b24icons-vue/main/RocketIcon'
 import DotsIcon from '@bitrix24/b24icons-vue/button/DotsIcon'
+import { commonMeta } from '../meta'
 
 const meta = {
-  title: 'UI/Advice',
+  ...commonMeta,
+  title: 'Element/Advice',
   component: AdviceComponent,
-  tags: ['autodocs'],
   argTypes: {
     description: { control: 'text' },
     icon: { control: 'object' },

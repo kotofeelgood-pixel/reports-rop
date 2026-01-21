@@ -45,7 +45,6 @@ const router = createRouter({
 setup((app) => {
   app.use(b24UiPlugin)
   app.use(router)
-  // Регистрируем useToast глобально
 })
 
 const preview: Preview = {

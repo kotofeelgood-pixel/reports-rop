@@ -4,7 +4,7 @@ import type { BadgeModel, BadgeColor, BadgeSize } from '../../components/badge/m
 import RocketIcon from '@bitrix24/b24icons-vue/main/RocketIcon'
 
 const meta = {
-  title: 'UI/Badge',
+  title: 'Element/Badge',
   component: BadgeComponent,
   tags: ['autodocs'],
   argTypes: {

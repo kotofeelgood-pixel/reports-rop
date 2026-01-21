@@ -1,11 +1,12 @@
 import type { Meta, StoryObj } from '@storybook/vue3-vite'
 import InputComponent from '../../../components/inputs/InputComponent.vue'
 import type { InputSize, InputColor, InputType, TagColor } from '../../components/inputs/Input/model'
+import { commonMeta } from '../../meta'
 
 const meta = {
-  title: 'UI/Inputs/Input',
+  ...commonMeta,
+  title: 'Form/Input',
   component: InputComponent,
-  tags: ['autodocs'],
   argTypes: {
     id: { control: 'text' },
     name: { control: 'text' },

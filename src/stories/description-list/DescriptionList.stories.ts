@@ -10,7 +10,7 @@ import Calendar1Icon from '@bitrix24/b24icons-vue/main/Calendar1Icon'
 import CreditDebitCardIcon from '@bitrix24/b24icons-vue/main/CreditDebitCardIcon'
 
 const meta = {
-  title: 'UI/DescriptionList',
+  title: 'Data/DescriptionList',
   component: DescriptionListComponent,
   tags: ['autodocs'],
   argTypes: {

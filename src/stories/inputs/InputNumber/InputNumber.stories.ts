@@ -3,7 +3,7 @@ import InputNumberComponent from '../../../../components/inputs/InputNumber/Inpu
 import type { InputSize, InputColor, TagColor, InputNumberOrientation } from '../../../components/inputs/InputNumber/model'
 
 const meta = {
-  title: 'UI/Inputs/InputNumber',
+  title: 'Form/InputNumber',
   component: InputNumberComponent,
   tags: ['autodocs'],
   argTypes: {
