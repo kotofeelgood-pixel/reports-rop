@@ -2,27 +2,24 @@
 import type { RadioGroupModel } from './model';
 
 const props = defineProps<RadioGroupModel>();
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const modelValue = defineModel<any>('modelValue');
 
-defineEmits<{
-  'update:modelValue': [value: any];
-  change: [event: Event];
-}>();
-
 defineSlots<{
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   legend?: () => any;
-  label?: (props: { label?: string }) => any;
-  description?: (props: { description?: string }) => any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  label?: (props: { label?: string; item?: any }) => any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  description?: (props: { description?: string; [key: string]: any }) => any;
 }>();
 
 </script>
 
 <template>
   <B24RadioGroup
-    v-bind="props"
+    v-bind="props as any"
     v-model="modelValue"
-    @update:model-value="$emit('update:modelValue', $event)"
-    @change="$emit('change', $event)"
   >
     <template
       v-if="$slots.legend"

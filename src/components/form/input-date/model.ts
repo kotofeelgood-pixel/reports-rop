@@ -1,10 +1,9 @@
-import type { AcceptableInputValue } from '@bitrix24/b24ui-nuxt';
+import type { AcceptableValue } from '@bitrix24/b24ui-nuxt';
 
 export interface InputDateModel {
   as?: any;
-  defaultValue?: AcceptableInputValue;
-  modelValue?: AcceptableInputValue | null;
-  placeholder?: string;
+  defaultValue?: AcceptableValue;
+  modelValue?: AcceptableValue | null;
   disabled?: boolean;
   readonly?: boolean;
   required?: boolean;
