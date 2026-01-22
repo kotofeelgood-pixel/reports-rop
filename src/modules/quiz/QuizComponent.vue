@@ -55,7 +55,7 @@ const handleGenerateReport = () => {
 </script>
 
 <template>
-  <div class="min-h-dvh bg-white dark:bg-gray-900 p-6">
+  <div class="min-h-dvh bg-white dark:bg-gray-900 py-6 px-2">
     <div class="mx-auto space-y-6 w-full max-w-[1800px]">
       <!-- Заголовок и переключатель темы -->
       <div class="flex justify-between items-center mb-4">
