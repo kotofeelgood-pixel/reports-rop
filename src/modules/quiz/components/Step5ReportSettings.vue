@@ -2,7 +2,6 @@
 import CheckboxComponent from '@/components/inputs/Checkbox/CheckboxComponent.vue'
 import InputNumberComponent from '@/components/inputs/InputNumber/InputNumberComponent.vue'
 import BannerComponent from '@/components/banner/BannerComponent.vue'
-import ScrollAreaComponent from '@/components/scroll-area/ScrollAreaComponent.vue'
 
 export interface ReportSettingsModel {
   hideCallsSection: boolean
