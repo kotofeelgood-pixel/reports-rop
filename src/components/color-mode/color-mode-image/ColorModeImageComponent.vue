@@ -1,5 +1,7 @@
 <script lang="ts" setup>
+import { useSlots } from 'vue'
 
+const slots = useSlots()
 </script>
 
 <template>
@@ -9,7 +11,7 @@
     dark=""
   >
     <template
-      v-for="(_, slot) in ($slots as any)"
+      v-for="(_, slot) in slots"
       :key="slot"
       v-slot:[slot]="scope"
     >

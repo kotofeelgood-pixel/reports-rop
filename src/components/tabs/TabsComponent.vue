@@ -1,5 +1,7 @@
 <script lang="ts" setup>
-import { useTemplateRef } from 'vue';
+import { useTemplateRef, useSlots } from 'vue';
+
+const slots = useSlots()
 
 defineEmits<{
   'update:modelValue': [payload: string | number];
@@ -22,7 +24,7 @@ defineExpose({
     @update:model-value="$emit('update:modelValue', $event)"
   >
     <template
-      v-for="(_, slot) in ($slots as any)"
+      v-for="(_, slot) in slots"
       :key="slot"
       v-slot:[slot]="scope"
     >
