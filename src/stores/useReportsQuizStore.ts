@@ -138,6 +138,7 @@ export const useReportQuizStore = defineStore('reportQuiz', () => {
   // Состояние загрузки
   const isLoading = ref<boolean>(false)
   const loadingError = ref<string | null>(null)
+  const loadErrors = ref<Record<string, string>>({})
 
   // Функция для вызова Bitrix24 API
   const callBitrixMethod = (
@@ -151,12 +152,38 @@ export const useReportQuizStore = defineStore('reportQuiz', () => {
       }
 
       window.BX24.callMethod(method, params, (result) => {
+        // Проверяем наличие ошибки в разных местах ответа
         if (result.error) {
           reject(new Error(String(result.error)))
-        } else {
-          const answer = result.answer as { result?: unknown } | unknown
-          resolve((answer && typeof answer === 'object' && 'result' in answer) ? answer.result : answer)
+          return
         }
+
+        // Обрабатываем ответ
+        const answer = result.answer as { result?: unknown; error?: unknown; ex?: unknown } | unknown
+        
+        // Если answer - это объект с ошибкой
+        if (answer && typeof answer === 'object') {
+          if ('error' in answer && answer.error) {
+            reject(new Error(String(answer.error)))
+            return
+          }
+          if ('ex' in answer && answer.ex) {
+            // ex может быть функцией или объектом с ошибкой
+            const errorValue = typeof answer.ex === 'function' 
+              ? 'Ошибка выполнения запроса' 
+              : String(answer.ex)
+            reject(new Error(errorValue))
+            return
+          }
+          // Если есть result, возвращаем его
+          if ('result' in answer && answer.result !== undefined) {
+            resolve(answer.result)
+            return
+          }
+        }
+        
+        // Если answer не объект или не содержит result, возвращаем сам answer
+        resolve(answer)
       })
     })
   }
@@ -217,8 +244,12 @@ export const useReportQuizStore = defineStore('reportQuiz', () => {
         }))
         // Обновляем выбранные направления
         dealDirections.value = dealDirectionsList.value.map(d => d.value)
+        // Удаляем ошибку, если загрузка успешна
+        delete loadErrors.value.dealCategories
       }
     } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Неизвестная ошибка'
+      loadErrors.value.dealCategories = `Ошибка загрузки категорий сделок: ${errorMessage}`
       console.error('Ошибка загрузки категорий сделок:', error)
     }
   }
@@ -241,8 +272,12 @@ export const useReportQuizStore = defineStore('reportQuiz', () => {
             value: (status.STATUS_ID || status.statusId || '') as string,
           })),
         ]
+        // Удаляем ошибку, если загрузка успешна
+        delete loadErrors.value.funnelStages
       }
     } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Неизвестная ошибка'
+      loadErrors.value.funnelStages = `Ошибка загрузки статусов воронки: ${errorMessage}`
       console.error('Ошибка загрузки статусов воронки:', error)
     }
   }
@@ -253,7 +288,11 @@ export const useReportQuizStore = defineStore('reportQuiz', () => {
       const result = await callBitrixMethod('app.option.get', {})
       console.log('App options loaded:', result)
       // Настройки приложения можно использовать для других целей
+      // Удаляем ошибку, если загрузка успешна
+      delete loadErrors.value.appOptions
     } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Неизвестная ошибка'
+      loadErrors.value.appOptions = `Ошибка загрузки настроек приложения: ${errorMessage}`
       console.error('Ошибка загрузки настроек приложения:', error)
     }
   }
@@ -394,6 +433,7 @@ export const useReportQuizStore = defineStore('reportQuiz', () => {
     currentStep,
     isLoading,
     loadingError,
+    loadErrors,
 
     // Computed
     allDirectionsSelected,

@@ -11,7 +11,7 @@ import QuizStepsIndicator from './components/QuizStepsIndicator.vue'
 import QuizNavigation from './components/QuizNavigation.vue'
 import ColorModeSwitchComponent from '@/components/color-mode-switch/ColorModeSwitchComponent.vue'
 
-const { currentStep, reportModes, dealDirectionsList, dealDirections, reportMode, funnelStages, funnelStage, hideCallsSection, hideLeadsSection, hideDealsSection, effectiveCallSeconds, isLoading, loadingError } = useReportQuizStoreRefs()
+const { currentStep, reportModes, dealDirectionsList, dealDirections, reportMode, funnelStages, funnelStage, hideCallsSection, hideLeadsSection, hideDealsSection, effectiveCallSeconds, isLoading, loadingError, loadErrors } = useReportQuizStoreRefs()
 const { generateReport, initializeQuiz } = useReportQuizStore()
 
 // Инициализация при монтировании компонента
@@ -81,6 +81,54 @@ const handleGenerateReport = () => {
           size="md"
         />
       </div>
+
+      <!-- Отображение ошибок загрузки -->
+      <div v-if="Object.keys(loadErrors).length > 0" class="space-y-2">
+        <div
+          v-for="(error, key) in loadErrors"
+          :key="key"
+          class="rounded-lg bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 p-4"
+        >
+          <div class="flex items-start">
+            <div class="flex-shrink-0">
+              <svg class="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+              </svg>
+            </div>
+            <div class="ml-3 flex-1">
+              <p class="text-sm font-medium text-red-800 dark:text-red-200">
+                {{ error }}
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Общая ошибка загрузки -->
+      <div
+        v-if="loadingError"
+        class="rounded-lg bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 p-4"
+      >
+        <div class="flex items-start">
+          <div class="flex-shrink-0">
+            <svg class="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+              <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+            </svg>
+          </div>
+          <div class="ml-3 flex-1">
+            <p class="text-sm font-medium text-red-800 dark:text-red-200">
+              {{ loadingError }}
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Индикатор загрузки -->
+      <div v-if="isLoading" class="flex items-center justify-center p-8">
+        <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+        <span class="ml-3 text-gray-700 dark:text-gray-300">Загрузка данных...</span>
+      </div>
+
       <QuizStepsIndicator
         :steps="steps"
         v-model="currentStep"
