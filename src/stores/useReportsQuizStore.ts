@@ -280,17 +280,39 @@ export const useReportQuizStore = defineStore('reportQuiz', () => {
     }
   }
 
+  // Ожидание загрузки BX24 API
+  const waitForBX24 = (maxAttempts = 50, interval = 100): Promise<void> => {
+    return new Promise((resolve, reject) => {
+      let attempts = 0
+
+      const checkBX24 = () => {
+        if (window.BX24 && typeof window.BX24.init === 'function') {
+          resolve()
+        } else if (attempts >= maxAttempts) {
+          reject(new Error('BX24 API не загрузился за отведенное время'))
+        } else {
+          attempts++
+          setTimeout(checkBX24, interval)
+        }
+      }
+
+      checkBX24()
+    })
+  }
+
   // Инициализация и загрузка всех данных
   const initializeQuiz = async () => {
-    if (!window.BX24) {
-      console.warn('BX24 не доступен')
-      return
-    }
-
     isLoading.value = true
     loadingError.value = null
 
     try {
+      // Ждем загрузки BX24 API
+      await waitForBX24()
+
+      if (!window.BX24) {
+        throw new Error('BX24 не доступен после ожидания')
+      }
+
       window.BX24.init(async () => {
         try {
           // Загружаем все необходимые данные параллельно
