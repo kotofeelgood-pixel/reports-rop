@@ -159,7 +159,6 @@ const selectedEmployeesCount = computed(() => {
             type="date"
             class="flex-1"
           />
-          <span class="text-gray-500 dark:text-gray-400">—</span>
           <InputComponent
             v-model="endDate"
             type="date"
