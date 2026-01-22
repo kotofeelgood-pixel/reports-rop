@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/vue3-vite'
 import DescriptionListComponent from '../../components/description-list/DescriptionListComponent.vue'
-import type { DescriptionListModel, DescriptionListSize } from '../../components/description-list/model'
+
 import type { DescriptionListItem, ButtonProps } from '@bitrix24/b24ui-nuxt'
 import SignIcon from '@bitrix24/b24icons-vue/main/SignIcon'
 import PersonIcon from '@bitrix24/b24icons-vue/main/PersonIcon'
@@ -21,7 +21,7 @@ const meta = {
     items: { control: 'object' },
     size: {
       control: 'select',
-      options: ['md', 'sm'] as DescriptionListSize[],
+      options: ['md', 'sm'],
     },
   },
   args: {
@@ -36,15 +36,13 @@ const meta = {
         label: 'Событие',
         description: 'Оплата производится через Atol online',
       },
-    ] as DescriptionListItem[],
+    ],
     size: 'md',
-  } as Partial<DescriptionListModel>,
+  },
 } as Meta<typeof DescriptionListComponent>
 
 export default meta
-type Story = StoryObj<typeof meta> & {
-  args?: Partial<DescriptionListModel>
-}
+type Story = StoryObj<typeof meta>
 
 export const Default: Story = {
   args: {
@@ -59,7 +57,7 @@ export const Default: Story = {
         label: 'Событие',
         description: 'Оплата производится через Atol online',
       },
-    ] as DescriptionListItem[],
+    ],
   },
 }
 
@@ -74,7 +72,7 @@ export const WithoutLegend: Story = {
         label: 'Событие',
         description: 'Оплата производится через Atol online',
       },
-    ] as DescriptionListItem[],
+    ],
   },
 }
 
@@ -90,7 +88,7 @@ export const WithoutText: Story = {
         label: 'Событие',
         description: 'Оплата производится через Atol online',
       },
-    ] as DescriptionListItem[],
+    ],
   },
 }
 
@@ -108,7 +106,7 @@ export const Small: Story = {
         label: 'Событие',
         description: 'Оплата производится через Atol online',
       },
-    ] as DescriptionListItem[],
+    ],
   },
 }
 
@@ -133,7 +131,7 @@ export const WithIcons: Story = {
         description: 'Описание 1.3',
         icon: SignIcon,
       },
-    ] as DescriptionListItem[],
+    ],
   },
 }
 
@@ -162,7 +160,7 @@ export const WithAvatars: Story = {
           src: 'https://github.com/bitrix24.png',
         },
       },
-    ] as DescriptionListItem[],
+    ],
   },
 }
 
@@ -182,7 +180,7 @@ export const WithActions: Story = {
               console.log('Действие нажато')
             },
           },
-        ] as ButtonProps[],
+        ],
         orientation: 'horizontal' as DescriptionListItem['orientation'],
       },
       {
@@ -196,7 +194,7 @@ export const WithActions: Story = {
               console.log('Действие нажато')
             },
           },
-        ] as ButtonProps[],
+        ],
         orientation: 'horizontal' as DescriptionListItem['orientation'],
       },
       {
@@ -210,7 +208,7 @@ export const WithActions: Story = {
               console.log('Действие нажато')
             },
           },
-        ] as ButtonProps[],
+        ],
         orientation: 'horizontal' as DescriptionListItem['orientation'],
       },
       {
@@ -246,10 +244,10 @@ export const WithActions: Story = {
               console.log('И еще одно нажато')
             },
           },
-        ] as ButtonProps[],
+        ],
         orientation: 'vertical' as DescriptionListItem['orientation'],
       },
-    ] as DescriptionListItem[],
+    ],
   },
 }
 
@@ -268,7 +266,7 @@ export const WithCustomKeys: Story = {
         title: 'Событие',
         info: 'Оплата производится через Atol online',
       },
-    ] as any[],
+    ],
   },
 }
 
@@ -311,7 +309,7 @@ export const WithCustomSlot: Story = {
         icon: CreditDebitCardIcon,
         description: 'Оплачено картой MasterCard',
       },
-    ] as any[],
+    ],
   },
   render: (args) => ({
     components: { DescriptionListComponent },
@@ -353,4 +351,3 @@ export const WithCustomSlot: Story = {
       </DescriptionListComponent>
     `,
   }),
-}

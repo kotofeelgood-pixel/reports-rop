@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/vue3-vite'
 import PaginationComponent from '../../components/pagination/PaginationComponent.vue'
-import type { PaginationModel, PaginationColor, PaginationActiveColor, PaginationSize } from '../../components/pagination/model'
+
 import { ref } from 'vue'
 
 const meta = {
@@ -27,7 +27,7 @@ const meta = {
         'air-selection',
         'air-boost',
         'link',
-      ] as PaginationColor[],
+      ],
     },
     activeColor: {
       control: 'select',
@@ -56,11 +56,11 @@ const meta = {
         'collab',
         'ai',
         'link',
-      ] as PaginationActiveColor[],
+      ],
     },
     size: {
       control: 'select',
-      options: ['xss', 'xs', 'sm', 'md', 'lg', 'xl'] as PaginationSize[],
+      options: ['xss', 'xs', 'sm', 'md', 'lg', 'xl'],
     },
     total: { control: 'number' },
     itemsPerPage: { control: 'number' },
@@ -78,13 +78,11 @@ const meta = {
     color: 'air-secondary-no-accent',
     activeColor: 'air-primary',
     size: 'md',
-  } as Partial<PaginationModel>,
+  },
 } as Meta<typeof PaginationComponent>
 
 export default meta
-type Story = StoryObj<typeof meta> & {
-  args?: Partial<PaginationModel>
-}
+type Story = StoryObj<typeof meta>
 
 export const Default: Story = {
   args: {
@@ -625,4 +623,3 @@ export const CustomColors: Story = {
       </div>
     `,
   }),
-}

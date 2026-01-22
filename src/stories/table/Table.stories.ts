@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/vue3-vite'
 import TableComponent from '../../components/table/TableComponent.vue'
-import type { TableModel, TableLoadingColor, TableLoadingAnimation, TableSticky } from '../../components/table/model'
+
 import type { TableColumn } from '@bitrix24/b24ui-nuxt'
 import { h, resolveComponent } from 'vue'
 
@@ -26,11 +26,11 @@ const meta = {
         'air-primary-alert',
         'air-primary-copilot',
         'air-primary-warning',
-      ] as TableLoadingColor[],
+      ],
     },
     loadingAnimation: {
       control: 'select',
-      options: ['loading', 'carousel', 'carousel-inverse', 'swing', 'elastic'] as TableLoadingAnimation[],
+      options: ['loading', 'carousel', 'carousel-inverse', 'swing', 'elastic'],
     },
     virtualize: { control: 'boolean' },
   },
@@ -72,13 +72,11 @@ const meta = {
         amount: 639,
       },
     ],
-  } as Partial<TableModel>,
+  },
 } as Meta<typeof TableComponent>
 
 export default meta
-type Story = StoryObj<typeof meta> & {
-  args?: Partial<TableModel>
-}
+type Story = StoryObj<typeof meta>
 
 export const Default: Story = {
   args: {
@@ -186,7 +184,7 @@ export const WithColumns: Story = {
           return h('div', { class: 'text-right font-medium' }, formatted)
         },
       },
-    ] as TableColumn[],
+    ],
   },
 }
 
@@ -267,7 +265,7 @@ export const Sticky: Story = {
         accessorKey: 'amount',
         header: 'Сумма',
       },
-    ] as TableColumn[],
+    ],
   },
   render: (args) => ({
     components: { TableComponent },
@@ -314,7 +312,7 @@ export const StickyHeader: Story = {
         accessorKey: 'amount',
         header: 'Сумма',
       },
-    ] as TableColumn[],
+    ],
   },
   render: (args) => ({
     components: { TableComponent },
@@ -331,7 +329,7 @@ export const StickyHeader: Story = {
 
 export const Empty: Story = {
   args: {
-    data: [],
+    data= [],
     empty: 'Нет данных для отображения',
   },
 }
@@ -389,7 +387,7 @@ export const WithComplexColumns: Story = {
           },
         ]
         
-        const columns: TableColumn[] = [
+        const columns= [] = [
           {
             accessorKey: 'id',
             header: '#',
@@ -446,4 +444,3 @@ export const WithComplexColumns: Story = {
       `,
     }
   },
-}

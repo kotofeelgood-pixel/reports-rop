@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/vue3-vite'
 import ChipComponent from '../../../components/element/chip/ChipComponent.vue'
-import type { ChipModel } from '../../../components/element/chip/model'
+
 import { commonMeta } from '../../meta'
 
 const meta = {
@@ -20,13 +20,11 @@ const meta = {
   args: {
     variant: 'default',
     size: 'md',
-  } as Partial<ChipModel>,
+  ,},
 } as Meta<typeof ChipComponent>
 
 export default meta
-type Story = StoryObj<typeof meta> & {
-  args?: Partial<ChipModel>
-}
+type Story = StoryObj<typeof meta>
 
 export const Default: Story = {
   args: {
@@ -83,4 +81,3 @@ export const WithText: Story = {
       <ChipComponent v-bind="args">Новое</ChipComponent>
     `,
   }),
-}

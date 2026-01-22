@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/vue3-vite'
 import DropdownMenuComponent from '../../../components/overlay/dropdown-menu/DropdownMenuComponent.vue'
-import type { DropdownMenuModel } from '../../../components/overlay/dropdown-menu/model'
+
 import { commonMeta } from '../../meta'
 
 const meta = {
@@ -14,13 +14,11 @@ const meta = {
   args: {
     modal: true,
     disabled: false,
-  } as Partial<DropdownMenuModel>,
+  ,},
 } as Meta<typeof DropdownMenuComponent>
 
 export default meta
-type Story = StoryObj<typeof meta> & {
-  args?: Partial<DropdownMenuModel>
-}
+type Story = StoryObj<typeof meta>
 
 export const Default: Story = {
   args: {},
@@ -64,4 +62,3 @@ export const Disabled: Story = {
       </DropdownMenuComponent>
     `,
   }),
-}

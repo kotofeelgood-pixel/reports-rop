@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/vue3-vite'
 import SkeletonComponent from '../../../components/element/skeleton/SkeletonComponent.vue'
-import type { SkeletonModel } from '../../../components/element/skeleton/model'
+
 import { commonMeta } from '../../meta'
 
 const meta = {
@@ -8,13 +8,11 @@ const meta = {
   title: 'Element/Skeleton',
   component: SkeletonComponent,
   argTypes: {},
-  args: {} as Partial<SkeletonModel>,
+  args: {,},
 } as Meta<typeof SkeletonComponent>
 
 export default meta
-type Story = StoryObj<typeof meta> & {
-  args?: Partial<SkeletonModel>
-}
+type Story = StoryObj<typeof meta>
 
 export const Default: Story = {
   args: {},
@@ -75,4 +73,3 @@ export const Card: Story = {
       </div>
     `,
   }),
-}

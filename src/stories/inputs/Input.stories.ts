@@ -1,6 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/vue3-vite'
 import InputComponent from '../../components/inputs/InputComponent.vue'
-import type { InputSize, InputColor, InputType, TagColor } from '../../components/inputs/Input/model'
 
 const meta = {
   tags: ['autodocs'],
@@ -42,7 +41,7 @@ const meta = {
         'tel',
         'url',
         'week',
-      ] as InputType[],
+      ],
     },
     placeholder: { control: 'text' },
     color: {
@@ -53,11 +52,11 @@ const meta = {
         'air-primary-alert',
         'air-primary-warning',
         'air-primary-copilot',
-      ] as InputColor[],
+      ],
     },
     size: {
       control: 'select',
-      options: ['xss', 'xs', 'sm', 'md', 'lg', 'xl'] as InputSize[],
+      options: ['xss', 'xs', 'sm', 'md', 'lg', 'xl'],
     },
     noPadding: { control: 'boolean' },
     noBorder: { control: 'boolean' },
@@ -84,7 +83,7 @@ const meta = {
         'air-secondary-accent-2',
         'air-tertiary',
         'air-selection',
-      ] as TagColor[],
+      ],
     },
     highlight: { control: 'boolean' },
     modelValue: { control: 'text' },
@@ -221,4 +220,3 @@ export const File: Story = {
   args: {
     type: 'file',
   },
-}

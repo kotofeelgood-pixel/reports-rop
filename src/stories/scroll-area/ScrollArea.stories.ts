@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/vue3-vite'
 import ScrollAreaComponent from '../../components/scroll-area/ScrollAreaComponent.vue'
-import type { ScrollAreaModel } from '../../components/scroll-area/model'
+
 import { ref } from 'vue'
 
 const meta = {
@@ -22,13 +22,11 @@ const meta = {
       title: `Элемент ${i + 1}`,
       description: `Описание для элемента ${i + 1}`,
     })),
-  } as Partial<ScrollAreaModel>,
+  },
 } as Meta<typeof ScrollAreaComponent>
 
 export default meta
-type Story = StoryObj<typeof meta> & {
-  args?: Partial<ScrollAreaModel>
-}
+type Story = StoryObj<typeof meta>
 
 export const Default: Story = {
   args: {
@@ -359,4 +357,3 @@ export const InContext: Story = {
       </div>
     `,
   }),
-}

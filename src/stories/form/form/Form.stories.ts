@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/vue3-vite'
 import FormComponent from '../../../components/form/form/FormComponent.vue'
-import type { FormModel } from '../../../components/form/form/model'
+
 import { commonMeta } from '../../meta'
 
 const meta = {
@@ -8,13 +8,11 @@ const meta = {
   title: 'Form/Form',
   component: FormComponent,
   argTypes: {},
-  args: {} as Partial<FormModel>,
+  args: {,},
 } as Meta<typeof FormComponent>
 
 export default meta
-type Story = StoryObj<typeof meta> & {
-  args?: Partial<FormModel>
-}
+type Story = StoryObj<typeof meta>
 
 export const Default: Story = {
   args: {},
@@ -39,4 +37,3 @@ export const Default: Story = {
       </FormComponent>
     `,
   }),
-}

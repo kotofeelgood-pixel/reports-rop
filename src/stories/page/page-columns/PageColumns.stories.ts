@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/vue3-vite'
 import PageColumnsComponent from '../../../components/page/page-columns/PageColumnsComponent.vue'
-import type { PageColumnsModel } from '../../../components/page/page-columns/model'
+
 import { commonMeta } from '../../meta'
 
 const meta = {
@@ -12,13 +12,11 @@ const meta = {
   },
   args: {
     columns: 2,
-  } as Partial<PageColumnsModel>,
+  ,},
 } as Meta<typeof PageColumnsComponent>
 
 export default meta
-type Story = StoryObj<typeof meta> & {
-  args?: Partial<PageColumnsModel>
-}
+type Story = StoryObj<typeof meta>
 
 export const Default: Story = {
   args: {
@@ -75,4 +73,3 @@ export const FourColumns: Story = {
       </PageColumnsComponent>
     `,
   }),
-}

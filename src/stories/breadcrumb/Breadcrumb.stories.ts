@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/vue3-vite'
 import BreadcrumbComponent from '../../components/breadcrumb/BreadcrumbComponent.vue'
-import type { BreadcrumbModel } from '../../components/breadcrumb/model'
+
 import type { BreadcrumbItem } from '@bitrix24/b24ui-nuxt'
 import RocketIcon from '@bitrix24/b24icons-vue/main/RocketIcon'
 import MoreLIcon from '@bitrix24/b24icons-vue/outline/MoreLIcon'
@@ -31,14 +31,12 @@ const meta = {
         label: 'Breadcrumb',
         to: '/docs/components/breadcrumb',
       },
-    ] as BreadcrumbItem[],
-  } as Partial<BreadcrumbModel>,
+    ],
+  },
 } as Meta<typeof BreadcrumbComponent>
 
 export default meta
-type Story = StoryObj<typeof meta> & {
-  args?: Partial<BreadcrumbModel>
-}
+type Story = StoryObj<typeof meta>
 
 export const Default: Story = {
   args: {
@@ -55,7 +53,7 @@ export const Default: Story = {
         label: 'Breadcrumb',
         to: '/docs/components/breadcrumb',
       },
-    ] as BreadcrumbItem[],
+    ],
   },
 }
 
@@ -77,7 +75,7 @@ export const WithIcons: Story = {
         to: '/docs/components/breadcrumb',
         icon: LinkIcon,
       },
-    ] as BreadcrumbItem[],
+    ],
   },
 }
 
@@ -97,7 +95,7 @@ export const WithSeparatorIcon: Story = {
         label: 'Breadcrumb',
         to: '/docs/components/breadcrumb',
       },
-    ] as BreadcrumbItem[],
+    ],
   },
 }
 
@@ -116,7 +114,7 @@ export const WithLastItemAsSpan: Story = {
         label: 'Breadcrumb',
         // Нет to, поэтому будет span
       },
-    ] as BreadcrumbItem[],
+    ],
   },
 }
 
@@ -136,7 +134,7 @@ export const WithAvatars: Story = {
       {
         label: 'Настройки',
       },
-    ] as BreadcrumbItem[],
+    ],
   },
 }
 
@@ -155,7 +153,7 @@ export const LongLabels: Story = {
         label: 'И наконец, название текущей страницы с очень длинным текстом',
         to: '/docs/components/breadcrumb',
       },
-    ] as BreadcrumbItem[],
+    ],
   },
 }
 
@@ -174,7 +172,7 @@ export const WithCustomSeparator: Story = {
         label: 'Breadcrumb',
         to: '/docs/components/breadcrumb',
       },
-    ] as BreadcrumbItem[],
+    ],
   },
   render: (args) => ({
     components: { BreadcrumbComponent },
@@ -225,7 +223,7 @@ export const WithCustomSlot: Story = {
         to: '/docs/components/breadcrumb',
         icon: LinkIcon,
       },
-    ] as BreadcrumbItem[],
+    ],
   },
   render: (args) => ({
     components: { BreadcrumbComponent },
@@ -267,7 +265,7 @@ export const WithItemSlots: Story = {
         to: '/docs/components/breadcrumb',
         icon: LinkIcon,
       },
-    ] as BreadcrumbItem[],
+    ],
   },
   render: (args) => ({
     components: { BreadcrumbComponent },
@@ -307,7 +305,7 @@ export const InContext: Story = {
         label: 'Breadcrumb',
         to: '/docs/components/breadcrumb',
       },
-    ] as BreadcrumbItem[],
+    ],
   },
   render: (args) => ({
     components: { BreadcrumbComponent },
@@ -326,4 +324,3 @@ export const InContext: Story = {
       </div>
     `,
   }),
-}

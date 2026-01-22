@@ -1,6 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/vue3-vite'
 import AlertComponent from '../../components/alert/AlertComponent.vue'
-import type { AlertModel, AlertColor, AlertSize, AlertOrientation } from '../../components/alert/model'
 import type { ButtonProps } from '@bitrix24/b24ui-nuxt'
 import RocketIcon from '@bitrix24/b24icons-vue/main/RocketIcon'
 import { commonMeta } from '../meta'
@@ -28,16 +27,16 @@ const meta = {
         'air-secondary-accent-1',
         'air-secondary-accent-2',
         'air-tertiary',
-      ] as AlertColor[],
+      ],
     },
     inverted: { control: 'boolean' },
     orientation: {
       control: 'select',
-      options: ['vertical', 'horizontal'] as AlertOrientation[],
+      options: ['vertical', 'horizontal'],
     },
     size: {
       control: 'select',
-      options: ['md', 'sm'] as AlertSize[],
+      options: ['md', 'sm'],
     },
     actions: { control: 'object' },
     close: { control: 'boolean' },
@@ -50,13 +49,11 @@ const meta = {
     size: 'md',
     orientation: 'vertical',
     inverted: false,
-  } as Partial<AlertModel>,
+  },
 } as Meta<typeof AlertComponent>
 
 export default meta
-type Story = StoryObj<typeof meta> & {
-  args?: Partial<AlertModel>
-}
+type Story = StoryObj<typeof meta>
 
 export const Default: Story = {
   args: {
@@ -252,7 +249,7 @@ export const WithActions: Story = {
         label: 'Действие 2',
         color: 'air-primary',
       },
-    ] as ButtonProps[],
+    ],
   },
 }
 
@@ -269,7 +266,7 @@ export const Horizontal: Story = {
         label: 'Действие 2',
         color: 'air-primary',
       },
-    ] as ButtonProps[],
+    ],
   },
 }
 
@@ -286,7 +283,7 @@ export const Vertical: Story = {
         label: 'Действие 2',
         color: 'air-primary',
       },
-    ] as ButtonProps[],
+    ],
   },
 }
 
@@ -306,7 +303,6 @@ export const WithAllFeatures: Story = {
         label: 'Действие 2',
         color: 'air-primary',
       },
-    ] as ButtonProps[],
+    ],
     close: true,
   },
-}

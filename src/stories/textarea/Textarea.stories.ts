@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/vue3-vite'
 import TextareaComponent from '../../components/textarea/TextareaComponent.vue'
-import type { TextareaModel, TextareaColor, TextareaTagColor } from '../../components/textarea/model'
+
 import RocketIcon from '@bitrix24/b24icons-vue/main/RocketIcon'
 import { ref } from 'vue'
 
@@ -18,7 +18,7 @@ const meta = {
         'air-primary-alert',
         'air-primary-warning',
         'air-primary-copilot',
-      ] as TextareaColor[],
+      ],
     },
     tagColor: {
       control: 'select',
@@ -35,7 +35,7 @@ const meta = {
         'air-secondary-accent-2',
         'air-tertiary',
         'air-selection',
-      ] as TextareaTagColor[],
+      ],
     },
     rows: { control: 'number' },
     maxrows: { control: 'number' },
@@ -55,13 +55,11 @@ const meta = {
     placeholder: 'Введите текст...',
     color: 'air-primary',
     rows: 3,
-  } as Partial<TextareaModel>,
+  },
 } as Meta<typeof TextareaComponent>
 
 export default meta
-type Story = StoryObj<typeof meta> & {
-  args?: Partial<TextareaModel>
-}
+type Story = StoryObj<typeof meta>
 
 export const Default: Story = {
   render: (args) => ({
@@ -533,4 +531,3 @@ export const InContext: Story = {
       </div>
     `,
   }),
-}

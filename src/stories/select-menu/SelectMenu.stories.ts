@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/vue3-vite'
 import SelectMenuComponent from '../../components/select-menu/SelectMenuComponent.vue'
-import type { SelectMenuModel, SelectMenuColor, SelectMenuSize, SelectMenuTagColor } from '../../components/select-menu/model'
+
 import type { SelectMenuItem } from '@bitrix24/b24ui-nuxt'
 import RocketIcon from '@bitrix24/b24icons-vue/main/RocketIcon'
 import SettingsIcon from '@bitrix24/b24icons-vue/main/SettingsIcon'
@@ -22,11 +22,11 @@ const meta = {
         'air-primary-alert',
         'air-primary-warning',
         'air-primary-copilot',
-      ] as SelectMenuColor[],
+      ],
     },
     size: {
       control: 'select',
-      options: ['xss', 'xs', 'sm', 'md', 'lg', 'xl'] as SelectMenuSize[],
+      options: ['xss', 'xs', 'sm', 'md', 'lg', 'xl'],
     },
     tagColor: {
       control: 'select',
@@ -43,7 +43,7 @@ const meta = {
         'air-secondary-accent-2',
         'air-tertiary',
         'air-selection',
-      ] as SelectMenuTagColor[],
+      ],
     },
     items: { control: 'object' },
     multiple: { control: 'boolean' },
@@ -65,13 +65,11 @@ const meta = {
       'In Progress',
       'Done',
     ],
-  } as Partial<SelectMenuModel>,
+  },
 } as Meta<typeof SelectMenuComponent>
 
 export default meta
-type Story = StoryObj<typeof meta> & {
-  args?: Partial<SelectMenuModel>
-}
+type Story = StoryObj<typeof meta>
 
 export const Default: Story = {
   args: {
@@ -105,7 +103,7 @@ export const WithObjects: Story = {
       { label: 'Todo', value: 'todo' },
       { label: 'In Progress', value: 'in_progress' },
       { label: 'Done', value: 'done' },
-    ] as SelectMenuItem[],
+    ],
   },
   render: (args) => ({
     components: { SelectMenuComponent },
@@ -130,7 +128,7 @@ export const WithValueKey: Story = {
       { label: 'Todo', id: 'todo' },
       { label: 'In Progress', id: 'in_progress' },
       { label: 'Done', id: 'done' },
-    ] as SelectMenuItem[],
+    ],
     valueKey: 'id',
   },
   render: (args) => ({
@@ -206,7 +204,7 @@ export const WithCustomSearchInput: Story = {
       { label: 'Todo' },
       { label: 'In Progress' },
       { label: 'Done' },
-    ] as SelectMenuItem[],
+    ],
     searchInput: { placeholder: 'Фильтр...' },
   },
   render: (args) => ({
@@ -638,7 +636,7 @@ export const WithItemsType: Story = {
       'Carrot',
       'Courgette',
       'Leek',
-    ] as SelectMenuItem[],
+    ],
   },
   render: (args) => ({
     components: { SelectMenuComponent },
@@ -681,7 +679,7 @@ export const WithColorsInItems: Story = {
         color: 'air-primary-alert',
         icon: Shield2DefendedIcon,
       },
-    ] as SelectMenuItem[],
+    ],
   },
   render: (args) => ({
     components: { SelectMenuComponent },
@@ -722,7 +720,7 @@ export const WithIconsInItems: Story = {
         value: 'access_permissions',
         icon: Shield2DefendedIcon,
       },
-    ] as SelectMenuItem[],
+    ],
   },
   render: (args) => ({
     components: { SelectMenuComponent },
@@ -760,7 +758,7 @@ export const WithAvatarsInItems: Story = {
           alt: 'employee',
         },
       },
-    ] as SelectMenuItem[],
+    ],
   },
   render: (args) => ({
     components: { SelectMenuComponent },
@@ -797,7 +795,7 @@ export const WithNestedItems: Story = {
         'Courgette',
         'Leek',
       ],
-    ] as SelectMenuItem[][],
+    ][],
   },
   render: (args) => ({
     components: { SelectMenuComponent },
@@ -820,7 +818,7 @@ export const WithVirtualization: Story = {
     items: Array.from({ length: 1000 }, (_, i) => ({
       label: `item-${i}`,
       value: i,
-    })) as SelectMenuItem[],
+    })),
     virtualize: { estimateSize: 32, overscan: 12 },
   },
   render: (args) => ({
@@ -849,7 +847,7 @@ export const WithCreateItem: Story = {
   render: (args) => ({
     components: { SelectMenuComponent },
     setup() {
-      const items = ref(args.items as string[])
+      const items = ref(args.items)
       const value = ref('Детали моей компании')
 
       function onCreate(item: string) {
@@ -907,4 +905,3 @@ export const InContext: Story = {
       </div>
     `,
   }),
-}

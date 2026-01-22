@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/vue3-vite'
 import CardComponent from '../../../components/element/card/CardComponent.vue'
-import type { CardModel } from '../../../components/element/card/model'
+
 import { commonMeta } from '../../meta'
 
 const meta = {
@@ -8,13 +8,11 @@ const meta = {
   title: 'Element/Card',
   component: CardComponent,
   argTypes: {},
-  args: {} as Partial<CardModel>,
+  args: {,},
 } as Meta<typeof CardComponent>
 
 export default meta
-type Story = StoryObj<typeof meta> & {
-  args?: Partial<CardModel>
-}
+type Story = StoryObj<typeof meta>
 
 export const Default: Story = {
   args: {},
@@ -86,4 +84,3 @@ export const Simple: Story = {
       </CardComponent>
     `,
   }),
-}

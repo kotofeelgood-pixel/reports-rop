@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/vue3-vite'
 import ColorModeImageComponent from '../../../components/color-mode/color-mode-image/ColorModeImageComponent.vue'
-import type { ColorModeImageModel } from '../../../components/color-mode/color-mode-image/model'
+
 import { commonMeta } from '../../meta'
 
 const meta = {
@@ -16,13 +16,11 @@ const meta = {
     light: 'https://via.placeholder.com/400/ffffff/000000?text=Light+Mode',
     dark: 'https://via.placeholder.com/400/000000/ffffff?text=Dark+Mode',
     alt: 'Color mode image',
-  } as Partial<ColorModeImageModel>,
+  ,},
 } as Meta<typeof ColorModeImageComponent>
 
 export default meta
-type Story = StoryObj<typeof meta> & {
-  args?: Partial<ColorModeImageModel>
-}
+type Story = StoryObj<typeof meta>
 
 export const Default: Story = {
   args: {
@@ -30,4 +28,3 @@ export const Default: Story = {
     dark: 'https://via.placeholder.com/400/000000/ffffff?text=Dark+Mode',
     alt: 'Color mode image',
   },
-}

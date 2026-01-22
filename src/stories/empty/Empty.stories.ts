@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/vue3-vite'
 import EmptyComponent from '../../components/empty/EmptyComponent.vue'
-import type { EmptyModel } from '../../components/empty/model'
+
 import type { ButtonProps } from '@bitrix24/b24ui-nuxt'
 import FolderIcon from '@bitrix24/b24icons-vue/outline/FolderIcon'
 import SearchIcon from '@bitrix24/b24icons-vue/outline/SearchIcon'
@@ -22,13 +22,11 @@ const meta = {
   args: {
     title: 'Нет данных',
     description: 'Здесь пока ничего нет',
-  } as Partial<EmptyModel>,
+  },
 } as Meta<typeof EmptyComponent>
 
 export default meta
-type Story = StoryObj<typeof meta> & {
-  args?: Partial<EmptyModel>
-}
+type Story = StoryObj<typeof meta>
 
 export const Default: Story = {
   args: {
@@ -272,4 +270,3 @@ export const EmptyCard: Story = {
       </div>
     `,
   }),
-}

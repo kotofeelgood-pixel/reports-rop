@@ -1,7 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/vue3-vite'
 import CheckboxComponent from '../../../components/inputs/Checkbox/CheckboxComponent.vue'
-import type { CheckboxSize, CheckboxColor, CheckboxVariant, CheckboxIndicator } from '../../../components/inputs/Checkbox/model'
-
 const meta = {
   title: 'Form/Checkbox',
   component: CheckboxComponent,
@@ -17,19 +15,19 @@ const meta = {
         'air-primary-alert',
         'air-primary-warning',
         'air-primary-copilot',
-      ] as CheckboxColor[],
+      ],
     },
     variant: {
       control: 'select',
-      options: ['card', 'list'] as CheckboxVariant[],
+      options: ['card', 'list'],
     },
     size: {
       control: 'select',
-      options: ['xs', 'sm', 'md', 'lg'] as CheckboxSize[],
+      options: ['xs', 'sm', 'md', 'lg'],
     },
     indicator: {
       control: 'select',
-      options: ['start', 'end', 'hidden'] as CheckboxIndicator[],
+      options: ['start', 'end', 'hidden'],
     },
     disabled: { control: 'boolean' },
     name: { control: 'text' },
@@ -232,4 +230,3 @@ export const WithBothSlots: Story = {
       </CheckboxComponent>
     `,
   }),
-}

@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/vue3-vite'
 import RadioGroupComponent from '../../components/radio-group/RadioGroupComponent.vue'
-import type { RadioGroupModel, RadioGroupSize, RadioGroupColor, RadioGroupVariant, RadioGroupOrientation, RadioGroupIndicator } from '../../components/radio-group/model'
+
 import type { RadioGroupItem } from '@bitrix24/b24ui-nuxt'
 import { ref } from 'vue'
 
@@ -16,19 +16,19 @@ const meta = {
     items: { control: 'object' },
     size: {
       control: 'select',
-      options: ['xs', 'sm', 'md', 'lg'] as RadioGroupSize[],
+      options: ['xs', 'sm', 'md', 'lg'],
     },
     variant: {
       control: 'select',
-      options: ['card', 'list', 'table'] as RadioGroupVariant[],
+      options: ['card', 'list', 'table'],
     },
     orientation: {
       control: 'select',
-      options: ['horizontal', 'vertical'] as RadioGroupOrientation[],
+      options: ['horizontal', 'vertical'],
     },
     indicator: {
       control: 'select',
-      options: ['start', 'end', 'hidden'] as RadioGroupIndicator[],
+      options: ['start', 'end', 'hidden'],
     },
     disabled: { control: 'boolean' },
     loop: { control: 'boolean' },
@@ -42,7 +42,7 @@ const meta = {
         'air-primary-alert',
         'air-primary-warning',
         'air-primary-copilot',
-      ] as RadioGroupColor[],
+      ],
     },
   },
   args: {
@@ -56,13 +56,11 @@ const meta = {
     orientation: 'vertical',
     color: 'air-primary',
     indicator: 'start',
-  } as Partial<RadioGroupModel>,
+  },
 } as Meta<typeof RadioGroupComponent>
 
 export default meta
-type Story = StoryObj<typeof meta> & {
-  args?: Partial<RadioGroupModel>
-}
+type Story = StoryObj<typeof meta>
 
 export const Default: Story = {
   args: {
@@ -105,7 +103,7 @@ export const WithObjects: Story = {
         description: 'Это третья опция.',
         value: 'dark',
       },
-    ] as RadioGroupItem[],
+    ],
   },
   render: (args) => ({
     components: { RadioGroupComponent },
@@ -141,7 +139,7 @@ export const WithValueKey: Story = {
         description: 'Это третья опция.',
         id: 'dark',
       },
-    ] as RadioGroupItem[],
+    ],
     valueKey: 'id',
   },
   render: (args) => ({
@@ -223,7 +221,7 @@ export const CardVariant: Story = {
         value: 'enterprise',
         description: 'Идеально для больших команд и организаций.',
       },
-    ] as RadioGroupItem[],
+    ],
     variant: 'card',
     color: 'air-primary-copilot',
     defaultValue: 'pro',
@@ -262,7 +260,7 @@ export const TableVariant: Story = {
         description: 'Описание третьей опции',
         value: 'option3',
       },
-    ] as RadioGroupItem[],
+    ],
     variant: 'table',
   },
   render: (args) => ({
@@ -443,7 +441,7 @@ export const WithDisabledItems: Story = {
         value: 'dark',
         disabled: false,
       },
-    ] as RadioGroupItem[],
+    ],
   },
   render: (args) => ({
     components: { RadioGroupComponent },
@@ -642,7 +640,7 @@ export const WithCustomSlots: Story = {
         description: 'Темная тема',
         value: 'dark',
       },
-    ] as RadioGroupItem[],
+    ],
   },
   render: (args) => ({
     components: { RadioGroupComponent },
@@ -680,7 +678,7 @@ export const InForm: Story = {
         label: 'Dark',
         value: 'dark',
       },
-    ] as RadioGroupItem[],
+    ],
     required: true,
   },
   render: (args) => ({
@@ -791,4 +789,3 @@ export const ThemeSelector: Story = {
       </div>
     `,
   }),
-}

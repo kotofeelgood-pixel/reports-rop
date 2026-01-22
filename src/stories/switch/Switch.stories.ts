@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/vue3-vite'
 import SwitchComponent from '../../components/switch/SwitchComponent.vue'
-import type { SwitchModel, SwitchColor, SwitchSize } from '../../components/switch/model'
+
 import RocketIcon from '@bitrix24/b24icons-vue/main/RocketIcon'
 import { ref } from 'vue'
 
@@ -19,11 +19,11 @@ const meta = {
         'air-primary-alert',
         'air-primary-warning',
         'air-primary-copilot',
-      ] as SwitchColor[],
+      ],
     },
     size: {
       control: 'select',
-      options: ['xs', 'sm', 'md', 'lg'] as SwitchSize[],
+      options: ['xs', 'sm', 'md', 'lg'],
     },
     disabled: { control: 'boolean' },
     loading: { control: 'boolean' },
@@ -32,13 +32,11 @@ const meta = {
   args: {
     color: 'air-primary',
     size: 'md',
-  } as Partial<SwitchModel>,
+  },
 } as Meta<typeof SwitchComponent>
 
 export default meta
-type Story = StoryObj<typeof meta> & {
-  args?: Partial<SwitchModel>
-}
+type Story = StoryObj<typeof meta>
 
 export const Default: Story = {
   render: (args) => ({
@@ -491,4 +489,3 @@ export const MultipleSwitches: Story = {
       </div>
     `,
   }),
-}

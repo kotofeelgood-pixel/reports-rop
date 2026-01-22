@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/vue3-vite'
 import RangeComponent from '../../components/range/RangeComponent.vue'
-import type { RangeModel, RangeColor, RangeSize, RangeOrientation } from '../../components/range/model'
+
 import { ref } from 'vue'
 
 const meta = {
@@ -16,15 +16,15 @@ const meta = {
         'air-primary-alert',
         'air-primary-warning',
         'air-primary-copilot',
-      ] as RangeColor[],
+      ],
     },
     size: {
       control: 'select',
-      options: ['xs', 'sm', 'md', 'lg'] as RangeSize[],
+      options: ['xs', 'sm', 'md', 'lg'],
     },
     orientation: {
       control: 'select',
-      options: ['horizontal', 'vertical'] as RangeOrientation[],
+      options: ['horizontal', 'vertical'],
     },
     min: { control: 'number' },
     max: { control: 'number' },
@@ -40,13 +40,11 @@ const meta = {
     min: 0,
     max: 100,
     step: 1,
-  } as Partial<RangeModel>,
+  },
 } as Meta<typeof RangeComponent>
 
 export default meta
-type Story = StoryObj<typeof meta> & {
-  args?: Partial<RangeModel>
-}
+type Story = StoryObj<typeof meta>
 
 export const Default: Story = {
   render: (args) => ({
@@ -527,4 +525,3 @@ export const InContext: Story = {
       </div>
     `,
   }),
-}

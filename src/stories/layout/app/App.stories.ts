@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/vue3-vite'
 import AppComponent from '../../../components/layout/app/AppComponent.vue'
-import type { AppModel } from '../../../components/layout/app/model'
+
 import { commonMeta } from '../../meta'
 
 const meta = {
@@ -8,13 +8,11 @@ const meta = {
   title: 'Layout/App',
   component: AppComponent,
   argTypes: {},
-  args: {} as Partial<AppModel>,
+  args: {,},
 } as Meta<typeof AppComponent>
 
 export default meta
-type Story = StoryObj<typeof meta> & {
-  args?: Partial<AppModel>
-}
+type Story = StoryObj<typeof meta>
 
 export const Default: Story = {
   args: {},
@@ -32,4 +30,3 @@ export const Default: Story = {
       </AppComponent>
     `,
   }),
-}

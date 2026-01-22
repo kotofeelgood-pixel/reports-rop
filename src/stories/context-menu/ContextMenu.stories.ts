@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/vue3-vite'
 import ContextMenuComponent from '../../components/context-menu/ContextMenuComponent.vue'
-import type { ContextMenuModel, ContextMenuItem } from '../../components/context-menu/model'
+
 import { ref, computed } from 'vue'
 import OpenedEyeIcon from '@bitrix24/b24icons-vue/main/OpenedEyeIcon'
 import TrashBinIcon from '@bitrix24/b24icons-vue/main/TrashBinIcon'
@@ -22,15 +22,13 @@ const meta = {
   args: {
     modal: true,
     disabled: false,
-  } as Partial<ContextMenuModel>,
+  },
 } as Meta<typeof ContextMenuComponent>
 
 export default meta
-type Story = StoryObj<typeof meta> & {
-  args?: Partial<ContextMenuModel>
-}
+type Story = StoryObj<typeof meta>
 
-const basicItems: ContextMenuItem[][] = [
+const basicItems= [][] = [
   [
     {
       label: 'Просмотр',
@@ -268,7 +266,7 @@ export const WithCustomSlot: Story = {
     setup() {
       const loading = ref(true)
 
-      const items: ContextMenuItem[] = [
+      const items= [] = [
         {
           label: 'Обновить страницу',
           slot: 'refresh',
@@ -663,4 +661,3 @@ export const TableRowContextMenu: Story = {
       </div>
     `,
   }),
-}

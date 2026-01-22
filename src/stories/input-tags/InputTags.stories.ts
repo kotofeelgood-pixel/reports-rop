@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/vue3-vite'
 import InputTagsComponent from '../../components/input-tags/InputTagsComponent.vue'
-import type { InputTagsModel, InputTagsColor, InputTagsSize, InputTagsTagColor } from '../../components/input-tags/model'
+
 import RocketIcon from '@bitrix24/b24icons-vue/main/RocketIcon'
 import { ref } from 'vue'
 
@@ -18,11 +18,11 @@ const meta = {
         'air-primary-alert',
         'air-primary-warning',
         'air-primary-copilot',
-      ] as InputTagsColor[],
+      ],
     },
     size: {
       control: 'select',
-      options: ['xss', 'xs', 'sm', 'md', 'lg', 'xl'] as InputTagsSize[],
+      options: ['xss', 'xs', 'sm', 'md', 'lg', 'xl'],
     },
     tagColor: {
       control: 'select',
@@ -39,7 +39,7 @@ const meta = {
         'air-secondary-accent-2',
         'air-tertiary',
         'air-selection',
-      ] as InputTagsTagColor[],
+      ],
     },
     maxLength: { control: 'number' },
     max: { control: 'number' },
@@ -58,13 +58,11 @@ const meta = {
     placeholder: 'Введите теги...',
     color: 'air-primary',
     size: 'md',
-  } as Partial<InputTagsModel>,
+  },
 } as Meta<typeof InputTagsComponent>
 
 export default meta
-type Story = StoryObj<typeof meta> & {
-  args?: Partial<InputTagsModel>
-}
+type Story = StoryObj<typeof meta>
 
 export const Default: Story = {
   render: (args) => ({
@@ -743,4 +741,3 @@ export const InContext: Story = {
       </div>
     `,
   }),
-}

@@ -1,6 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/vue3-vite'
 import TabsComponent from '../../components/tabs/TabsComponent.vue'
-import type { TabsModel, TabsItem, TabsSize, TabsOrientation, TabsVariant } from '../../components/tabs/model'
 import { ref } from 'vue'
 import UserIcon from '@bitrix24/b24icons-vue/common-b24/UserIcon'
 import Shield2ContourIcon from '@bitrix24/b24icons-vue/main/Shield2ContourIcon'
@@ -16,15 +15,15 @@ const meta = {
   argTypes: {
     variant: {
       control: 'select',
-      options: ['link'] as TabsVariant[],
+      options: ['link'],
     },
     size: {
       control: 'select',
-      options: ['xss', 'xs', 'sm', 'md', 'lg', 'xl'] as TabsSize[],
+      options: ['xss', 'xs', 'sm', 'md', 'lg', 'xl'],
     },
     orientation: {
       control: 'select',
-      options: ['horizontal', 'vertical'] as TabsOrientation[],
+      options: ['horizontal', 'vertical'],
     },
     content: { control: 'boolean' },
     unmountOnHide: { control: 'boolean' },
@@ -39,15 +38,13 @@ const meta = {
     orientation: 'horizontal',
     content: true,
     unmountOnHide: true,
-  } as Partial<TabsModel>,
+  },
 } as Meta<typeof TabsComponent>
 
 export default meta
-type Story = StoryObj<typeof meta> & {
-  args?: Partial<TabsModel>
-}
+type Story = StoryObj<typeof meta>
 
-const basicItems: TabsItem[] = [
+const basicItems = [
   {
     label: 'Аккаунт',
     content: 'Это содержимое вкладки "Аккаунт".',
@@ -209,7 +206,7 @@ export const AllSizes: Story = {
   render: () => ({
     components: { TabsComponent },
     setup() {
-      const items: TabsItem[] = [
+      const items = [
         { label: 'Вкладка 1', content: 'Содержимое 1' },
         { label: 'Вкладка 2', content: 'Содержимое 2' },
         { label: 'Вкладка 3', content: 'Содержимое 3' },
@@ -660,4 +657,3 @@ export const SettingsExample: Story = {
       </div>
     `,
   }),
-}

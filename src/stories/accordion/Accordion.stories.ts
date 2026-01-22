@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/vue3-vite'
 import AccordionComponent from '../../components/accordion/AccordionComponent.vue'
-import type { AccordionModel, AccordionType } from '../../components/accordion/model'
+
 import SmartActivityIcon from '@bitrix24/b24icons-vue/outline/SmartActivityIcon'
 import FeedbackIcon from '@bitrix24/b24icons-vue/outline/FeedbackIcon'
 import RocketIcon from '@bitrix24/b24icons-vue/outline/RocketIcon'
@@ -20,7 +20,7 @@ const meta = {
     modelValue: { control: 'text' },
     type: {
       control: 'select',
-      options: ['single', 'multiple'] as AccordionType[],
+      options: ['single', 'multiple'],
     },
     disabled: { control: 'boolean' },
     unmountOnHide: { control: 'boolean' },
@@ -39,17 +39,15 @@ const meta = {
         label: 'Тарифы Bitrix24 Cloud',
         content: 'Bitrix24 — это онлайн-сервис для управления бизнесом и автоматизации работы. Он содержит инструменты для компаний всех размеров и отраслей. Bitrix24 имеет несколько тарифов с разными наборами инструментов, которые подходят для разных типов бизнеса.',
       },
-    ] as AccordionItem[],
+    ],
     type: 'single',
     collapsible: true,
     unmountOnHide: true,
-  } as Partial<AccordionModel>,
+  },
 } as Meta<typeof AccordionComponent>
 
 export default meta
-type Story = StoryObj<typeof meta> & {
-  args?: Partial<AccordionModel>
-}
+type Story = StoryObj<typeof meta>
 
 export const Default: Story = {
   args: {
@@ -66,7 +64,7 @@ export const Default: Story = {
         label: 'Тарифы Bitrix24 Cloud',
         content: 'Bitrix24 — это онлайн-сервис для управления бизнесом и автоматизации работы. Он содержит инструменты для компаний всех размеров и отраслей. Bitrix24 имеет несколько тарифов с разными наборами инструментов, которые подходят для разных типов бизнеса.',
       },
-    ] as AccordionItem[],
+    ],
   },
 }
 
@@ -86,7 +84,7 @@ export const Multiple: Story = {
         label: 'Тарифы Bitrix24 Cloud',
         content: 'Bitrix24 — это онлайн-сервис для управления бизнесом и автоматизации работы. Он содержит инструменты для компаний всех размеров и отраслей. Bitrix24 имеет несколько тарифов с разными наборами инструментов, которые подходят для разных типов бизнеса.',
       },
-    ] as AccordionItem[],
+    ],
   },
 }
 
@@ -106,7 +104,7 @@ export const NotCollapsible: Story = {
         label: 'Тарифы Bitrix24 Cloud',
         content: 'Bitrix24 — это онлайн-сервис для управления бизнесом и автоматизации работы. Он содержит инструменты для компаний всех размеров и отраслей. Bitrix24 имеет несколько тарифов с разными наборами инструментов, которые подходят для разных типов бизнеса.',
       },
-    ] as AccordionItem[],
+    ],
   },
 }
 
@@ -126,7 +124,7 @@ export const UnmountOnHide: Story = {
         label: 'Тарифы Bitrix24 Cloud',
         content: 'Bitrix24 — это онлайн-сервис для управления бизнесом и автоматизации работы. Он содержит инструменты для компаний всех размеров и отраслей. Bitrix24 имеет несколько тарифов с разными наборами инструментов, которые подходят для разных типов бизнеса.',
       },
-    ] as AccordionItem[],
+    ],
   },
 }
 
@@ -146,7 +144,7 @@ export const Disabled: Story = {
         label: 'Тарифы Bitrix24 Cloud',
         content: 'Bitrix24 — это онлайн-сервис для управления бизнесом и автоматизации работы. Он содержит инструменты для компаний всех размеров и отраслей. Bitrix24 имеет несколько тарифов с разными наборами инструментов, которые подходят для разных типов бизнеса.',
       },
-    ] as AccordionItem[],
+    ],
   },
 }
 
@@ -166,7 +164,7 @@ export const WithDisabledItem: Story = {
         label: 'Тарифы Bitrix24 Cloud',
         content: 'Bitrix24 — это онлайн-сервис для управления бизнесом и автоматизации работы. Он содержит инструменты для компаний всех размеров и отраслей. Bitrix24 имеет несколько тарифов с разными наборами инструментов, которые подходят для разных типов бизнеса.',
       },
-    ] as AccordionItem[],
+    ],
   },
 }
 
@@ -188,7 +186,7 @@ export const WithIcons: Story = {
         icon: RocketIcon,
         content: 'Bitrix24 — это онлайн-сервис для управления бизнесом и автоматизации работы. Он содержит инструменты для компаний всех размеров и отраслей. Bitrix24 имеет несколько тарифов с разными наборами инструментов, которые подходят для разных типов бизнеса.',
       },
-    ] as AccordionItem[],
+    ],
   },
 }
 
@@ -208,7 +206,7 @@ export const WithTrailingIcon: Story = {
         label: 'Тарифы Bitrix24 Cloud',
         content: 'Bitrix24 — это онлайн-сервис для управления бизнесом и автоматизации работы. Он содержит инструменты для компаний всех размеров и отраслей. Bitrix24 имеет несколько тарифов с разными наборами инструментов, которые подходят для разных типов бизнеса.',
       },
-    ] as AccordionItem[],
+    ],
   },
 }
 
@@ -228,7 +226,7 @@ export const WithDefaultValue: Story = {
         label: 'Тарифы Bitrix24 Cloud',
         content: 'Bitrix24 — это онлайн-сервис для управления бизнесом и автоматизации работы. Он содержит инструменты для компаний всех размеров и отраслей. Bitrix24 имеет несколько тарифов с разными наборами инструментов, которые подходят для разных типов бизнеса.',
       },
-    ] as AccordionItem[],
+    ],
   },
 }
 
@@ -249,7 +247,7 @@ export const WithDefaultValues: Story = {
         label: 'Тарифы Bitrix24 Cloud',
         content: 'Bitrix24 — это онлайн-сервис для управления бизнесом и автоматизации работы. Он содержит инструменты для компаний всех размеров и отраслей. Bitrix24 имеет несколько тарифов с разными наборами инструментов, которые подходят для разных типов бизнеса.',
       },
-    ] as AccordionItem[],
+    ],
   },
 }
 
@@ -268,7 +266,7 @@ export const WithCustomBodySlot: Story = {
         label: 'Тарифы Bitrix24 Cloud',
         icon: RocketIcon,
       },
-    ] as AccordionItem[],
+    ],
   },
   render: (args) => ({
     components: { AccordionComponent },
@@ -300,7 +298,7 @@ export const WithCustomContentSlot: Story = {
         label: 'Тарифы Bitrix24 Cloud',
         icon: RocketIcon,
       },
-    ] as AccordionItem[],
+    ],
   },
   render: (args) => ({
     components: { AccordionComponent },
@@ -317,4 +315,3 @@ export const WithCustomContentSlot: Story = {
       </AccordionComponent>
     `,
   }),
-}

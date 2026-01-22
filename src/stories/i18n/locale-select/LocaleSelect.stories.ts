@@ -1,6 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/vue3-vite'
 import LocaleSelectComponent from '../../../components/i18n/locale-select/LocaleSelectComponent.vue'
-import type { LocaleSelectModel } from '../../../components/i18n/locale-select/model'
 import { commonMeta } from '../../meta'
 import { ref } from 'vue'
 
@@ -13,13 +12,11 @@ const meta = {
   },
   args: {
     locales: ['ru', 'en', 'de', 'fr'],
-  } as Partial<LocaleSelectModel>,
+  },
 } as Meta<typeof LocaleSelectComponent>
 
 export default meta
-type Story = StoryObj<typeof meta> & {
-  args?: Partial<LocaleSelectModel>
-}
+type Story = StoryObj<typeof meta>
 
 export const Default: Story = {
   args: {
@@ -68,4 +65,3 @@ export const TwoLocales: Story = {
       <LocaleSelectComponent v-bind="args" v-model="locale" />
     `,
   }),
-}

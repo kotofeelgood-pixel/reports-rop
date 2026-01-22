@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/vue3-vite'
 import AvatarComponent from '../../components/avatar/AvatarComponent.vue'
-import type { AvatarModel, AvatarSize } from '../../components/avatar/model'
+
 import RocketIcon from '@bitrix24/b24icons-vue/main/RocketIcon'
 
 const meta = {
@@ -14,7 +14,7 @@ const meta = {
     text: { control: 'text' },
     size: {
       control: 'select',
-      options: ['3xs', '2xs', 'xs', 'sm', 'md', 'lg', 'xl', '2xl', '3xl'] as AvatarSize[],
+      options: ['3xs', '2xs', 'xs', 'sm', 'md', 'lg', 'xl', '2xl', '3xl'],
     },
     chip: { control: 'object' },
   },
@@ -22,13 +22,11 @@ const meta = {
     src: '/b24ui/avatar/employee.png',
     alt: 'Employee',
     size: 'md',
-  } as Partial<AvatarModel>,
+  },
 } as Meta<typeof AvatarComponent>
 
 export default meta
-type Story = StoryObj<typeof meta> & {
-  args?: Partial<AvatarModel>
-}
+type Story = StoryObj<typeof meta>
 
 export const Default: Story = {
   args: {
@@ -200,4 +198,3 @@ export const WithFallbacks: Story = {
       </div>
     `,
   }),
-}

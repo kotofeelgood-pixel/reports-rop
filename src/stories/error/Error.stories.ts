@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/vue3-vite'
 import ErrorComponent from '../../components/error/ErrorComponent.vue'
-import type { ErrorModel } from '../../components/error/model'
+
 import type { ButtonProps } from '@bitrix24/b24ui-nuxt'
 import RocketIcon from '@bitrix24/b24icons-vue/main/RocketIcon'
 import HomeIcon from '@bitrix24/b24icons-vue/outline/HomeIcon'
@@ -23,13 +23,11 @@ const meta = {
     },
     redirect: '/',
     clear: true,
-  } as Partial<ErrorModel>,
+  },
 } as Meta<typeof ErrorComponent>
 
 export default meta
-type Story = StoryObj<typeof meta> & {
-  args?: Partial<ErrorModel>
-}
+type Story = StoryObj<typeof meta>
 
 export const Default: Story = {
   args: {
@@ -215,4 +213,3 @@ export const WithDefaultSlot: Story = {
       </ErrorComponent>
     `,
   }),
-}

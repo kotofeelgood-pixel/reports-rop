@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/vue3-vite'
 import TimelineComponent from '../../components/timeline/TimelineComponent.vue'
-import type { TimelineModel, TimelineItem, TimelineSize, TimelineColor, TimelineOrientation } from '../../components/timeline/model'
+
 import { ref, onMounted } from 'vue'
 import RocketIcon from '@bitrix24/b24icons-vue/main/RocketIcon'
 import SignIcon from '@bitrix24/b24icons-vue/main/SignIcon'
@@ -14,7 +14,7 @@ const meta = {
   argTypes: {
     size: {
       control: 'select',
-      options: ['3xs', '2xs', 'xs', 'sm', 'md', 'lg', 'xl', '2xl'] as TimelineSize[],
+      options: ['3xs', '2xs', 'xs', 'sm', 'md', 'lg', 'xl', '2xl'],
     },
     color: {
       control: 'select',
@@ -24,11 +24,11 @@ const meta = {
         'air-primary-alert',
         'air-primary-warning',
         'air-primary-copilot',
-      ] as TimelineColor[],
+      ],
     },
     orientation: {
       control: 'select',
-      options: ['horizontal', 'vertical'] as TimelineOrientation[],
+      options: ['horizontal', 'vertical'],
     },
     reverse: { control: 'boolean' },
   },
@@ -37,15 +37,13 @@ const meta = {
     color: 'air-primary',
     orientation: 'vertical',
     reverse: false,
-  } as Partial<TimelineModel>,
+  },
 } as Meta<typeof TimelineComponent>
 
 export default meta
-type Story = StoryObj<typeof meta> & {
-  args?: Partial<TimelineModel>
-}
+type Story = StoryObj<typeof meta>
 
-const basicItems: TimelineItem[] = [
+const basicItems= [] = [
   {
     date: '15 марта 2025',
     title: 'Запуск проекта',
@@ -146,7 +144,7 @@ export const WithActiveItem: Story = {
     setup() {
       const active = ref(2)
 
-      const items: TimelineItem[] = [
+      const items= [] = [
         {
           date: '15 марта 2025',
           title: 'Запуск проекта',
@@ -197,7 +195,7 @@ export const AllColors: Story = {
   render: () => ({
     components: { TimelineComponent },
     setup() {
-      const items: TimelineItem[] = [
+      const items= [] = [
         {
           date: '15 марта 2025',
           title: 'Primary',
@@ -220,7 +218,7 @@ export const AllColors: Story = {
         },
       ]
 
-      const colors: TimelineColor[] = [
+      const colors= [] = [
         'air-primary',
         'air-primary-success',
         'air-primary-alert',
@@ -244,7 +242,7 @@ export const AllSizes: Story = {
   render: () => ({
     components: { TimelineComponent },
     setup() {
-      const items: TimelineItem[] = [
+      const items= [] = [
         {
           date: '15 марта 2025',
           title: 'Запуск проекта',
@@ -262,7 +260,7 @@ export const AllSizes: Story = {
         },
       ]
 
-      const sizes: TimelineSize[] = ['3xs', '2xs', 'xs', 'sm', 'md', 'lg', 'xl', '2xl']
+      const sizes= [] = ['3xs', '2xs', 'xs', 'sm', 'md', 'lg', 'xl', '2xl']
 
       return { items, sizes }
     },
@@ -339,7 +337,7 @@ export const WithCustomSlots: Story = {
   render: () => ({
     components: { TimelineComponent },
     setup() {
-      const items: TimelineItem[] = [
+      const items= [] = [
         {
           date: '15 марта 2025',
           title: 'Запуск проекта',
@@ -409,7 +407,7 @@ export const WithSlots: Story = {
   render: () => ({
     components: { TimelineComponent },
     setup() {
-      const items: TimelineItem[] = [
+      const items= [] = [
         {
           username: 'Имя сотрудника',
           date: '2025-05-24T14:58:55Z',
@@ -493,7 +491,7 @@ export const WithAlternatingLayout: Story = {
   render: () => ({
     components: { TimelineComponent },
     setup() {
-      const items: TimelineItem[] = [
+      const items= [] = [
         {
           date: '15 марта 2025',
           title: 'Запуск проекта',
@@ -532,4 +530,3 @@ export const WithAlternatingLayout: Story = {
       </div>
     `,
   }),
-}

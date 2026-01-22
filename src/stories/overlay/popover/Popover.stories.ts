@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/vue3-vite'
 import PopoverComponent from '../../../components/overlay/popover/PopoverComponent.vue'
-import type { PopoverModel } from '../../../components/overlay/popover/model'
+
 import { commonMeta } from '../../meta'
 
 const meta = {
@@ -14,13 +14,11 @@ const meta = {
   args: {
     modal: false,
     disabled: false,
-  } as Partial<PopoverModel>,
+  ,},
 } as Meta<typeof PopoverComponent>
 
 export default meta
-type Story = StoryObj<typeof meta> & {
-  args?: Partial<PopoverModel>
-}
+type Story = StoryObj<typeof meta>
 
 export const Default: Story = {
   args: {},
@@ -63,4 +61,3 @@ export const WithRichContent: Story = {
       </PopoverComponent>
     `,
   }),
-}

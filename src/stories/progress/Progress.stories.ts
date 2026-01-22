@@ -1,7 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/vue3-vite'
 import ProgressComponent from '../../components/progress/ProgressComponent.vue'
-import type { ProgressModel, ProgressSize, ProgressColor, ProgressOrientation, ProgressAnimation } from '../../components/progress/model'
-
 const meta = {
   title: 'Element/Progress',
   component: ProgressComponent,
@@ -12,7 +10,7 @@ const meta = {
     inverted: { control: 'boolean' },
     size: {
       control: 'select',
-      options: ['xs', 'sm', 'md', 'lg'] as ProgressSize[],
+      options: ['xs', 'sm', 'md', 'lg'],
     },
     color: {
       control: 'select',
@@ -23,15 +21,15 @@ const meta = {
         'air-primary-warning',
         'air-primary-copilot',
         'air-secondary',
-      ] as ProgressColor[],
+      ],
     },
     orientation: {
       control: 'select',
-      options: ['horizontal', 'vertical'] as ProgressOrientation[],
+      options: ['horizontal', 'vertical'],
     },
     animation: {
       control: 'select',
-      options: ['carousel', 'loading', 'carousel-inverse', 'swing', 'elastic'] as ProgressAnimation[],
+      options: ['carousel', 'loading', 'carousel-inverse', 'swing', 'elastic'],
     },
     modelValue: { control: 'number' },
   },
@@ -44,13 +42,11 @@ const meta = {
     animation: 'loading',
     status: false,
     inverted: false,
-  } as Partial<ProgressModel>,
+  },
 } as Meta<typeof ProgressComponent>
 
 export default meta
-type Story = StoryObj<typeof meta> & {
-  args?: Partial<ProgressModel>
-}
+type Story = StoryObj<typeof meta>
 
 export const Default: Story = {
   args: {
@@ -283,4 +279,3 @@ export const AnimatedProgress: Story = {
       <ProgressComponent v-model="value" :max="100" status />
     `,
   }),
-}

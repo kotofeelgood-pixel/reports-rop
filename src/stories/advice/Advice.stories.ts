@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/vue3-vite'
 import AdviceComponent from '../../components/advice/AdviceComponent.vue'
-import type { AdviceModel, AdviceAngle } from '../../components/advice/model'
+
 import RocketIcon from '@bitrix24/b24icons-vue/main/RocketIcon'
 import DotsIcon from '@bitrix24/b24icons-vue/button/DotsIcon'
 import { commonMeta } from '../meta'
@@ -15,19 +15,17 @@ const meta = {
     avatar: { control: 'object' },
     angle: {
       control: 'select',
-      options: ['bottom', 'top'] as AdviceAngle[],
+      options: ['bottom', 'top'],
     },
   },
   args: {
     description: 'Давайте сообщим менеджеру, что сделка не двигается, менеджер не перезванивает клиенту и не отвечает на его сообщения. Давайте назначим задачу менеджеру от имени менеджера',
     angle: 'bottom',
-  } as Partial<AdviceModel>,
+  },
 } as Meta<typeof AdviceComponent>
 
 export default meta
-type Story = StoryObj<typeof meta> & {
-  args?: Partial<AdviceModel>
-}
+type Story = StoryObj<typeof meta>
 
 export const Default: Story = {
   args: {
@@ -145,4 +143,3 @@ export const WithAvatarAndIcon: Story = {
     },
     description: 'Давайте сообщим менеджеру, что сделка не двигается, менеджер не перезванивает клиенту и не отвечает на его сообщения. Давайте назначим задачу менеджеру от имени менеджера',
   },
-}

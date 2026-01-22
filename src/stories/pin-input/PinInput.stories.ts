@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/vue3-vite'
 import PinInputComponent from '../../components/pin-input/PinInputComponent.vue'
-import type { PinInputModel, PinInputColor, PinInputSize, PinInputType } from '../../components/pin-input/model'
+
 import { ref } from 'vue'
 
 const meta = {
@@ -16,15 +16,15 @@ const meta = {
         'air-primary-alert',
         'air-primary-warning',
         'air-primary-copilot',
-      ] as PinInputColor[],
+      ],
     },
     size: {
       control: 'select',
-      options: ['xss', 'xs', 'sm', 'md', 'lg', 'xl'] as PinInputSize[],
+      options: ['xss', 'xs', 'sm', 'md', 'lg', 'xl'],
     },
     type: {
       control: 'select',
-      options: ['text', 'number'] as PinInputType[],
+      options: ['text', 'number'],
     },
     length: { control: 'number' },
     placeholder: { control: 'text' },
@@ -43,13 +43,11 @@ const meta = {
     type: 'text',
     length: 5,
     placeholder: '○',
-  } as Partial<PinInputModel>,
+  },
 } as Meta<typeof PinInputComponent>
 
 export default meta
-type Story = StoryObj<typeof meta> & {
-  args?: Partial<PinInputModel>
-}
+type Story = StoryObj<typeof meta>
 
 export const Default: Story = {
   render: (args) => ({
@@ -453,7 +451,7 @@ export const WithCompleteEvent: Story = {
       const value = ref<string[]>([])
       const isComplete = ref(false)
 
-      function handleComplete(completeValue: string[]) {
+      function handleComplete(completeValue= []) {
         isComplete.value = true
         console.log('PIN код введен:', completeValue.join(''))
       }
@@ -539,7 +537,7 @@ export const InContext: Story = {
       const pin = ref<string[]>([])
       const isComplete = ref(false)
 
-      function handleComplete(completeValue: string[]) {
+      function handleComplete(completeValue= []) {
         isComplete.value = true
       }
 
@@ -584,7 +582,7 @@ export const OTPCode: Story = {
       const otpCode = ref<string[]>([])
       const isComplete = ref(false)
 
-      function handleComplete(completeValue: string[]) {
+      function handleComplete(completeValue= []) {
         isComplete.value = true
       }
 
@@ -610,4 +608,3 @@ export const OTPCode: Story = {
       </div>
     `,
   }),
-}

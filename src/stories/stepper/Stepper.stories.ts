@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/vue3-vite'
 import StepperComponent from '../../components/stepper/StepperComponent.vue'
-import type { StepperModel, StepperSize, StepperColor, StepperOrientation } from '../../components/stepper/model'
+
 import type { StepperItem } from '@bitrix24/b24ui-nuxt'
 import LocationIcon from '@bitrix24/b24icons-vue/outline/LocationIcon'
 import DeliveryIcon from '@bitrix24/b24icons-vue/outline/DeliveryIcon'
@@ -13,7 +13,7 @@ const meta = {
     items: { control: 'object' },
     size: {
       control: 'select',
-      options: ['xs', 'sm', 'md', 'lg', 'xl'] as StepperSize[],
+      options: ['xs', 'sm', 'md', 'lg', 'xl'],
     },
     color: {
       control: 'select',
@@ -23,11 +23,11 @@ const meta = {
         'air-primary-alert',
         'air-primary-warning',
         'air-primary-copilot',
-      ] as StepperColor[],
+      ],
     },
     orientation: {
       control: 'select',
-      options: ['horizontal', 'vertical'] as StepperOrientation[],
+      options: ['horizontal', 'vertical'],
     },
     defaultValue: { control: 'number' },
     disabled: { control: 'boolean' },
@@ -48,18 +48,16 @@ const meta = {
         title: 'Оформление',
         description: 'Подтвердите ваш заказ',
       },
-    ] as StepperItem[],
+    ],
     size: 'md',
     color: 'air-primary',
     orientation: 'horizontal',
     linear: true,
-  } as Partial<StepperModel>,
+  },
 } as Meta<typeof StepperComponent>
 
 export default meta
-type Story = StoryObj<typeof meta> & {
-  args?: Partial<StepperModel>
-}
+type Story = StoryObj<typeof meta>
 
 export const Default: Story = {
   args: {
@@ -76,7 +74,7 @@ export const Default: Story = {
         title: 'Оформление',
         description: 'Подтвердите ваш заказ',
       },
-    ] as StepperItem[],
+    ],
   },
 }
 
@@ -96,7 +94,7 @@ export const SizeXs: Story = {
         title: 'Оформление',
         description: 'Подтвердите ваш заказ',
       },
-    ] as StepperItem[],
+    ],
   },
 }
 
@@ -116,7 +114,7 @@ export const SizeSm: Story = {
         title: 'Оформление',
         description: 'Подтвердите ваш заказ',
       },
-    ] as StepperItem[],
+    ],
   },
 }
 
@@ -136,7 +134,7 @@ export const SizeMd: Story = {
         title: 'Оформление',
         description: 'Подтвердите ваш заказ',
       },
-    ] as StepperItem[],
+    ],
   },
 }
 
@@ -156,7 +154,7 @@ export const SizeLg: Story = {
         title: 'Оформление',
         description: 'Подтвердите ваш заказ',
       },
-    ] as StepperItem[],
+    ],
   },
 }
 
@@ -176,7 +174,7 @@ export const SizeXl: Story = {
         title: 'Оформление',
         description: 'Подтвердите ваш заказ',
       },
-    ] as StepperItem[],
+    ],
   },
 }
 
@@ -196,7 +194,7 @@ export const AirPrimary: Story = {
         title: 'Оформление',
         description: 'Подтвердите ваш заказ',
       },
-    ] as StepperItem[],
+    ],
   },
 }
 
@@ -216,7 +214,7 @@ export const AirPrimarySuccess: Story = {
         title: 'Оформление',
         description: 'Подтвердите ваш заказ',
       },
-    ] as StepperItem[],
+    ],
   },
 }
 
@@ -236,7 +234,7 @@ export const AirPrimaryAlert: Story = {
         title: 'Оформление',
         description: 'Подтвердите ваш заказ',
       },
-    ] as StepperItem[],
+    ],
   },
 }
 
@@ -256,7 +254,7 @@ export const AirPrimaryWarning: Story = {
         title: 'Оформление',
         description: 'Подтвердите ваш заказ',
       },
-    ] as StepperItem[],
+    ],
   },
 }
 
@@ -276,7 +274,7 @@ export const AirPrimaryCopilot: Story = {
         title: 'Оформление',
         description: 'Подтвердите ваш заказ',
       },
-    ] as StepperItem[],
+    ],
   },
 }
 
@@ -296,7 +294,7 @@ export const Horizontal: Story = {
         title: 'Оформление',
         description: 'Подтвердите ваш заказ',
       },
-    ] as StepperItem[],
+    ],
   },
 }
 
@@ -316,7 +314,7 @@ export const Vertical: Story = {
         title: 'Оформление',
         description: 'Подтвердите ваш заказ',
       },
-    ] as StepperItem[],
+    ],
   },
 }
 
@@ -336,7 +334,7 @@ export const Disabled: Story = {
         title: 'Оформление',
         description: 'Подтвердите ваш заказ',
       },
-    ] as StepperItem[],
+    ],
   },
 }
 
@@ -357,7 +355,7 @@ export const WithIcons: Story = {
         title: 'Оформление',
         description: 'Подтвердите ваш заказ',
       },
-    ] as StepperItem[],
+    ],
   },
 }
 
@@ -377,7 +375,7 @@ export const WithDefaultValue: Story = {
         title: 'Оформление',
         description: 'Подтвердите ваш заказ',
       },
-    ] as StepperItem[],
+    ],
   },
 }
 
@@ -397,7 +395,7 @@ export const WithModelValue: Story = {
         title: 'Оформление',
         description: 'Подтвердите ваш заказ',
       },
-    ] as StepperItem[],
+    ],
   },
 }
 
@@ -417,7 +415,7 @@ export const NonLinear: Story = {
         title: 'Оформление',
         description: 'Подтвердите ваш заказ',
       },
-    ] as StepperItem[],
+    ],
   },
 }
 
@@ -438,7 +436,7 @@ export const WithContentSlot: Story = {
         title: 'Оформление',
         description: 'Подтвердите ваш заказ',
       },
-    ] as StepperItem[],
+    ],
   },
   render: (args) => ({
     components: { StepperComponent },
@@ -477,7 +475,7 @@ export const WithCustomSlot: Story = {
         description: 'Подтвердите ваш заказ',
         slot: 'checkout',
       },
-    ] as StepperItem[],
+    ],
   },
   render: (args) => ({
     components: { StepperComponent },
@@ -504,4 +502,3 @@ export const WithCustomSlot: Story = {
       </StepperComponent>
     `,
   }),
-}

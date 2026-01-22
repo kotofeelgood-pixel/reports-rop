@@ -1,7 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/vue3-vite'
 import CollapsibleComponent from '../../components/collapsible/CollapsibleComponent.vue'
-import type { CollapsibleModel } from '../../components/collapsible/model'
-
 const meta = {
   title: 'Element/Collapsible',
   component: CollapsibleComponent,
@@ -14,13 +12,11 @@ const meta = {
   },
   args: {
     unmountOnHide: true,
-  } as Partial<CollapsibleModel>,
+  },
 } as Meta<typeof CollapsibleComponent>
 
 export default meta
-type Story = StoryObj<typeof meta> & {
-  args?: Partial<CollapsibleModel>
-}
+type Story = StoryObj<typeof meta>
 
 export const Default: Story = {
   args: {},
@@ -250,4 +246,3 @@ export const WithComplexContent: Story = {
       </CollapsibleComponent>
     `,
   }),
-}

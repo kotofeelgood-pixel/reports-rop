@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/vue3-vite'
 import LinkComponent from '../../../components/navigation/link/LinkComponent.vue'
-import type { LinkModel } from '../../../components/navigation/link/model'
+
 import { commonMeta } from '../../meta'
 
 const meta = {
@@ -14,13 +14,11 @@ const meta = {
   },
   args: {
     to: '/',
-  } as Partial<LinkModel>,
+  ,},
 } as Meta<typeof LinkComponent>
 
 export default meta
-type Story = StoryObj<typeof meta> & {
-  args?: Partial<LinkModel>
-}
+type Story = StoryObj<typeof meta>
 
 export const Default: Story = {
   args: {
@@ -66,4 +64,3 @@ export const WithRoute: Story = {
       <LinkComponent v-bind="args">Документация</LinkComponent>
     `,
   }),
-}

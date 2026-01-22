@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/vue3-vite'
 import InputTimeComponent from '../../../components/form/input-time/InputTimeComponent.vue'
-import type { InputTimeModel } from '../../../components/form/input-time/model'
+
 import { commonMeta } from '../../meta'
 import { ref } from 'vue'
 
@@ -19,13 +19,11 @@ const meta = {
     disabled: false,
     readonly: false,
     required: false,
-  } as Partial<InputTimeModel>,
+  ,},
 } as Meta<typeof InputTimeComponent>
 
 export default meta
-type Story = StoryObj<typeof meta> & {
-  args?: Partial<InputTimeModel>
-}
+type Story = StoryObj<typeof meta>
 
 export const Default: Story = {
   args: {
@@ -90,4 +88,3 @@ export const Required: Story = {
       <InputTimeComponent v-bind="args" v-model="time" />
     `,
   }),
-}

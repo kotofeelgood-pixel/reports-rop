@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/vue3-vite'
 import BannerComponent from '../../components/banner/BannerComponent.vue'
-import type { BannerModel, BannerColor } from '../../components/banner/model'
+
 import type { ButtonProps } from '@bitrix24/b24ui-nuxt'
 import RocketIcon from '@bitrix24/b24icons-vue/main/RocketIcon'
 import CircleCrossIcon from '@bitrix24/b24icons-vue/outline/CircleCrossIcon'
@@ -33,7 +33,7 @@ const meta = {
         'air-secondary-accent-1',
         'air-secondary-accent-2',
         'air-tertiary',
-      ] as BannerColor[],
+      ],
     },
     close: { control: 'boolean' },
     closeIcon: { control: 'object' },
@@ -42,13 +42,11 @@ const meta = {
     title: 'Пробный период подписки закончился. Подпишитесь, чтобы продолжить использование всех приложений.',
     color: 'air-primary-alert',
     close: false,
-  } as Partial<BannerModel>,
+  },
 } as Meta<typeof BannerComponent>
 
 export default meta
-type Story = StoryObj<typeof meta> & {
-  args?: Partial<BannerModel>
-}
+type Story = StoryObj<typeof meta>
 
 export const Default: Story = {
   args: {
@@ -179,7 +177,7 @@ export const WithActions: Story = {
         label: 'Открыть сканер',
         color: 'air-secondary-accent-2',
       },
-    ] as ButtonProps[],
+    ],
   },
 }
 
@@ -216,7 +214,7 @@ export const WithAllFeatures: Story = {
         label: 'Открыть сканер',
         color: 'air-secondary-accent-2',
       },
-    ] as ButtonProps[],
+    ],
     close: true,
     closeIcon: CircleCrossIcon,
   },
@@ -241,4 +239,3 @@ export const WithCloseHandler: Story = {
       <BannerComponent v-bind="args" @close="onClose" />
     `,
   }),
-}

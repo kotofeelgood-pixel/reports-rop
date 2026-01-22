@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/vue3-vite'
 import { ref } from 'vue'
 import FileUploadComponent from '../../components/file-upload/FileUploadComponent.vue'
-import type { FileUploadModel, FileUploadColor, FileUploadVariant, FileUploadSize, FileUploadLayout, FileUploadPosition } from '../../components/file-upload/model'
+
 import RocketIcon from '@bitrix24/b24icons-vue/main/RocketIcon'
 import ImageIcon from '@bitrix24/b24icons-vue/outline/ImageIcon'
 import UploadIcon from '@bitrix24/b24icons-vue/outline/UploadIcon'
@@ -31,23 +31,23 @@ const meta = {
         'air-secondary-accent-1',
         'air-secondary-accent-2',
         'air-tertiary',
-      ] as FileUploadColor[],
+      ],
     },
     variant: {
       control: 'select',
-      options: ['button', 'area'] as FileUploadVariant[],
+      options: ['button', 'area'],
     },
     size: {
       control: 'select',
-      options: ['xs', 'sm', 'md', 'lg'] as FileUploadSize[],
+      options: ['xs', 'sm', 'md', 'lg'],
     },
     layout: {
       control: 'select',
-      options: ['list', 'grid'] as FileUploadLayout[],
+      options: ['list', 'grid'],
     },
     position: {
       control: 'select',
-      options: ['inside', 'outside'] as FileUploadPosition[],
+      options: ['inside', 'outside'],
     },
     highlight: { control: 'boolean' },
     accept: { control: 'text' },
@@ -68,13 +68,11 @@ const meta = {
     dropzone: true,
     interactive: true,
     preview: true,
-  } as Partial<FileUploadModel>,
+  },
 } as Meta<typeof FileUploadComponent>
 
 export default meta
-type Story = StoryObj<typeof meta> & {
-  args?: Partial<FileUploadModel>
-}
+type Story = StoryObj<typeof meta>
 
 export const Default: Story = {
   args: {
@@ -466,4 +464,3 @@ export const WithDefaultSlot: Story = {
       </FileUploadComponent>
     `,
   }),
-}

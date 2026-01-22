@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/vue3-vite'
 import CalendarComponent from '../../../components/element/calendar/CalendarComponent.vue'
-import type { CalendarModel } from '../../../components/element/calendar/model'
+
 import { commonMeta } from '../../meta'
 import { ref } from 'vue'
 
@@ -18,13 +18,11 @@ const meta = {
   args: {
     mode: 'single',
     disabled: false,
-  } as Partial<CalendarModel>,
+  ,},
 } as Meta<typeof CalendarComponent>
 
 export default meta
-type Story = StoryObj<typeof meta> & {
-  args?: Partial<CalendarModel>
-}
+type Story = StoryObj<typeof meta>
 
 export const Default: Story = {
   args: {
@@ -88,4 +86,3 @@ export const Disabled: Story = {
       <CalendarComponent v-bind="args" v-model="date" />
     `,
   }),
-}

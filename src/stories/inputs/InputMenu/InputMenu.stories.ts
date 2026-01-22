@@ -1,7 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/vue3-vite'
 import InputMenuComponent from '../../../components/inputs/InputMenu/InputMenuComponent.vue'
-import type { InputSize, InputColor, TagColor, InputMenuModel } from '../../../components/inputs/InputMenu/model'
-
 const meta = {
   title: 'Form/InputMenu',
   component: InputMenuComponent,
@@ -16,11 +14,11 @@ const meta = {
         'air-primary-alert',
         'air-primary-warning',
         'air-primary-copilot',
-      ] as InputColor[],
+      ],
     },
     size: {
       control: 'select',
-      options: ['xss', 'xs', 'sm', 'md', 'lg', 'xl'] as InputSize[],
+      options: ['xss', 'xs', 'sm', 'md', 'lg', 'xl'],
     },
     noBorder: { control: 'boolean' },
     underline: { control: 'boolean' },
@@ -46,7 +44,7 @@ const meta = {
         'air-secondary-accent-2',
         'air-tertiary',
         'air-selection',
-      ] as TagColor[],
+      ],
     },
     highlight: { control: 'boolean' },
     valueKey: { control: 'text' },
@@ -81,13 +79,11 @@ const meta = {
       { value: 'option2', label: 'Опция 2' },
       { value: 'option3', label: 'Опция 3' },
     ],
-  } as Partial<InputMenuModel>,
+  ,},
 } as Meta<typeof InputMenuComponent>
 
 export default meta
-type Story = StoryObj<typeof meta> & {
-  args?: Partial<InputMenuModel>
-}
+type Story = StoryObj<typeof meta>
 
 export const Default: Story = {
   args: {
@@ -399,4 +395,3 @@ export const Readonly: Story = {
     modelValue: 'option2',
   },
 }
-

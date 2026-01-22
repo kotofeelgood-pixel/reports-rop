@@ -1,6 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/vue3-vite'
 import FormFieldComponent from '../../../components/form/form-field/FormFieldComponent.vue'
-import type { FormFieldModel } from '../../../components/form/form-field/model'
 import { commonMeta } from '../../meta'
 
 const meta = {
@@ -19,13 +18,11 @@ const meta = {
     label: 'Email',
     description: 'Введите ваш email адрес',
     required: false,
-  } as Partial<FormFieldModel>,
+  },
 } as Meta<typeof FormFieldComponent>
 
 export default meta
-type Story = StoryObj<typeof meta> & {
-  args?: Partial<FormFieldModel>
-}
+type Story = StoryObj<typeof meta>
 
 export const Default: Story = {
   args: {
@@ -82,4 +79,3 @@ export const Required: Story = {
       </FormFieldComponent>
     `,
   }),
-}

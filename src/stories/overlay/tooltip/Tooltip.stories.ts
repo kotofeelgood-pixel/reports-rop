@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/vue3-vite'
 import TooltipComponent from '../../../components/overlay/tooltip/TooltipComponent.vue'
-import type { TooltipModel } from '../../../components/overlay/tooltip/model'
+
 import { commonMeta } from '../../meta'
 
 const meta = {
@@ -12,13 +12,11 @@ const meta = {
   },
   args: {
     disabled: false,
-  } as Partial<TooltipModel>,
+  ,},
 } as Meta<typeof TooltipComponent>
 
 export default meta
-type Story = StoryObj<typeof meta> & {
-  args?: Partial<TooltipModel>
-}
+type Story = StoryObj<typeof meta>
 
 export const Default: Story = {
   args: {},
@@ -74,4 +72,3 @@ export const Disabled: Story = {
       </TooltipComponent>
     `,
   }),
-}

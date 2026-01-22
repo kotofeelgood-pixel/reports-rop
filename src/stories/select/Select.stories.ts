@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/vue3-vite'
 import SelectComponent from '../../components/select/SelectComponent.vue'
-import type { SelectModel, SelectColor, SelectSize, SelectTagColor } from '../../components/select/model'
+
 import type { SelectItem } from '@bitrix24/b24ui-nuxt'
 import RocketIcon from '@bitrix24/b24icons-vue/main/RocketIcon'
 import SettingsIcon from '@bitrix24/b24icons-vue/main/SettingsIcon'
@@ -22,11 +22,11 @@ const meta = {
         'air-primary-alert',
         'air-primary-warning',
         'air-primary-copilot',
-      ] as SelectColor[],
+      ],
     },
     size: {
       control: 'select',
-      options: ['xss', 'xs', 'sm', 'md', 'lg', 'xl'] as SelectSize[],
+      options: ['xss', 'xs', 'sm', 'md', 'lg', 'xl'],
     },
     tagColor: {
       control: 'select',
@@ -43,7 +43,7 @@ const meta = {
         'air-secondary-accent-2',
         'air-tertiary',
         'air-selection',
-      ] as SelectTagColor[],
+      ],
     },
     items: { control: 'object' },
     multiple: { control: 'boolean' },
@@ -65,13 +65,11 @@ const meta = {
       'In Progress',
       'Done',
     ],
-  } as Partial<SelectModel>,
+  },
 } as Meta<typeof SelectComponent>
 
 export default meta
-type Story = StoryObj<typeof meta> & {
-  args?: Partial<SelectModel>
-}
+type Story = StoryObj<typeof meta>
 
 export const Default: Story = {
   args: {
@@ -105,7 +103,7 @@ export const WithObjects: Story = {
       { label: 'Todo', value: 'todo' },
       { label: 'In Progress', value: 'in_progress' },
       { label: 'Done', value: 'done' },
-    ] as SelectItem[],
+    ],
   },
   render: (args) => ({
     components: { SelectComponent },
@@ -131,7 +129,7 @@ export const WithValueKey: Story = {
       { label: 'Todo', id: 'todo' },
       { label: 'In Progress', id: 'in_progress' },
       { label: 'Done', id: 'done' },
-    ] as SelectItem[],
+    ],
     valueKey: 'id',
   },
   render: (args) => ({
@@ -613,7 +611,7 @@ export const WithItemsType: Story = {
       'Carrot',
       'Courgette',
       'Leek',
-    ] as SelectItem[],
+    ],
   },
   render: (args) => ({
     components: { SelectComponent },
@@ -656,7 +654,7 @@ export const WithColorsInItems: Story = {
         color: 'air-primary-alert',
         icon: Shield2DefendedIcon,
       },
-    ] as SelectItem[],
+    ],
   },
   render: (args) => ({
     components: { SelectComponent },
@@ -702,7 +700,7 @@ export const WithIconsInItems: Story = {
         value: 'access_permissions',
         icon: Shield2DefendedIcon,
       },
-    ] as SelectItem[],
+    ],
   },
   render: (args) => ({
     components: { SelectComponent },
@@ -745,7 +743,7 @@ export const WithAvatarsInItems: Story = {
           alt: 'employee',
         },
       },
-    ] as SelectItem[],
+    ],
   },
   render: (args) => ({
     components: { SelectComponent },
@@ -787,7 +785,7 @@ export const WithNestedItems: Story = {
         'Courgette',
         'Leek',
       ],
-    ] as SelectItem[][],
+    ][],
   },
   render: (args) => ({
     components: { SelectComponent },
@@ -900,4 +898,3 @@ export const InContext: Story = {
       </div>
     `,
   }),
-}

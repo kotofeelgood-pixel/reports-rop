@@ -1,8 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/vue3-vite'
 import AvatarGroupComponent from '../../components/avatar-group/AvatarGroupComponent.vue'
 import AvatarComponent from '../../components/avatar/AvatarComponent.vue'
-import type { AvatarGroupModel } from '../../components/avatar-group/model'
-import type { AvatarSize } from '../../components/avatar/model'
 
 const meta = {
   title: 'Element/AvatarGroup',
@@ -11,19 +9,17 @@ const meta = {
   argTypes: {
     size: {
       control: 'select',
-      options: ['3xs', '2xs', 'xs', 'sm', 'md', 'lg', 'xl', '2xl', '3xl'] as AvatarSize[],
+      options: ['3xs', '2xs', 'xs', 'sm', 'md', 'lg', 'xl', '2xl', '3xl'],
     },
     max: { control: 'number' },
   },
   args: {
     size: 'md',
-  } as Partial<AvatarGroupModel>,
+  },
 } as Meta<typeof AvatarGroupComponent>
 
 export default meta
-type Story = StoryObj<typeof meta> & {
-  args?: Partial<AvatarGroupModel>
-}
+type Story = StoryObj<typeof meta>
 
 export const Default: Story = {
   args: {},
@@ -335,4 +331,3 @@ export const Mixed: Story = {
       </AvatarGroupComponent>
     `,
   }),
-}

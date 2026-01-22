@@ -1,7 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/vue3-vite'
 import ColorModeSwitchComponent from '../../components/color-mode-switch/ColorModeSwitchComponent.vue'
-import type { ColorModeSwitchModel, ColorModeSwitchSize, ColorModeSwitchColor } from '../../components/color-mode-switch/model'
-
 const meta = {
   title: 'Color Mode/ColorModeSwitch',
   component: ColorModeSwitchComponent,
@@ -10,7 +8,7 @@ const meta = {
     loading: { control: 'boolean' },
     size: {
       control: 'select',
-      options: ['xs', 'sm', 'md', 'lg'] as ColorModeSwitchSize[],
+      options: ['xs', 'sm', 'md', 'lg'],
     },
     color: {
       control: 'select',
@@ -20,7 +18,7 @@ const meta = {
         'air-primary-alert',
         'air-primary-warning',
         'air-primary-copilot',
-      ] as ColorModeSwitchColor[],
+      ],
     },
     autofocus: { control: 'boolean' },
     disabled: { control: 'boolean' },
@@ -36,13 +34,11 @@ const meta = {
   args: {
     size: 'md',
     color: 'air-primary',
-  } as Partial<ColorModeSwitchModel>,
+  },
 } as Meta<typeof ColorModeSwitchComponent>
 
 export default meta
-type Story = StoryObj<typeof meta> & {
-  args?: Partial<ColorModeSwitchModel>
-}
+type Story = StoryObj<typeof meta>
 
 export const Default: Story = {
   args: {},
@@ -199,4 +195,3 @@ export const WithFullFeatures: Story = {
     id: 'color-mode',
     name: 'colorMode',
   },
-}

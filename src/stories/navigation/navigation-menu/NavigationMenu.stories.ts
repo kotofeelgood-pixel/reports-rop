@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/vue3-vite'
 import NavigationMenuComponent from '../../../components/navigation/navigation-menu/NavigationMenuComponent.vue'
-import type { NavigationMenuModel } from '../../../components/navigation/navigation-menu/model'
+
 import { commonMeta } from '../../meta'
 
 const meta = {
@@ -15,13 +15,11 @@ const meta = {
   },
   args: {
     orientation: 'horizontal',
-  } as Partial<NavigationMenuModel>,
+  ,},
 } as Meta<typeof NavigationMenuComponent>
 
 export default meta
-type Story = StoryObj<typeof meta> & {
-  args?: Partial<NavigationMenuModel>
-}
+type Story = StoryObj<typeof meta>
 
 export const Default: Story = {
   args: {
@@ -59,4 +57,3 @@ export const Vertical: Story = {
       </NavigationMenuComponent>
     `,
   }),
-}

@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/vue3-vite'
 import SlideoverComponent from '../../../components/overlay/slideover/SlideoverComponent.vue'
-import type { SlideoverModel } from '../../../components/overlay/slideover/model'
+
 import { commonMeta } from '../../meta'
 import { ref } from 'vue'
 
@@ -20,13 +20,11 @@ const meta = {
     side: 'right',
     dismissible: true,
     overlay: true,
-  } as Partial<SlideoverModel>,
+  ,},
 } as Meta<typeof SlideoverComponent>
 
 export default meta
-type Story = StoryObj<typeof meta> & {
-  args?: Partial<SlideoverModel>
-}
+type Story = StoryObj<typeof meta>
 
 export const Default: Story = {
   args: {
@@ -98,4 +96,3 @@ export const FromTop: Story = {
       </div>
     `,
   }),
-}

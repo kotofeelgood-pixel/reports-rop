@@ -1,7 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/vue3-vite'
 import CheckboxGroupComponent from '../../../components/inputs/CheckboxGroup/CheckboxGroupComponent.vue'
-import type { CheckboxSize, CheckboxColor, CheckboxGroupVariant, CheckboxGroupOrientation, CheckboxIndicator } from '../../../components/inputs/CheckboxGroup/model'
-
 const meta = {
   title: 'Form/CheckboxGroup',
   component: CheckboxGroupComponent,
@@ -15,15 +13,15 @@ const meta = {
     defaultValue: { control: 'object' },
     size: {
       control: 'select',
-      options: ['xs', 'sm', 'md', 'lg'] as CheckboxSize[],
+      options: ['xs', 'sm', 'md', 'lg'],
     },
     variant: {
       control: 'select',
-      options: ['card', 'list', 'table'] as CheckboxGroupVariant[],
+      options: ['card', 'list', 'table'],
     },
     orientation: {
       control: 'select',
-      options: ['horizontal', 'vertical'] as CheckboxGroupOrientation[],
+      options: ['horizontal', 'vertical'],
     },
     disabled: { control: 'boolean' },
     loop: { control: 'boolean' },
@@ -37,11 +35,11 @@ const meta = {
         'air-primary-alert',
         'air-primary-warning',
         'air-primary-copilot',
-      ] as CheckboxColor[],
+      ],
     },
     indicator: {
       control: 'select',
-      options: ['start', 'end', 'hidden'] as CheckboxIndicator[],
+      options: ['start', 'end', 'hidden'],
     },
   },
   args: {
@@ -351,4 +349,3 @@ export const WithBothSlots: Story = {
       </CheckboxGroupComponent>
     `,
   }),
-}

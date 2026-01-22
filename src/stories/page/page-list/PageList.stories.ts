@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/vue3-vite'
 import PageListComponent from '../../../components/page/page-list/PageListComponent.vue'
-import type { PageListModel } from '../../../components/page/page-list/model'
+
 import { commonMeta } from '../../meta'
 
 const meta = {
@@ -8,13 +8,11 @@ const meta = {
   title: 'Page/PageList',
   component: PageListComponent,
   argTypes: {},
-  args: {} as Partial<PageListModel>,
+  args: {,},
 } as Meta<typeof PageListComponent>
 
 export default meta
-type Story = StoryObj<typeof meta> & {
-  args?: Partial<PageListModel>
-}
+type Story = StoryObj<typeof meta>
 
 export const Default: Story = {
   args: {},
@@ -58,4 +56,3 @@ export const WithCards: Story = {
       </PageListComponent>
     `,
   }),
-}

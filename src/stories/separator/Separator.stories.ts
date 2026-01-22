@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/vue3-vite'
 import SeparatorComponent from '../../components/separator/SeparatorComponent.vue'
-import type { SeparatorModel, SeparatorOrientation, SeparatorAccent, SeparatorSize, SeparatorType } from '../../components/separator/model'
+
 import RocketIcon from '@bitrix24/b24icons-vue/main/RocketIcon'
 
 const meta = {
@@ -13,19 +13,19 @@ const meta = {
     avatar: { control: 'object' },
     accent: {
       control: 'select',
-      options: ['default', 'accent', 'less'] as SeparatorAccent[],
+      options: ['default', 'accent', 'less'],
     },
     size: {
       control: 'select',
-      options: ['thin', 'thick'] as SeparatorSize[],
+      options: ['thin', 'thick'],
     },
     type: {
       control: 'select',
-      options: ['solid', 'double', 'dashed', 'dotted'] as SeparatorType[],
+      options: ['solid', 'double', 'dashed', 'dotted'],
     },
     orientation: {
       control: 'select',
-      options: ['horizontal', 'vertical'] as SeparatorOrientation[],
+      options: ['horizontal', 'vertical'],
     },
     decorative: { control: 'boolean' },
   },
@@ -34,13 +34,11 @@ const meta = {
     accent: 'default',
     size: 'thin',
     type: 'solid',
-  } as Partial<SeparatorModel>,
+  },
 } as Meta<typeof SeparatorComponent>
 
 export default meta
-type Story = StoryObj<typeof meta> & {
-  args?: Partial<SeparatorModel>
-}
+type Story = StoryObj<typeof meta>
 
 export const Default: Story = {
   args: {},
@@ -243,4 +241,3 @@ export const AllAccents: Story = {
       </div>
     `,
   }),
-}

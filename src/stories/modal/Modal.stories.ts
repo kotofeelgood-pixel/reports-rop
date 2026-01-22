@@ -1,6 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/vue3-vite'
 import ModalComponent from '../../components/modal/ModalComponent.vue'
-import type { ModalModel } from '../../components/modal/model'
 import type { ButtonProps } from '@bitrix24/b24ui-nuxt'
 import { ref } from 'vue'
 import RocketIcon from '@bitrix24/b24icons-vue/main/RocketIcon'
@@ -34,13 +33,11 @@ const meta = {
     dismissible: true,
     modal: true,
     close: true,
-  } as Partial<ModalModel>,
+  },
 } as Meta<typeof ModalComponent>
 
 export default meta
-type Story = StoryObj<typeof meta> & {
-  args?: Partial<ModalModel>
-}
+type Story = StoryObj<typeof meta>
 
 export const Default: Story = {
   args: {
@@ -637,4 +634,3 @@ export const InContext: Story = {
       </div>
     `,
   }),
-}

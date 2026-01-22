@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/vue3-vite'
 import SidebarLayoutComponent from '../../../components/layout/sidebar-layout/SidebarLayoutComponent.vue'
-import type { SidebarLayoutModel } from '../../../components/layout/sidebar-layout/model'
+
 import { commonMeta } from '../../meta'
 
 const meta = {
@@ -8,13 +8,11 @@ const meta = {
   title: 'Layout/SidebarLayout',
   component: SidebarLayoutComponent,
   argTypes: {},
-  args: {} as Partial<SidebarLayoutModel>,
+  args: {,},
 } as Meta<typeof SidebarLayoutComponent>
 
 export default meta
-type Story = StoryObj<typeof meta> & {
-  args?: Partial<SidebarLayoutModel>
-}
+type Story = StoryObj<typeof meta>
 
 export const Default: Story = {
   args: {},
@@ -42,4 +40,3 @@ export const Default: Story = {
       </SidebarLayoutComponent>
     `,
   }),
-}

@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/vue3-vite'
 import PageGridComponent from '../../components/page-grid/PageGridComponent.vue'
-import type { PageGridModel } from '../../components/page-grid/model'
+
 import CopilotIcon from '@bitrix24/b24icons-vue/outline/CopilotIcon'
 import CrmLettersIcon from '@bitrix24/b24icons-vue/outline/CrmLettersIcon'
 import TaskIcon from '@bitrix24/b24icons-vue/outline/TaskIcon'
@@ -16,9 +16,7 @@ const meta = {
 } as Meta<typeof PageGridComponent>
 
 export default meta
-type Story = StoryObj<typeof meta> & {
-  args?: Partial<PageGridModel>
-}
+type Story = StoryObj<typeof meta>
 
 export const Default: Story = {
   render: () => ({
@@ -285,4 +283,3 @@ export const InContext: Story = {
       </div>
     `,
   }),
-}

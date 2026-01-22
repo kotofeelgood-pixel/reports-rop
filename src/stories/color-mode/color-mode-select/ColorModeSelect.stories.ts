@@ -1,6 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/vue3-vite'
 import ColorModeSelectComponent from '../../../components/color-mode/color-mode-select/ColorModeSelectComponent.vue'
-import type { ColorModeSelectModel } from '../../../components/color-mode/color-mode-select/model'
 import { commonMeta } from '../../meta'
 import { ref } from 'vue'
 
@@ -9,13 +8,11 @@ const meta = {
   title: 'Color Mode/ColorModeSelect',
   component: ColorModeSelectComponent,
   argTypes: {},
-  args: {} as Partial<ColorModeSelectModel>,
+  args: {},
 } as Meta<typeof ColorModeSelectComponent>
 
 export default meta
-type Story = StoryObj<typeof meta> & {
-  args?: Partial<ColorModeSelectModel>
-}
+type Story = StoryObj<typeof meta>
 
 export const Default: Story = {
   args: {},
@@ -29,4 +26,3 @@ export const Default: Story = {
       <ColorModeSelectComponent v-bind="args" v-model="mode" />
     `,
   }),
-}

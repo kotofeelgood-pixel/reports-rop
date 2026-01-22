@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/vue3-vite'
 import CommandPaletteComponent from '../../components/command-palette/CommandPaletteComponent.vue'
-import type { CommandPaletteModel, CommandPaletteGroup, CommandPaletteItem } from '../../components/command-palette/model'
+
 import { ref, computed } from 'vue'
 import FileUploadIcon from '@bitrix24/b24icons-vue/main/FileUploadIcon'
 import FolderPlusIcon from '@bitrix24/b24icons-vue/outline/FolderPlusIcon'
@@ -44,15 +44,13 @@ const meta = {
   args: {
     placeholder: 'Поиск...',
     autofocus: true,
-  } as Partial<CommandPaletteModel>,
+  },
 } as Meta<typeof CommandPaletteComponent>
 
 export default meta
-type Story = StoryObj<typeof meta> & {
-  args?: Partial<CommandPaletteModel>
-}
+type Story = StoryObj<typeof meta>
 
-const basicGroups: CommandPaletteGroup[] = [
+const basicGroups= [] = [
   {
     id: 'users',
     label: 'Пользователи',
@@ -761,7 +759,7 @@ export const WithVirtualization: Story = {
     components: { CommandPaletteComponent },
     setup() {
       const value = ref({})
-      const items: CommandPaletteItem[] = Array(1000)
+      const items= [] = Array(1000)
         .fill(0)
         .map((_, index) => ({
           label: `Элемент-${index}`,
@@ -853,4 +851,3 @@ export const InContext: Story = {
       </div>
     `,
   }),
-}

@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/vue3-vite'
 import KbdComponent from '../../../components/element/kbd/KbdComponent.vue'
-import type { KbdModel } from '../../../components/element/kbd/model'
+
 import { commonMeta } from '../../meta'
 
 const meta = {
@@ -8,13 +8,11 @@ const meta = {
   title: 'Element/Kbd',
   component: KbdComponent,
   argTypes: {},
-  args: {} as Partial<KbdModel>,
+  args: {,},
 } as Meta<typeof KbdComponent>
 
 export default meta
-type Story = StoryObj<typeof meta> & {
-  args?: Partial<KbdModel>
-}
+type Story = StoryObj<typeof meta>
 
 export const Default: Story = {
   args: {},
@@ -63,4 +61,3 @@ export const SingleKey: Story = {
       <KbdComponent v-bind="args">Esc</KbdComponent>
     `,
   }),
-}

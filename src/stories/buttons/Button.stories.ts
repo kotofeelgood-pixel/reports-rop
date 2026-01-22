@@ -1,6 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/vue3-vite'
 import ButtonComponent from '../../components/buttons/ButtonComponent.vue'
-import type { ButtonSize, ButtonColor } from '../../components/buttons/model'
 import { commonMeta } from '../meta'
 
 const meta = {
@@ -8,10 +7,10 @@ const meta = {
   title: 'Element/Button',
   component: ButtonComponent,
   argTypes: {
-    label: { control: 'text' },
+    label: { control: 'text'},
     size: {
       control: 'select',
-      options: ['xs', 'md', 'xss', 'sm', 'lg', 'xl'] as ButtonSize[],
+      options: ['xs', 'md', 'xss', 'sm', 'lg', 'xl'],
     },
     color: {
       control: 'select',
@@ -32,7 +31,7 @@ const meta = {
         'air-selection',
         'air-boost',
         'link',
-      ] as ButtonColor[],
+      ],
     },
     useDropdown: { control: 'boolean' },
     active: { control: 'boolean' },
@@ -119,4 +118,3 @@ export const Block: Story = {
     block: true,
     color: 'air-primary',
   },
-}

@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/vue3-vite'
 import PageLinksComponent from '../../components/page-links/PageLinksComponent.vue'
-import type { PageLinksModel } from '../../components/page-links/model'
+
 import type { PageLink } from '@bitrix24/b24ui-nuxt'
 import DocumentSignIcon from '@bitrix24/b24icons-vue/main/DocumentSignIcon'
 import AiStarsIcon from '@bitrix24/b24icons-vue/outline/AiStarsIcon'
@@ -28,14 +28,12 @@ const meta = {
         label: 'Релизы',
         to: 'https://github.com/bitrix24/b24ui/releases',
       },
-    ] as PageLink[],
-  } as Partial<PageLinksModel>,
+    ],
+  },
 } as Meta<typeof PageLinksComponent>
 
 export default meta
-type Story = StoryObj<typeof meta> & {
-  args?: Partial<PageLinksModel>
-}
+type Story = StoryObj<typeof meta>
 
 export const Default: Story = {
   args: {
@@ -52,7 +50,7 @@ export const Default: Story = {
         label: 'Релизы',
         to: 'https://github.com/bitrix24/b24ui/releases',
       },
-    ] as PageLink[],
+    ],
   },
 }
 
@@ -72,7 +70,7 @@ export const WithTitle: Story = {
         label: 'Релизы',
         to: 'https://github.com/bitrix24/b24ui/releases',
       },
-    ] as PageLink[],
+    ],
   },
 }
 
@@ -98,7 +96,7 @@ export const WithIcons: Story = {
         to: 'https://github.com/bitrix24/b24ui/releases',
         target: '_blank',
       },
-    ] as PageLink[],
+    ],
   },
 }
 
@@ -121,7 +119,7 @@ export const WithTargetBlank: Story = {
         to: 'https://github.com/bitrix24/b24ui/releases',
         target: '_blank',
       },
-    ] as PageLink[],
+    ],
   },
 }
 
@@ -149,7 +147,7 @@ export const ManyLinks: Story = {
         label: 'Discussions',
         to: 'https://github.com/bitrix24/b24ui/discussions',
       },
-    ] as PageLink[],
+    ],
   },
 }
 
@@ -172,7 +170,7 @@ export const WithCustomSlots: Story = {
         icon: RocketIcon,
         to: 'https://github.com/bitrix24/b24ui/releases',
       },
-    ] as PageLink[],
+    ],
   },
   render: (args) => ({
     components: { PageLinksComponent },
@@ -211,7 +209,7 @@ export const InContext: Story = {
         to: 'https://github.com/bitrix24/b24ui/releases',
         target: '_blank',
       },
-    ] as PageLink[],
+    ],
   },
   render: (args) => ({
     components: { PageLinksComponent },
@@ -230,4 +228,3 @@ export const InContext: Story = {
       </div>
     `,
   }),
-}

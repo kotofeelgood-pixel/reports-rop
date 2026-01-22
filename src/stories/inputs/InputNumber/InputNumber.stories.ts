@@ -1,7 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/vue3-vite'
 import InputNumberComponent from '../../../components/inputs/InputNumber/InputNumberComponent.vue'
-import type { InputSize, InputColor, TagColor, InputNumberOrientation } from '../../../components/inputs/InputNumber/model'
-
 const meta = {
   title: 'Form/InputNumber',
   component: InputNumberComponent,
@@ -16,11 +14,11 @@ const meta = {
         'air-primary-alert',
         'air-primary-warning',
         'air-primary-copilot',
-      ] as InputColor[],
+      ],
     },
     size: {
       control: 'select',
-      options: ['xss', 'xs', 'sm', 'md', 'lg', 'xl'] as InputSize[],
+      options: ['xss', 'xs', 'sm', 'md', 'lg', 'xl'],
     },
     noBorder: { control: 'boolean' },
     underline: { control: 'boolean' },
@@ -41,12 +39,12 @@ const meta = {
         'air-secondary-accent-2',
         'air-tertiary',
         'air-selection',
-      ] as TagColor[],
+      ],
     },
     highlight: { control: 'boolean' },
     orientation: {
       control: 'select',
-      options: ['horizontal', 'vertical'] as InputNumberOrientation[],
+      options: ['horizontal', 'vertical'],
     },
     increment: { control: 'boolean' },
     incrementDisabled: { control: 'boolean' },
@@ -321,4 +319,3 @@ export const WithAutofocusDelay: Story = {
     autofocus: true,
     autofocusDelay: 500,
   },
-}

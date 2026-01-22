@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/vue3-vite'
 import CountdownComponent from '../../../components/element/countdown/CountdownComponent.vue'
-import type { CountdownModel } from '../../../components/element/countdown/model'
+
 import { commonMeta } from '../../meta'
 
 const meta = {
@@ -14,13 +14,11 @@ const meta = {
   args: {
     targetDate: new Date(Date.now() + 60 * 1000),
     autoStart: true,
-  } as Partial<CountdownModel>,
+  ,},
 } as Meta<typeof CountdownComponent>
 
 export default meta
-type Story = StoryObj<typeof meta> & {
-  args?: Partial<CountdownModel>
-}
+type Story = StoryObj<typeof meta>
 
 export const Default: Story = {
   args: {
@@ -48,4 +46,3 @@ export const ManualStart: Story = {
     targetDate: new Date(Date.now() + 60 * 1000),
     autoStart: false,
   },
-}

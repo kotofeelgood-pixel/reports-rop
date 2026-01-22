@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/vue3-vite'
 import ColorPickerComponent from '../../../components/form/color-picker/ColorPickerComponent.vue'
-import type { ColorPickerModel } from '../../../components/form/color-picker/model'
+
 import { commonMeta } from '../../meta'
 import { ref } from 'vue'
 
@@ -13,13 +13,11 @@ const meta = {
   },
   args: {
     disabled: false,
-  } as Partial<ColorPickerModel>,
+  ,},
 } as Meta<typeof ColorPickerComponent>
 
 export default meta
-type Story = StoryObj<typeof meta> & {
-  args?: Partial<ColorPickerModel>
-}
+type Story = StoryObj<typeof meta>
 
 export const Default: Story = {
   args: {},
@@ -65,4 +63,3 @@ export const Disabled: Story = {
       <ColorPickerComponent v-bind="args" v-model="color" />
     `,
   }),
-}

@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/vue3-vite'
 import BadgeComponent from '../../components/badge/BadgeComponent.vue'
-import type { BadgeModel, BadgeColor, BadgeSize } from '../../components/badge/model'
+
 import RocketIcon from '@bitrix24/b24icons-vue/main/RocketIcon'
 
 const meta = {
@@ -24,12 +24,12 @@ const meta = {
         'air-secondary-accent-2',
         'air-tertiary',
         'air-selection',
-      ] as BadgeColor[],
+      ],
     },
     inverted: { control: 'boolean' },
     size: {
       control: 'select',
-      options: ['xss', 'xs', 'sm', 'md', 'lg', 'xl'] as BadgeSize[],
+      options: ['xss', 'xs', 'sm', 'md', 'lg', 'xl'],
     },
     square: { control: 'boolean' },
     useLink: { control: 'boolean' },
@@ -47,13 +47,11 @@ const meta = {
     square: false,
     useLink: false,
     useClose: false,
-  } as Partial<BadgeModel>,
+  },
 } as Meta<typeof BadgeComponent>
 
 export default meta
-type Story = StoryObj<typeof meta> & {
-  args?: Partial<BadgeModel>
-}
+type Story = StoryObj<typeof meta>
 
 export const Default: Story = {
   args: {
@@ -327,4 +325,3 @@ export const WithNumbers: Story = {
       </div>
     `,
   }),
-}
