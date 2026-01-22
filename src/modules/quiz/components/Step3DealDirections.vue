@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue'
+import CheckboxGroupComponent from '@/components/inputs/CheckboxGroup/CheckboxGroupComponent.vue'
 import CheckboxComponent from '@/components/inputs/Checkbox/CheckboxComponent.vue'
 import BannerComponent from '@/components/banner/BannerComponent.vue'
 import ScrollAreaComponent from '@/components/scroll-area/ScrollAreaComponent.vue'
@@ -7,6 +8,14 @@ import type { DealDirection } from '@/stores/useReportsQuizStore'
 
 const { data } = defineProps<{data: DealDirection[]}>()
 const model = defineModel<string[]>({ default: () => [] })
+
+// Преобразуем данные для CheckboxGroupComponent
+const checkboxItems = computed(() => {
+  return data.map(d => ({
+    value: d.value,
+    label: d.label,
+  }))
+})
 
 const allDirectionsSelected = computed(() => {
   if (!data || data.length === 0) return false
@@ -25,25 +34,6 @@ const handleSelectAll = (checked: boolean) => {
     // Снимаем все - создаем пустой массив
     model.value = []
   }
-}
-
-const handleToggleDirection = (directionValue: string) => (checked: boolean) => {
-  // Создаем новый массив для гарантии реактивности
-  const currentValues = model.value && Array.isArray(model.value) ? [...model.value] : []
-
-  if (checked) {
-    // Добавляем значение, если его еще нет
-    if (!currentValues.includes(directionValue)) {
-      model.value = [...currentValues, directionValue]
-    }
-  } else {
-    // Удаляем значение, создавая новый массив без него
-    model.value = currentValues.filter(v => v !== directionValue)
-  }
-}
-
-const isDirectionSelected = (value: string) => {
-  return model.value && Array.isArray(model.value) && model.value.includes(value)
 }
 </script>
 
@@ -65,14 +55,12 @@ const isDirectionSelected = (value: string) => {
           color="air-primary"
           variant="card"
         />
-        <CheckboxComponent
-          v-for="direction in data"
-          :key="direction.value"
-          :model-value="isDirectionSelected(direction.value)"
-          @update:model-value="handleToggleDirection(direction.value)"
-          :label="direction.label"
-          color="air-primary"
+        <CheckboxGroupComponent
+          v-model="model"
+          :items="checkboxItems"
           variant="card"
+          color="air-primary"
+          orientation="vertical"
         />
       </div>
     </ScrollAreaComponent>

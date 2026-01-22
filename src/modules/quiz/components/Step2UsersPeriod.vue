@@ -136,7 +136,7 @@ const selectedEmployeesCount = computed(() => {
       size="sm"
       class="mb-4"
     />
-    <div class="space-y-4 flex-1 flex flex-col">
+    <div class="space-y-4 flex flex-col mb-6">
       <!-- Кнопка выбора сотрудников -->
       <div>
         <ButtonComponent
