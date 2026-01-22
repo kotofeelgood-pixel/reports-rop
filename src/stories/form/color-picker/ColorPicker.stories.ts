@@ -2,7 +2,6 @@ import type { Meta, StoryObj } from '@storybook/vue3-vite'
 import ColorPickerComponent from '../../../components/form/color-picker/ColorPickerComponent.vue'
 
 import { commonMeta } from '../../meta'
-import { ref } from 'vue'
 
 const meta = {
   ...commonMeta,
@@ -13,53 +12,11 @@ const meta = {
   },
   args: {
     disabled: false,
-  ,},
+  },
 } as Meta<typeof ColorPickerComponent>
 
 export default meta
 type Story = StoryObj<typeof meta>
 
-export const Default: Story = {
-  args: {},
-  render: (args) => ({
-    components: { ColorPickerComponent },
-    setup() {
-      const color = ref<string | undefined>('#3b82f6')
-      return { args, color }
-    },
-    template: `
-      <ColorPickerComponent v-bind="args" v-model="color" />
-    `,
-  }),
-}
+export const Default: Story = {}
 
-export const WithDefaultValue: Story = {
-  args: {
-    defaultValue: '#ef4444',
-  },
-  render: (args) => ({
-    components: { ColorPickerComponent },
-    setup() {
-      const color = ref<string | undefined>(args.defaultValue)
-      return { args, color }
-    },
-    template: `
-      <ColorPickerComponent v-bind="args" v-model="color" />
-    `,
-  }),
-}
-
-export const Disabled: Story = {
-  args: {
-    disabled: true,
-  },
-  render: (args) => ({
-    components: { ColorPickerComponent },
-    setup() {
-      const color = ref<string | undefined>('#3b82f6')
-      return { args, color }
-    },
-    template: `
-      <ColorPickerComponent v-bind="args" v-model="color" />
-    `,
-  }),

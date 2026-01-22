@@ -12,64 +12,11 @@ const meta = {
   },
   args: {
     columns: 2,
-  ,},
+  },
 } as Meta<typeof PageColumnsComponent>
 
 export default meta
 type Story = StoryObj<typeof meta>
 
-export const Default: Story = {
-  args: {
-    columns: 2,
-  },
-  render: (args) => ({
-    components: { PageColumnsComponent },
-    setup() {
-      return { args }
-    },
-    template: `
-      <PageColumnsComponent v-bind="args">
-        <div class="p-4 border rounded">Колонка 1</div>
-        <div class="p-4 border rounded">Колонка 2</div>
-      </PageColumnsComponent>
-    `,
-  }),
-}
+export const Default: Story = {}
 
-export const ThreeColumns: Story = {
-  args: {
-    columns: 3,
-  },
-  render: (args) => ({
-    components: { PageColumnsComponent },
-    setup() {
-      return { args }
-    },
-    template: `
-      <PageColumnsComponent v-bind="args">
-        <div class="p-4 border rounded">Колонка 1</div>
-        <div class="p-4 border rounded">Колонка 2</div>
-        <div class="p-4 border rounded">Колонка 3</div>
-      </PageColumnsComponent>
-    `,
-  }),
-}
-
-export const FourColumns: Story = {
-  args: {
-    columns: 4,
-  },
-  render: (args) => ({
-    components: { PageColumnsComponent },
-    setup() {
-      return { args }
-    },
-    template: `
-      <PageColumnsComponent v-bind="args">
-        <div class="p-4 border rounded">Колонка 1</div>
-        <div class="p-4 border rounded">Колонка 2</div>
-        <div class="p-4 border rounded">Колонка 3</div>
-        <div class="p-4 border rounded">Колонка 4</div>
-      </PageColumnsComponent>
-    `,
-  }),

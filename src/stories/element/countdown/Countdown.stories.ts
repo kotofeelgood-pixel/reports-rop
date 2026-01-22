@@ -14,35 +14,11 @@ const meta = {
   args: {
     targetDate: new Date(Date.now() + 60 * 1000),
     autoStart: true,
-  ,},
+  },
 } as Meta<typeof CountdownComponent>
 
 export default meta
 type Story = StoryObj<typeof meta>
 
-export const Default: Story = {
-  args: {
-    targetDate: new Date(Date.now() + 60 * 1000),
-    autoStart: true,
-  },
-}
+export const Default: Story = {}
 
-export const FiveMinutes: Story = {
-  args: {
-    targetDate: new Date(Date.now() + 5 * 60 * 1000),
-    autoStart: true,
-  },
-}
-
-export const OneHour: Story = {
-  args: {
-    targetDate: new Date(Date.now() + 60 * 60 * 1000),
-    autoStart: true,
-  },
-}
-
-export const ManualStart: Story = {
-  args: {
-    targetDate: new Date(Date.now() + 60 * 1000),
-    autoStart: false,
-  },

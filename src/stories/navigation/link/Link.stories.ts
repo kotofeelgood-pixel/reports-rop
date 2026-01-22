@@ -14,53 +14,11 @@ const meta = {
   },
   args: {
     to: '/',
-  ,},
+  },
 } as Meta<typeof LinkComponent>
 
 export default meta
 type Story = StoryObj<typeof meta>
 
-export const Default: Story = {
-  args: {
-    to: '/',
-  },
-  render: (args) => ({
-    components: { LinkComponent },
-    setup() {
-      return { args }
-    },
-    template: `
-      <LinkComponent v-bind="args">Ссылка</LinkComponent>
-    `,
-  }),
-}
+export const Default: Story = {}
 
-export const External: Story = {
-  args: {
-    href: 'https://bitrix24.com',
-    external: true,
-  },
-  render: (args) => ({
-    components: { LinkComponent },
-    setup() {
-      return { args }
-    },
-    template: `
-      <LinkComponent v-bind="args">Внешняя ссылка</LinkComponent>
-    `,
-  }),
-}
-
-export const WithRoute: Story = {
-  args: {
-    to: '/docs',
-  },
-  render: (args) => ({
-    components: { LinkComponent },
-    setup() {
-      return { args }
-    },
-    template: `
-      <LinkComponent v-bind="args">Документация</LinkComponent>
-    `,
-  }),

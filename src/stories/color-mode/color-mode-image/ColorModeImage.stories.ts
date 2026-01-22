@@ -16,15 +16,10 @@ const meta = {
     light: 'https://via.placeholder.com/400/ffffff/000000?text=Light+Mode',
     dark: 'https://via.placeholder.com/400/000000/ffffff?text=Dark+Mode',
     alt: 'Color mode image',
-  ,},
+  },
 } as Meta<typeof ColorModeImageComponent>
 
 export default meta
 type Story = StoryObj<typeof meta>
 
-export const Default: Story = {
-  args: {
-    light: 'https://via.placeholder.com/400/ffffff/000000?text=Light+Mode',
-    dark: 'https://via.placeholder.com/400/000000/ffffff?text=Dark+Mode',
-    alt: 'Color mode image',
-  },
+export const Default: Story = {}

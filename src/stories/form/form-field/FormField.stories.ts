@@ -24,58 +24,5 @@ const meta = {
 export default meta
 type Story = StoryObj<typeof meta>
 
-export const Default: Story = {
-  args: {
-    name: 'email',
-    label: 'Email',
-    description: 'Введите ваш email адрес',
-  },
-  render: (args) => ({
-    components: { FormFieldComponent },
-    setup() {
-      return { args }
-    },
-    template: `
-      <FormFieldComponent v-bind="args">
-        <input type="email" class="w-full px-3 py-2 border rounded" />
-      </FormFieldComponent>
-    `,
-  }),
-}
+export const Default: Story = {}
 
-export const WithError: Story = {
-  args: {
-    name: 'email',
-    label: 'Email',
-    error: 'Некорректный email адрес',
-  },
-  render: (args) => ({
-    components: { FormFieldComponent },
-    setup() {
-      return { args }
-    },
-    template: `
-      <FormFieldComponent v-bind="args">
-        <input type="email" class="w-full px-3 py-2 border border-red-500 rounded" />
-      </FormFieldComponent>
-    `,
-  }),
-}
-
-export const Required: Story = {
-  args: {
-    name: 'name',
-    label: 'Имя',
-    required: true,
-  },
-  render: (args) => ({
-    components: { FormFieldComponent },
-    setup() {
-      return { args }
-    },
-    template: `
-      <FormFieldComponent v-bind="args">
-        <input type="text" class="w-full px-3 py-2 border rounded" />
-      </FormFieldComponent>
-    `,
-  }),

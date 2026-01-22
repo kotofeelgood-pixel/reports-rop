@@ -16,29 +16,11 @@ const meta = {
     title: 'Заголовок карточки',
     description: 'Описание карточки',
     href: '/',
-  ,},
+  },
 } as Meta<typeof PageCardComponent>
 
 export default meta
 type Story = StoryObj<typeof meta>
 
-export const Default: Story = {
-  args: {
-    title: 'Заголовок карточки',
-    description: 'Описание карточки',
-    href: '/',
-  },
-}
+export const Default: Story = {}
 
-export const WithoutDescription: Story = {
-  args: {
-    title: 'Заголовок карточки',
-    href: '/',
-  },
-}
-
-export const WithoutLink: Story = {
-  args: {
-    title: 'Заголовок карточки',
-    description: 'Описание карточки',
-  },

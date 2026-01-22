@@ -20,64 +20,11 @@ const meta = {
   args: {
     variant: 'default',
     size: 'md',
-  ,},
+  },
 } as Meta<typeof ChipComponent>
 
 export default meta
 type Story = StoryObj<typeof meta>
 
-export const Default: Story = {
-  args: {
-    variant: 'default',
-    size: 'md',
-  },
-  render: (args) => ({
-    components: { ChipComponent },
-    setup() {
-      return { args }
-    },
-    template: `
-      <ChipComponent v-bind="args">5</ChipComponent>
-    `,
-  }),
-}
+export const Default: Story = {}
 
-export const Outline: Story = {
-  args: {
-    variant: 'outline',
-  },
-  render: (args) => ({
-    components: { ChipComponent },
-    setup() {
-      return { args }
-    },
-    template: `
-      <ChipComponent v-bind="args">12</ChipComponent>
-    `,
-  }),
-}
-
-export const Sizes: Story = {
-  render: () => ({
-    components: { ChipComponent },
-    template: `
-      <div class="flex gap-4 items-center">
-        <ChipComponent size="sm">3</ChipComponent>
-        <ChipComponent size="md">5</ChipComponent>
-        <ChipComponent size="lg">12</ChipComponent>
-      </div>
-    `,
-  }),
-}
-
-export const WithText: Story = {
-  args: {},
-  render: (args) => ({
-    components: { ChipComponent },
-    setup() {
-      return { args }
-    },
-    template: `
-      <ChipComponent v-bind="args">Новое</ChipComponent>
-    `,
-  }),

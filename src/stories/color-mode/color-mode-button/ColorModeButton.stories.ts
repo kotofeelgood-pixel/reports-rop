@@ -8,11 +8,10 @@ const meta = {
   title: 'Color Mode/ColorModeButton',
   component: ColorModeButtonComponent,
   argTypes: {},
-  args: {,},
+  args: {},
 } as Meta<typeof ColorModeButtonComponent>
 
 export default meta
 type Story = StoryObj<typeof meta>
 
-export const Default: Story = {
-  args: {},
+export const Default: Story = {}

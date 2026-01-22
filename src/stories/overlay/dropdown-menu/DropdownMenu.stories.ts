@@ -14,51 +14,11 @@ const meta = {
   args: {
     modal: true,
     disabled: false,
-  ,},
+  },
 } as Meta<typeof DropdownMenuComponent>
 
 export default meta
 type Story = StoryObj<typeof meta>
 
-export const Default: Story = {
-  args: {},
-  render: (args) => ({
-    components: { DropdownMenuComponent },
-    setup() {
-      return { args }
-    },
-    template: `
-      <DropdownMenuComponent v-bind="args">
-        <template #trigger>
-          <button class="px-4 py-2 bg-blue-500 text-white rounded">Открыть меню</button>
-        </template>
-        <div class="p-2 bg-white border rounded shadow">
-          <a href="#" class="block px-4 py-2 hover:bg-gray-100">Пункт 1</a>
-          <a href="#" class="block px-4 py-2 hover:bg-gray-100">Пункт 2</a>
-          <a href="#" class="block px-4 py-2 hover:bg-gray-100">Пункт 3</a>
-        </div>
-      </DropdownMenuComponent>
-    `,
-  }),
-}
+export const Default: Story = {}
 
-export const Disabled: Story = {
-  args: {
-    disabled: true,
-  },
-  render: (args) => ({
-    components: { DropdownMenuComponent },
-    setup() {
-      return { args }
-    },
-    template: `
-      <DropdownMenuComponent v-bind="args">
-        <template #trigger>
-          <button class="px-4 py-2 bg-gray-400 text-white rounded cursor-not-allowed">Отключено</button>
-        </template>
-        <div class="p-2 bg-white border rounded shadow">
-          <a href="#" class="block px-4 py-2 hover:bg-gray-100">Пункт 1</a>
-        </div>
-      </DropdownMenuComponent>
-    `,
-  }),

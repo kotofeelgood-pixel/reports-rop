@@ -15,45 +15,11 @@ const meta = {
   },
   args: {
     orientation: 'horizontal',
-  ,},
+  },
 } as Meta<typeof FieldGroupComponent>
 
 export default meta
 type Story = StoryObj<typeof meta>
 
-export const Default: Story = {
-  args: {
-    orientation: 'horizontal',
-  },
-  render: (args) => ({
-    components: { FieldGroupComponent },
-    setup() {
-      return { args }
-    },
-    template: `
-      <FieldGroupComponent v-bind="args">
-        <button class="px-4 py-2 border rounded">Кнопка 1</button>
-        <button class="px-4 py-2 border rounded">Кнопка 2</button>
-        <button class="px-4 py-2 border rounded">Кнопка 3</button>
-      </FieldGroupComponent>
-    `,
-  }),
-}
+export const Default: Story = {}
 
-export const Vertical: Story = {
-  args: {
-    orientation: 'vertical',
-  },
-  render: (args) => ({
-    components: { FieldGroupComponent },
-    setup() {
-      return { args }
-    },
-    template: `
-      <FieldGroupComponent v-bind="args">
-        <button class="px-4 py-2 border rounded">Кнопка 1</button>
-        <button class="px-4 py-2 border rounded">Кнопка 2</button>
-        <button class="px-4 py-2 border rounded">Кнопка 3</button>
-      </FieldGroupComponent>
-    `,
-  }),

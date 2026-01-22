@@ -14,14 +14,10 @@ const meta = {
   args: {
     light: 'https://via.placeholder.com/100/ffffff/000000?text=Light',
     dark: 'https://via.placeholder.com/100/000000/ffffff?text=Dark',
-  ,},
+  },
 } as Meta<typeof ColorModeAvatarComponent>
 
 export default meta
 type Story = StoryObj<typeof meta>
 
-export const Default: Story = {
-  args: {
-    light: 'https://via.placeholder.com/100/ffffff/000000?text=Light',
-    dark: 'https://via.placeholder.com/100/000000/ffffff?text=Dark',
-  },
+export const Default: Story = {}
