@@ -44,6 +44,7 @@ export default defineConfig({
     noExternal: [],
   },
   build: {
+    outDir: '.output/public',
     rollupOptions: {
       external: (id) => {
         return id.includes('jiti') || id.includes('node:');
