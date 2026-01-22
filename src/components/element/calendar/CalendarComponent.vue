@@ -1,30 +1,19 @@
 <script lang="ts" setup>
-import type { CalendarModel } from './model';
 
-const props = defineProps<CalendarModel>();
-const modelValue = defineModel<Date | Date[] | undefined>('modelValue');
-
-defineEmits<{
-  'update:modelValue': [payload: Date | Date[] | undefined];
-  change: [payload: Date | Date[] | undefined];
-}>();
 
 </script>
 
 <template>
   <B24Calendar
-    v-bind="props"
-    v-model="modelValue"
-    @update:model-value="$emit('update:modelValue', $event)"
-    @change="$emit('change', $event)"
+    v-bind="$attrs"
   >
     <template
       v-for="(_, slot) in ($slots as any)"
       :key="slot"
-      #[slot]="scope"
+      v-slot:[slot]="scope"
     >
       <slot
-        :name="slot as string"
+        :name="slot"
         v-bind="scope"
       />
     </template>

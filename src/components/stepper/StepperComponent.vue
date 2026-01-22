@@ -1,8 +1,8 @@
 <script lang="ts" setup>
-import type { StepperModel } from './model';
+import { useSlots } from 'vue';
 
-const props = defineProps<StepperModel>();
-const modelValue = defineModel<string | number>('modelValue');
+const slots = useSlots();
+const slotNames = Object.keys(slots) as string[];
 
 defineEmits<{
   next: [value: any];
@@ -13,18 +13,17 @@ defineEmits<{
 
 <template>
   <B24Stepper
-    v-bind="props"
-    v-model="modelValue"
+    v-bind="$attrs"
     @next="$emit('next', $event)"
     @prev="$emit('prev', $event)"
   >
     <template
-      v-for="(_, slot) in ($slots as any)"
+      v-for="slot in slotNames"
       :key="slot"
-      #[slot]="scope"
+      v-slot:[slot]="scope"
     >
       <slot
-        :name="slot as string"
+        :name="slot"
         v-bind="scope"
       />
     </template>

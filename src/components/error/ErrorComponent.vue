@@ -1,21 +1,18 @@
 <script lang="ts" setup>
-import type { ErrorModel } from './model';
-
-const props = defineProps<ErrorModel>();
 
 </script>
 
 <template>
   <B24Error
-    v-bind="props"
+    v-bind="$attrs"
   >
     <template
       v-for="(_, slot) in ($slots as any)"
       :key="slot"
-      #[slot]="scope"
+      v-slot:[slot]="scope"
     >
       <slot
-        :name="slot as string"
+        :name="slot"
         v-bind="scope"
       />
     </template>

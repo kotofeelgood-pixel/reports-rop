@@ -1,32 +1,18 @@
 <script lang="ts" setup>
-import type { FormModel } from './model';
-
-const props = defineProps<FormModel>();
-
-defineSlots<{
-  default(): any;
-}>();
-
-defineEmits<{
-  submit: [event: Event];
-  invalid: [event: Event];
-}>();
 
 </script>
 
 <template>
   <B24Form
-    v-bind="props"
-    @submit="$emit('submit', $event)"
-    @invalid="$emit('invalid', $event)"
+    v-bind="$attrs"
   >
     <template
       v-for="(_, slot) in ($slots as any)"
       :key="slot"
-      #[slot]="scope"
+      v-slot:[slot]="scope"
     >
       <slot
-        :name="slot as string"
+        :name="slot"
         v-bind="scope"
       />
     </template>

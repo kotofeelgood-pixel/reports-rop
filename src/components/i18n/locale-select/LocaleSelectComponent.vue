@@ -1,8 +1,8 @@
 <script lang="ts" setup>
-import type { LocaleSelectModel } from './model';
+import { useSlots } from 'vue';
 
-const props = defineProps<LocaleSelectModel>();
-const modelValue = defineModel<string | undefined>('modelValue');
+const slots = useSlots();
+const slotNames = Object.keys(slots) as string[];
 
 defineEmits<{
   'update:modelValue': [payload: string | undefined];
@@ -13,18 +13,17 @@ defineEmits<{
 
 <template>
   <B24LocaleSelect
-    v-bind="props"
-    v-model="modelValue"
+    v-bind="$attrs"
     @update:model-value="$emit('update:modelValue', $event)"
     @change="$emit('change', $event)"
   >
     <template
-      v-for="(_, slot) in ($slots as any)"
+      v-for="slot in slotNames"
       :key="slot"
-      #[slot]="scope"
+      v-slot:[slot]="scope"
     >
       <slot
-        :name="slot as string"
+        :name="slot"
         v-bind="scope"
       />
     </template>

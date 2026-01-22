@@ -1,9 +1,8 @@
 <script lang="ts" setup>
-import type { SelectModel } from './model';
+import { useSlots } from 'vue';
 
-const props = defineProps<SelectModel>();
-const modelValue = defineModel<any>('modelValue');
-const open = defineModel<boolean>('open');
+const slots = useSlots();
+const slotNames = Object.keys(slots) as string[];
 
 defineEmits<{
   'update:open': [value: boolean];
@@ -17,9 +16,7 @@ defineEmits<{
 
 <template>
   <B24Select
-    v-bind="props"
-    v-model="modelValue"
-    v-model:open="open"
+    v-bind="$attrs"
     @update:open="$emit('update:open', $event)"
     @change="$emit('change', $event)"
     @blur="$emit('blur', $event)"
@@ -27,12 +24,12 @@ defineEmits<{
     @update:model-value="$emit('update:modelValue', $event)"
   >
     <template
-      v-for="(_, slot) in ($slots as any)"
+      v-for="slot in slotNames"
       :key="slot"
-      #[slot]="scope"
+      v-slot:[slot]="scope"
     >
       <slot
-        :name="slot as string"
+        :name="slot"
         v-bind="scope"
       />
     </template>

@@ -1,8 +1,9 @@
 <script lang="ts" setup>
-import type { ScrollAreaModel } from './model';
+import { useSlots } from 'vue';
 import { useTemplateRef } from 'vue';
 
-const props = defineProps<ScrollAreaModel>();
+const slots = useSlots();
+const slotNames = Object.keys(slots) as string[];
 
 defineEmits<{
   scroll: [isScrolling: boolean];
@@ -21,16 +22,16 @@ defineExpose({
 <template>
   <B24ScrollArea
     ref="scrollArea"
-    v-bind="props"
+    v-bind="$attrs"
     @scroll="$emit('scroll', $event)"
   >
     <template
-      v-for="(_, slot) in ($slots as any)"
+      v-for="slot in slotNames"
       :key="slot"
-      #[slot]="scope"
+      v-slot:[slot]="scope"
     >
       <slot
-        :name="slot as string"
+        :name="slot"
         v-bind="scope"
       />
     </template>

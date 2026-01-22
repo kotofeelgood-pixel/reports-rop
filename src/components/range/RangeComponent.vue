@@ -1,8 +1,4 @@
 <script lang="ts" setup>
-import type { RangeModel } from './model';
-
-const props = defineProps<RangeModel>();
-const modelValue = defineModel<number | number[]>('modelValue');
 
 defineEmits<{
   'update:modelValue': [value: number | number[] | undefined];
@@ -13,8 +9,7 @@ defineEmits<{
 
 <template>
   <B24Range
-    v-bind="props"
-    v-model="modelValue"
+    v-bind="$attrs"
     @update:model-value="$emit('update:modelValue', $event)"
     @change="$emit('change', $event)"
   />

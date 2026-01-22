@@ -1,15 +1,19 @@
 <script lang="ts" setup>
-import type { ButtonModel } from './model';
-
-const props = defineProps<ButtonModel>();
-
 </script>
 
 <template>
   <B24Button
-    v-bind="props"
-    @click="$emit('click')"
+    v-bind="$attrs"
   >
-    {{ props.label }}
+    <template
+      v-for="(_, slot) in ($slots as any)"
+      :key="slot"
+      v-slot:[slot]="scope"
+    >
+      <slot
+        :name="slot"
+        v-bind="scope"
+      />
+    </template>
   </B24Button>
 </template>

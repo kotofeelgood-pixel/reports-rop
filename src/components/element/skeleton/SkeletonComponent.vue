@@ -1,25 +1,18 @@
 <script lang="ts" setup>
-import type { SkeletonModel } from './model';
-
-const props = defineProps<SkeletonModel>();
-
-defineSlots<{
-  default(): any;
-}>();
 
 </script>
 
 <template>
   <B24Skeleton
-    v-bind="props"
+    v-bind="$attrs"
   >
     <template
       v-for="(_, slot) in ($slots as any)"
       :key="slot"
-      #[slot]="scope"
+      v-slot:[slot]="scope"
     >
       <slot
-        :name="slot as string"
+        :name="slot"
         v-bind="scope"
       />
     </template>

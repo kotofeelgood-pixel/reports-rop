@@ -1,25 +1,20 @@
 <script lang="ts" setup>
-import type { ColorModeImageModel } from './model';
-
-const props = defineProps<ColorModeImageModel>();
-
-defineSlots<{
-  default(): any;
-}>();
 
 </script>
 
 <template>
   <B24ColorModeImage
-    v-bind="props"
+    v-bind="$attrs"
+    light=""
+    dark=""
   >
     <template
       v-for="(_, slot) in ($slots as any)"
       :key="slot"
-      #[slot]="scope"
+      v-slot:[slot]="scope"
     >
       <slot
-        :name="slot as string"
+        :name="slot"
         v-bind="scope"
       />
     </template>

@@ -1,30 +1,18 @@
 <script lang="ts" setup>
-import type { CountdownModel } from './model';
-
-const props = defineProps<CountdownModel>();
-
-defineSlots<{
-  default(): any;
-}>();
-
-defineEmits<{
-  finish: [];
-}>();
 
 </script>
 
 <template>
   <B24Countdown
-    v-bind="props"
-    @finish="$emit('finish')"
+    v-bind="$attrs"
   >
     <template
       v-for="(_, slot) in ($slots as any)"
       :key="slot"
-      #[slot]="scope"
+      v-slot:[slot]="scope"
     >
       <slot
-        :name="slot as string"
+        :name="slot"
         v-bind="scope"
       />
     </template>

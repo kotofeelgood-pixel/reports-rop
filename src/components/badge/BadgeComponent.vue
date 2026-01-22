@@ -1,21 +1,17 @@
 <script lang="ts" setup>
-import type { BadgeModel } from './model';
-
-const props = defineProps<BadgeModel>();
-
 </script>
 
 <template>
   <B24Badge
-    v-bind="props"
+    v-bind="$attrs"
   >
     <template
       v-for="(_, slot) in ($slots as any)"
       :key="slot"
-      #[slot]="scope"
+      v-slot:[slot]="scope"
     >
       <slot
-        :name="slot as string"
+        :name="slot"
         v-bind="scope"
       />
     </template>

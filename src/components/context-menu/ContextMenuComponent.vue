@@ -1,39 +1,20 @@
 <script lang="ts" setup>
-import type { ContextMenuModel } from './model';
 
-const props = defineProps<ContextMenuModel>();
-const open = defineModel<boolean>('open');
 
-defineEmits<{
-  'update:open': [payload: boolean];
-}>();
-
-defineSlots<{
-  default(): any;
-  item(): any;
-  'item-leading'(): any;
-  'item-label'(): any;
-  'item-description'(): any;
-  'item-trailing'(): any;
-  'content-top'(): any;
-  'content-bottom'(): any;
-}>();
 
 </script>
 
 <template>
   <B24ContextMenu
-    v-bind="props"
-    v-model:open="open"
-    @update:open="$emit('update:open', $event)"
+    v-bind="$attrs"
   >
     <template
       v-for="(_, slot) in ($slots as any)"
       :key="slot"
-      #[slot]="scope"
+      v-slot:[slot]="scope"
     >
       <slot
-        :name="slot as string"
+        :name="slot"
         v-bind="scope"
       />
     </template>

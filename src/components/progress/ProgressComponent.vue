@@ -1,23 +1,22 @@
 <script lang="ts" setup>
-import type { ProgressModel } from './model';
+import { useSlots } from 'vue';
 
-const props = defineProps<ProgressModel>();
-const modelValue = defineModel<number | null>('modelValue');
+const slots = useSlots();
+const slotNames = Object.keys(slots) as string[];
 
 </script>
 
 <template>
   <B24Progress
-    v-bind="props"
-    v-model="modelValue"
+    v-bind="$attrs"
   >
     <template
-      v-for="(_, slot) in ($slots as any)"
+      v-for="slot in slotNames"
       :key="slot"
-      #[slot]="scope"
+      v-slot:[slot]="scope"
     >
       <slot
-        :name="slot as string"
+        :name="slot"
         v-bind="scope"
       />
     </template>

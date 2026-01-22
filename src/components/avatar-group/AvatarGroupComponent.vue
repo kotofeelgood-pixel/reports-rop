@@ -1,13 +1,10 @@
 <script lang="ts" setup>
-import type { AvatarGroupModel } from './model';
-
-const props = defineProps<AvatarGroupModel>();
 
 </script>
 
 <template>
   <B24AvatarGroup
-    v-bind="props"
+    v-bind="$attrs"
   >
     <slot />
   </B24AvatarGroup>

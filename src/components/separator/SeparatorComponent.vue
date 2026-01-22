@@ -1,13 +1,10 @@
 <script lang="ts" setup>
-import type { SeparatorModel } from './model';
-
-const props = defineProps<SeparatorModel>();
 
 </script>
 
 <template>
   <B24Separator
-    v-bind="props"
+    v-bind="$attrs"
   >
     <slot />
   </B24Separator>

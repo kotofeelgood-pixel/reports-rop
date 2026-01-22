@@ -1,21 +1,8 @@
 <script lang="ts" setup>
-import type { TabsModel } from './model';
 import { useTemplateRef } from 'vue';
-
-const props = defineProps<TabsModel>();
-const modelValue = defineModel<string | number | undefined>('modelValue');
 
 defineEmits<{
   'update:modelValue': [payload: string | number];
-}>();
-
-defineSlots<{
-  leading(): any;
-  default(): any;
-  trailing(): any;
-  content(): any;
-  'list-leading'(): any;
-  'list-trailing'(): any;
 }>();
 
 const tabsRef = useTemplateRef<{ triggersRef?: any[] }>('tabs');
@@ -31,17 +18,16 @@ defineExpose({
 <template>
   <B24Tabs
     ref="tabs"
-    v-bind="props"
-    v-model="modelValue"
+    v-bind="$attrs"
     @update:model-value="$emit('update:modelValue', $event)"
   >
     <template
       v-for="(_, slot) in ($slots as any)"
       :key="slot"
-      #[slot]="scope"
+      v-slot:[slot]="scope"
     >
       <slot
-        :name="slot as string"
+        :name="slot"
         v-bind="scope"
       />
     </template>

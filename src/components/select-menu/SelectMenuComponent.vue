@@ -1,10 +1,8 @@
 <script lang="ts" setup>
-import type { SelectMenuModel } from './model';
+import { useSlots } from 'vue';
 
-const props = defineProps<SelectMenuModel>();
-const modelValue = defineModel<any>('modelValue');
-const open = defineModel<boolean>('open');
-const searchTerm = defineModel<string>('searchTerm');
+const slots = useSlots();
+const slotNames = Object.keys(slots) as string[];
 
 defineEmits<{
   'update:open': [value: boolean];
@@ -21,10 +19,7 @@ defineEmits<{
 
 <template>
   <B24SelectMenu
-    v-bind="props"
-    v-model="modelValue"
-    v-model:open="open"
-    v-model:search-term="searchTerm"
+    v-bind="$attrs"
     @update:open="$emit('update:open', $event)"
     @change="$emit('change', $event)"
     @blur="$emit('blur', $event)"
@@ -35,12 +30,12 @@ defineEmits<{
     @update:search-term="$emit('update:searchTerm', $event)"
   >
     <template
-      v-for="(_, slot) in ($slots as any)"
+      v-for="slot in slotNames"
       :key="slot"
-      #[slot]="scope"
+      v-slot:[slot]="scope"
     >
       <slot
-        :name="slot as string"
+        :name="slot"
         v-bind="scope"
       />
     </template>

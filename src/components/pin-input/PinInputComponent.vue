@@ -1,8 +1,4 @@
 <script lang="ts" setup>
-import type { PinInputModel } from './model';
-
-const props = defineProps<PinInputModel>();
-const modelValue = defineModel<string[] | null>('modelValue');
 
 defineEmits<{
   'update:modelValue': [value: string[]];
@@ -15,8 +11,7 @@ defineEmits<{
 
 <template>
   <B24PinInput
-    v-bind="props"
-    v-model="modelValue"
+    v-bind="$attrs"
     @update:model-value="$emit('update:modelValue', $event)"
     @complete="$emit('complete', $event)"
     @change="$emit('change', $event)"
