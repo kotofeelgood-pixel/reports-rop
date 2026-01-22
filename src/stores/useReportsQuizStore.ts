@@ -1,18 +1,7 @@
 import { defineStore, storeToRefs } from 'pinia'
 import { ref, computed } from 'vue'
-
-declare global {
-  interface Window {
-    BX24?: {
-      init: (callback: () => void) => void
-      callMethod: (
-        method: string,
-        params: Record<string, unknown>,
-        callback: (result: { answer?: unknown; error?: unknown }) => void
-      ) => void
-    }
-  }
-}
+import { callBitrixMethod } from '@/api/api'
+import { getDealCategories } from '@/api/routes/crm'
 
 export interface ReportMode {
   label: string
@@ -34,13 +23,6 @@ export interface Employee {
   }
   dismissed?: boolean
   department?: string
-}
-
-interface BitrixCategory {
-  ID?: string | number
-  id?: string | number
-  NAME?: string
-  name?: string
 }
 
 interface BitrixStatus {
@@ -140,98 +122,6 @@ export const useReportQuizStore = defineStore('reportQuiz', () => {
   const loadingError = ref<string | null>(null)
   const loadErrors = ref<Record<string, string>>({})
 
-  // Функция для вызова Bitrix24 API
-  const callBitrixMethod = (
-    method: string,
-    params: Record<string, unknown> = {}
-  ): Promise<unknown> => {
-    return new Promise((resolve, reject) => {
-      if (!window.BX24) {
-        reject(new Error('BX24 не инициализирован'))
-        return
-      }
-
-      window.BX24.callMethod(method, params, (result) => {
-        // Проверяем наличие ошибки в разных местах ответа
-        if (result.error) {
-          const errorMsg = typeof result.error === 'string' 
-            ? result.error 
-            : (typeof result.error === 'object' && result.error !== null && 'message' in result.error)
-              ? String(result.error.message)
-              : 'Ошибка выполнения запроса'
-          reject(new Error(errorMsg))
-          return
-        }
-
-        // Обрабатываем ответ
-        const answer = result.answer as { result?: unknown; error?: unknown; ex?: unknown; error_description?: string; error_description_internal?: string } | unknown
-        
-        // Если answer - это объект с ошибкой
-        if (answer && typeof answer === 'object') {
-          // Проверяем различные варианты ошибок
-          if ('error' in answer && answer.error) {
-            const errorMsg = typeof answer.error === 'string'
-              ? answer.error
-              : (typeof answer.error === 'object' && answer.error !== null && 'message' in answer.error)
-                ? String(answer.error.message)
-                : 'Ошибка выполнения запроса'
-            reject(new Error(errorMsg))
-            return
-          }
-          
-          // Обрабатываем ex - это может быть функция или объект
-          if ('ex' in answer && answer.ex) {
-            let errorMsg = 'Ошибка выполнения запроса'
-            
-            if (typeof answer.ex === 'function') {
-              // Если ex - функция, пытаемся получить сообщение об ошибке
-              try {
-                const errorResult = answer.ex()
-                if (errorResult && typeof errorResult === 'object' && 'message' in errorResult) {
-                  errorMsg = String(errorResult.message)
-                } else if (typeof errorResult === 'string') {
-                  errorMsg = errorResult
-                }
-              } catch {
-                // Если не удалось вызвать функцию, используем общее сообщение
-                errorMsg = `Ошибка при вызове метода ${method}`
-              }
-            } else if (typeof answer.ex === 'string') {
-              errorMsg = answer.ex
-            } else if (typeof answer.ex === 'object' && answer.ex !== null) {
-              // Пытаемся извлечь сообщение из объекта ошибки
-              if ('message' in answer.ex) {
-                errorMsg = String(answer.ex.message)
-              } else if ('error' in answer.ex) {
-                errorMsg = String(answer.ex.error)
-              } else {
-                errorMsg = `Ошибка при вызове метода ${method}`
-              }
-            }
-            
-            reject(new Error(errorMsg))
-            return
-          }
-          
-          // Проверяем error_description
-          if ('error_description' in answer && answer.error_description) {
-            reject(new Error(String(answer.error_description)))
-            return
-          }
-          
-          // Если есть result, возвращаем его
-          if ('result' in answer && answer.result !== undefined) {
-            resolve(answer.result)
-            return
-          }
-        }
-        
-        // Если answer не объект или не содержит result, возвращаем сам answer
-        resolve(answer)
-      })
-    })
-  }
-
   // Загрузка пользовательских настроек
   const loadUserOptions = async () => {
     try {
@@ -271,42 +161,6 @@ export const useReportQuizStore = defineStore('reportQuiz', () => {
       console.log('Placement info loaded:', result)
     } catch (error) {
       console.error('Ошибка загрузки информации о размещении:', error)
-    }
-  }
-
-  // Загрузка категорий CRM (направления сделок)
-  const loadDealCategories = async () => {
-    try {
-      // Пробуем загрузить категории сделок
-      // entityTypeId: 2 соответствует DEAL
-      const result = await callBitrixMethod('crm.category.list', {
-        entityTypeId: 2,
-      })
-
-      if (result && Array.isArray(result) && result.length > 0) {
-        dealDirectionsList.value = (result as BitrixCategory[]).map((category) => ({
-          label: category.NAME || category.name || '',
-          value: (category.ID?.toString() || category.id?.toString() || ''),
-        }))
-        // Обновляем выбранные направления
-        dealDirections.value = dealDirectionsList.value.map(d => d.value)
-        // Удаляем ошибку, если загрузка успешна
-        delete loadErrors.value.dealCategories
-      } else {
-        // Если категорий нет, оставляем дефолтные значения
-        console.log('Категории сделок не найдены, используются значения по умолчанию')
-        delete loadErrors.value.dealCategories
-      }
-    } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Неизвестная ошибка'
-      // Показываем понятное сообщение, скрывая технические детали
-      if (errorMessage.includes('function()')) {
-        loadErrors.value.dealCategories = 'Не удалось загрузить категории сделок. Используются значения по умолчанию.'
-      } else {
-        loadErrors.value.dealCategories = `Не удалось загрузить категории сделок: ${errorMessage}`
-      }
-      console.error('Ошибка загрузки категорий сделок:', error)
-      // Оставляем дефолтные значения при ошибке
     }
   }
 
@@ -489,6 +343,15 @@ export const useReportQuizStore = defineStore('reportQuiz', () => {
     console.log('Формирование отчета:', reportData)
     // Здесь будет логика отправки данных на сервер
     return reportData
+  }
+
+  const loadDealCategories = async () => {
+    try {
+      const result = await getDealCategories()
+      console.log('Deal categories loaded:', result)
+    } catch (error) {
+      console.error('Ошибка загрузки категорий сделок:', error)
+    }
   }
 
   return {
