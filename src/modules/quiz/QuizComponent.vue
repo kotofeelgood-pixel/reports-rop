@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, onMounted } from 'vue'
 import { useReportQuizStoreRefs, useReportQuizStore } from '@/stores/useReportsQuizStore'
 import { useColorMode } from '@vueuse/core'
 import Step1ReportMode from './components/Step1ReportMode.vue'
@@ -11,8 +11,13 @@ import QuizStepsIndicator from './components/QuizStepsIndicator.vue'
 import QuizNavigation from './components/QuizNavigation.vue'
 import ColorModeSwitchComponent from '@/components/color-mode-switch/ColorModeSwitchComponent.vue'
 
-const { currentStep, reportModes, dealDirectionsList, dealDirections, reportMode, funnelStages, funnelStage, hideCallsSection, hideLeadsSection, hideDealsSection, effectiveCallSeconds } = useReportQuizStoreRefs()
-const { generateReport } = useReportQuizStore()
+const { currentStep, reportModes, dealDirectionsList, dealDirections, reportMode, funnelStages, funnelStage, hideCallsSection, hideLeadsSection, hideDealsSection, effectiveCallSeconds, isLoading, loadingError } = useReportQuizStoreRefs()
+const { generateReport, initializeQuiz } = useReportQuizStore()
+
+// Инициализация при монтировании компонента
+onMounted(() => {
+  initializeQuiz()
+})
 
 const colorMode = useColorMode({
   selector: 'html',

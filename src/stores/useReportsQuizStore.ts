@@ -1,6 +1,19 @@
 import { defineStore, storeToRefs } from 'pinia'
 import { ref, computed } from 'vue'
 
+declare global {
+  interface Window {
+    BX24?: {
+      init: (callback: () => void) => void
+      callMethod: (
+        method: string,
+        params: Record<string, unknown>,
+        callback: (result: { answer?: unknown; error?: unknown }) => void
+      ) => void
+    }
+  }
+}
+
 export interface ReportMode {
   label: string
   value: string
@@ -21,6 +34,20 @@ export interface Employee {
   }
   dismissed?: boolean
   department?: string
+}
+
+interface BitrixCategory {
+  ID?: string | number
+  id?: string | number
+  NAME?: string
+  name?: string
+}
+
+interface BitrixStatus {
+  STATUS_ID?: string
+  statusId?: string
+  NAME?: string
+  name?: string
 }
 
 export const useReportQuizStore = defineStore('reportQuiz', () => {
@@ -108,6 +135,187 @@ export const useReportQuizStore = defineStore('reportQuiz', () => {
   // Текущий шаг квиза
   const currentStep = ref<number>(0)
 
+  // Состояние загрузки
+  const isLoading = ref<boolean>(false)
+  const loadingError = ref<string | null>(null)
+
+  // Функция для вызова Bitrix24 API
+  const callBitrixMethod = (
+    method: string,
+    params: Record<string, unknown> = {}
+  ): Promise<unknown> => {
+    return new Promise((resolve, reject) => {
+      if (!window.BX24) {
+        reject(new Error('BX24 не инициализирован'))
+        return
+      }
+
+      window.BX24.callMethod(method, params, (result) => {
+        if (result.error) {
+          reject(new Error(String(result.error)))
+        } else {
+          const answer = result.answer as { result?: unknown } | unknown
+          resolve((answer && typeof answer === 'object' && 'result' in answer) ? answer.result : answer)
+        }
+      })
+    })
+  }
+
+  // Загрузка пользовательских настроек
+  const loadUserOptions = async () => {
+    try {
+      // Загружаем сохраненные настройки отчета
+      const options = await Promise.all([
+        callBitrixMethod('user.option.get', { option: 'report_hideCallsSection' }).catch(() => null),
+        callBitrixMethod('user.option.get', { option: 'report_hideLeadsSection' }).catch(() => null),
+        callBitrixMethod('user.option.get', { option: 'report_hideDealsSection' }).catch(() => null),
+        callBitrixMethod('user.option.get', { option: 'report_effectiveCallSeconds' }).catch(() => null),
+      ])
+
+      const [hideCalls, hideLeads, hideDeals, callSeconds] = options
+
+      if (hideCalls !== null && hideCalls !== undefined && typeof hideCalls === 'boolean') {
+        hideCallsSection.value = hideCalls
+      }
+      if (hideLeads !== null && hideLeads !== undefined && typeof hideLeads === 'boolean') {
+        hideLeadsSection.value = hideLeads
+      }
+      if (hideDeals !== null && hideDeals !== undefined && typeof hideDeals === 'boolean') {
+        hideDealsSection.value = hideDeals
+      }
+      if (callSeconds !== null && callSeconds !== undefined && typeof callSeconds === 'number') {
+        effectiveCallSeconds.value = callSeconds
+      }
+
+      console.log('User options loaded')
+    } catch (error) {
+      console.error('Ошибка загрузки пользовательских настроек:', error)
+    }
+  }
+
+  // Загрузка информации о размещении
+  const loadPlacement = async () => {
+    try {
+      const result = await callBitrixMethod('placement.get', {})
+      console.log('Placement info loaded:', result)
+    } catch (error) {
+      console.error('Ошибка загрузки информации о размещении:', error)
+    }
+  }
+
+  // Загрузка категорий CRM (направления сделок)
+  const loadDealCategories = async () => {
+    try {
+      const result = await callBitrixMethod('crm.category.list', {
+        entityTypeId: 2, // 2 = DEAL
+      })
+
+      if (result && Array.isArray(result)) {
+        dealDirectionsList.value = (result as BitrixCategory[]).map((category) => ({
+          label: category.NAME || category.name || '',
+          value: (category.ID?.toString() || category.id?.toString() || ''),
+        }))
+        // Обновляем выбранные направления
+        dealDirections.value = dealDirectionsList.value.map(d => d.value)
+      }
+    } catch (error) {
+      console.error('Ошибка загрузки категорий сделок:', error)
+    }
+  }
+
+  // Загрузка статусов CRM (этапы воронки)
+  const loadFunnelStages = async () => {
+    try {
+      const result = await callBitrixMethod('crm.status.list', {
+        entityId: 'STATUS', // Статусы для сделок
+        filter: {
+          ENTITY_ID: 'DEAL_STAGE',
+        },
+      })
+
+      if (result && Array.isArray(result)) {
+        funnelStages.value = [
+          { label: '-', value: null },
+          ...(result as BitrixStatus[]).map((status) => ({
+            label: status.NAME || status.name || '',
+            value: (status.STATUS_ID || status.statusId || '') as string,
+          })),
+        ]
+      }
+    } catch (error) {
+      console.error('Ошибка загрузки статусов воронки:', error)
+    }
+  }
+
+  // Загрузка настроек приложения
+  const loadAppOptions = async () => {
+    try {
+      const result = await callBitrixMethod('app.option.get', {})
+      console.log('App options loaded:', result)
+      // Настройки приложения можно использовать для других целей
+    } catch (error) {
+      console.error('Ошибка загрузки настроек приложения:', error)
+    }
+  }
+
+  // Загрузка режима настроек CRM
+  const loadCrmSettingsMode = async () => {
+    try {
+      const result = await callBitrixMethod('crm.settings.mode.get', {})
+      console.log('CRM settings mode loaded:', result)
+    } catch (error) {
+      console.error('Ошибка загрузки режима настроек CRM:', error)
+    }
+  }
+
+  // Сохранение пользовательских настроек
+  const saveUserOptions = async (optionName: string, value: boolean | number | string) => {
+    try {
+      await callBitrixMethod('user.option.set', {
+        option: optionName,
+        value: value,
+      })
+    } catch (error) {
+      console.error('Ошибка сохранения пользовательских настроек:', error)
+    }
+  }
+
+  // Инициализация и загрузка всех данных
+  const initializeQuiz = async () => {
+    if (!window.BX24) {
+      console.warn('BX24 не доступен')
+      return
+    }
+
+    isLoading.value = true
+    loadingError.value = null
+
+    try {
+      window.BX24.init(async () => {
+        try {
+          // Загружаем все необходимые данные параллельно
+          await Promise.all([
+            loadUserOptions(),
+            loadPlacement(),
+            loadDealCategories(),
+            loadFunnelStages(),
+            loadAppOptions(),
+            loadCrmSettingsMode(),
+          ])
+        } catch (error) {
+          loadingError.value = error instanceof Error ? error.message : 'Неизвестная ошибка'
+          console.error('Ошибка инициализации квиза:', error)
+        } finally {
+          isLoading.value = false
+        }
+      })
+    } catch (error) {
+      isLoading.value = false
+      loadingError.value = error instanceof Error ? error.message : 'Неизвестная ошибка'
+      console.error('Ошибка инициализации BX24:', error)
+    }
+  }
+
   const toggleAllDirections = () => {
     if (allDirectionsSelected.value) {
       dealDirections.value = []
@@ -116,7 +324,19 @@ export const useReportQuizStore = defineStore('reportQuiz', () => {
     }
   }
 
-  const generateReport = () => {
+  const generateReport = async () => {
+    // Сохраняем настройки отчета
+    try {
+      await Promise.all([
+        saveUserOptions('report_hideCallsSection', hideCallsSection.value),
+        saveUserOptions('report_hideLeadsSection', hideLeadsSection.value),
+        saveUserOptions('report_hideDealsSection', hideDealsSection.value),
+        saveUserOptions('report_effectiveCallSeconds', effectiveCallSeconds.value),
+      ])
+    } catch (error) {
+      console.error('Ошибка сохранения настроек:', error)
+    }
+
     const reportData = {
       reportMode: reportMode.value,
       selectedEmployees: selectedEmployees.value,
@@ -150,6 +370,8 @@ export const useReportQuizStore = defineStore('reportQuiz', () => {
     hideLeadsSection,
     hideDealsSection,
     currentStep,
+    isLoading,
+    loadingError,
 
     // Computed
     allDirectionsSelected,
@@ -163,6 +385,14 @@ export const useReportQuizStore = defineStore('reportQuiz', () => {
     // Methods
     toggleAllDirections,
     generateReport,
+    initializeQuiz,
+    loadUserOptions,
+    loadPlacement,
+    loadDealCategories,
+    loadFunnelStages,
+    loadAppOptions,
+    loadCrmSettingsMode,
+    saveUserOptions,
   }
 })
 
