@@ -154,27 +154,71 @@ export const useReportQuizStore = defineStore('reportQuiz', () => {
       window.BX24.callMethod(method, params, (result) => {
         // Проверяем наличие ошибки в разных местах ответа
         if (result.error) {
-          reject(new Error(String(result.error)))
+          const errorMsg = typeof result.error === 'string' 
+            ? result.error 
+            : (typeof result.error === 'object' && result.error !== null && 'message' in result.error)
+              ? String(result.error.message)
+              : 'Ошибка выполнения запроса'
+          reject(new Error(errorMsg))
           return
         }
 
         // Обрабатываем ответ
-        const answer = result.answer as { result?: unknown; error?: unknown; ex?: unknown } | unknown
+        const answer = result.answer as { result?: unknown; error?: unknown; ex?: unknown; error_description?: string; error_description_internal?: string } | unknown
         
         // Если answer - это объект с ошибкой
         if (answer && typeof answer === 'object') {
+          // Проверяем различные варианты ошибок
           if ('error' in answer && answer.error) {
-            reject(new Error(String(answer.error)))
+            const errorMsg = typeof answer.error === 'string'
+              ? answer.error
+              : (typeof answer.error === 'object' && answer.error !== null && 'message' in answer.error)
+                ? String(answer.error.message)
+                : 'Ошибка выполнения запроса'
+            reject(new Error(errorMsg))
             return
           }
+          
+          // Обрабатываем ex - это может быть функция или объект
           if ('ex' in answer && answer.ex) {
-            // ex может быть функцией или объектом с ошибкой
-            const errorValue = typeof answer.ex === 'function' 
-              ? 'Ошибка выполнения запроса' 
-              : String(answer.ex)
-            reject(new Error(errorValue))
+            let errorMsg = 'Ошибка выполнения запроса'
+            
+            if (typeof answer.ex === 'function') {
+              // Если ex - функция, пытаемся получить сообщение об ошибке
+              try {
+                const errorResult = answer.ex()
+                if (errorResult && typeof errorResult === 'object' && 'message' in errorResult) {
+                  errorMsg = String(errorResult.message)
+                } else if (typeof errorResult === 'string') {
+                  errorMsg = errorResult
+                }
+              } catch {
+                // Если не удалось вызвать функцию, используем общее сообщение
+                errorMsg = `Ошибка при вызове метода ${method}`
+              }
+            } else if (typeof answer.ex === 'string') {
+              errorMsg = answer.ex
+            } else if (typeof answer.ex === 'object' && answer.ex !== null) {
+              // Пытаемся извлечь сообщение из объекта ошибки
+              if ('message' in answer.ex) {
+                errorMsg = String(answer.ex.message)
+              } else if ('error' in answer.ex) {
+                errorMsg = String(answer.ex.error)
+              } else {
+                errorMsg = `Ошибка при вызове метода ${method}`
+              }
+            }
+            
+            reject(new Error(errorMsg))
             return
           }
+          
+          // Проверяем error_description
+          if ('error_description' in answer && answer.error_description) {
+            reject(new Error(String(answer.error_description)))
+            return
+          }
+          
           // Если есть result, возвращаем его
           if ('result' in answer && answer.result !== undefined) {
             resolve(answer.result)
@@ -233,11 +277,13 @@ export const useReportQuizStore = defineStore('reportQuiz', () => {
   // Загрузка категорий CRM (направления сделок)
   const loadDealCategories = async () => {
     try {
+      // Пробуем загрузить категории сделок
+      // entityTypeId: 2 соответствует DEAL
       const result = await callBitrixMethod('crm.category.list', {
-        entityTypeId: 2, // 2 = DEAL
+        entityTypeId: 2,
       })
 
-      if (result && Array.isArray(result)) {
+      if (result && Array.isArray(result) && result.length > 0) {
         dealDirectionsList.value = (result as BitrixCategory[]).map((category) => ({
           label: category.NAME || category.name || '',
           value: (category.ID?.toString() || category.id?.toString() || ''),
@@ -246,25 +292,36 @@ export const useReportQuizStore = defineStore('reportQuiz', () => {
         dealDirections.value = dealDirectionsList.value.map(d => d.value)
         // Удаляем ошибку, если загрузка успешна
         delete loadErrors.value.dealCategories
+      } else {
+        // Если категорий нет, оставляем дефолтные значения
+        console.log('Категории сделок не найдены, используются значения по умолчанию')
+        delete loadErrors.value.dealCategories
       }
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Неизвестная ошибка'
-      loadErrors.value.dealCategories = `Ошибка загрузки категорий сделок: ${errorMessage}`
+      // Показываем понятное сообщение, скрывая технические детали
+      if (errorMessage.includes('function()')) {
+        loadErrors.value.dealCategories = 'Не удалось загрузить категории сделок. Используются значения по умолчанию.'
+      } else {
+        loadErrors.value.dealCategories = `Не удалось загрузить категории сделок: ${errorMessage}`
+      }
       console.error('Ошибка загрузки категорий сделок:', error)
+      // Оставляем дефолтные значения при ошибке
     }
   }
 
   // Загрузка статусов CRM (этапы воронки)
   const loadFunnelStages = async () => {
     try {
+      // Загружаем статусы для сделок
+      // Используем правильный формат для crm.status.list
       const result = await callBitrixMethod('crm.status.list', {
-        entityId: 'STATUS', // Статусы для сделок
         filter: {
           ENTITY_ID: 'DEAL_STAGE',
         },
       })
 
-      if (result && Array.isArray(result)) {
+      if (result && Array.isArray(result) && result.length > 0) {
         funnelStages.value = [
           { label: '-', value: null },
           ...(result as BitrixStatus[]).map((status) => ({
@@ -274,11 +331,21 @@ export const useReportQuizStore = defineStore('reportQuiz', () => {
         ]
         // Удаляем ошибку, если загрузка успешна
         delete loadErrors.value.funnelStages
+      } else {
+        // Если статусов нет, оставляем дефолтные значения
+        console.log('Статусы воронки не найдены, используются значения по умолчанию')
+        delete loadErrors.value.funnelStages
       }
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Неизвестная ошибка'
-      loadErrors.value.funnelStages = `Ошибка загрузки статусов воронки: ${errorMessage}`
+      // Показываем понятное сообщение, скрывая технические детали
+      if (errorMessage.includes('function()')) {
+        loadErrors.value.funnelStages = 'Не удалось загрузить статусы воронки. Используются значения по умолчанию.'
+      } else {
+        loadErrors.value.funnelStages = `Не удалось загрузить статусы воронки: ${errorMessage}`
+      }
       console.error('Ошибка загрузки статусов воронки:', error)
+      // Оставляем дефолтные значения при ошибке
     }
   }
 
@@ -291,8 +358,14 @@ export const useReportQuizStore = defineStore('reportQuiz', () => {
       // Удаляем ошибку, если загрузка успешна
       delete loadErrors.value.appOptions
     } catch (error) {
+      // Для app.option.get ошибка может быть нормальной, если опций нет
+      // Не показываем ошибку, если это не критично
       const errorMessage = error instanceof Error ? error.message : 'Неизвестная ошибка'
-      loadErrors.value.appOptions = `Ошибка загрузки настроек приложения: ${errorMessage}`
+      if (!errorMessage.includes('не найден') && !errorMessage.includes('not found')) {
+        loadErrors.value.appOptions = `Не удалось загрузить настройки приложения`
+      } else {
+        delete loadErrors.value.appOptions
+      }
       console.error('Ошибка загрузки настроек приложения:', error)
     }
   }
