@@ -7,8 +7,8 @@ on:
   workflow_dispatch:
 
 jobs:
-  build:
-    name: Build
+  deploy:
+    name: Build and Deploy
     runs-on: ubuntu-latest
     
     steps:
@@ -22,49 +22,47 @@ jobs:
           cache: 'npm'
 
       - name: Install dependencies
-        run: npm ci
+        run: npm install
 
-      - name: Build project
-        run: npm run build
+      - name: Generate static site
+        run: npm run generate
 
-      - name: Upload build artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: dist
-          path: dist/
-          retention-days: 1
-
-  deploy:
-    name: Deploy
-    needs: build
-    runs-on: ubuntu-latest
-    
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Download build artifacts
-        uses: actions/download-artifact@v4
-        with:
-          name: dist
-          path: dist/
-
-      - name: Setup LFTP
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y lftp
-
-      - name: Create LFTP script
-        run: |
-          echo 'set sftp:auto-confirm yes' > /tmp/lftp_script.txt
-          echo 'set sftp:connect-program "ssh -a -x -oStrictHostKeyChecking=no"' >> /tmp/lftp_script.txt
-          echo 'set cmd:fail-exit yes' >> /tmp/lftp_script.txt
-          echo 'set ftp:list-options -a' >> /tmp/lftp_script.txt
-          echo 'cd /var/www/vueapp_itcen_usr/data/www/vueapp.itcenter.pro/report' >> /tmp/lftp_script.txt
-          echo "lcd ${GITHUB_WORKSPACE}/dist" >> /tmp/lftp_script.txt
-          echo 'mirror --reverse --delete --verbose --exclude-glob .git* --exclude-glob node_modules* --exclude-glob .DS_Store . .' >> /tmp/lftp_script.txt
-          echo 'quit' >> /tmp/lftp_script.txt
+      - name: Install lftp
+        run: sudo apt-get update && sudo apt-get install -y lftp
 
       - name: Deploy to server via SFTP
+        env:
+          SFTP_USER: ${{ secrets.FTP_USER }}
+          SFTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
+          SFTP_SERVER: ${{ secrets.FTP_SERVER }}
+          SFTP_PORT: ${{ secrets.FTP_PORT }}
+          SFTP_DIR: '/var/www/vueapp_itcen_usr/data/www/vueapp.itcenter.pro/report'
+          LOCAL_DIR: ${{ github.workspace }}/.output/public
         run: |
-          lftp -u "vueapp_itcen_usr",",u{,%qpfHr|qH`1(" -p "22" sftp://"vueapp.itcenter.pro" -f /tmp/lftp_script.txt
+          echo "Подключение к серверу ${SFTP_SERVER}:${SFTP_PORT}"
+          echo "Пользователь: ${SFTP_USER}"
+          echo "Целевая директория: ${SFTP_DIR}"
+          echo "Локальная директория: ${LOCAL_DIR}"
+          ls -la ${LOCAL_DIR}/
+          lftp -u "${SFTP_USER}","${SFTP_PASSWORD}" -p "${SFTP_PORT}" sftp://"${SFTP_SERVER}" <<LFTP_EOF
+          set sftp:auto-confirm yes
+          set sftp:connect-program "ssh -a -x -oStrictHostKeyChecking=no"
+          set cmd:fail-exit yes
+          set ftp:list-options -a
+          echo "Текущая директория на сервере:"
+          pwd
+          echo "Переход в целевую директорию: ${SFTP_DIR}"
+          cd ${SFTP_DIR}
+          echo "Текущая директория после перехода:"
+          pwd
+          echo "Содержимое целевой директории:"
+          ls -la
+          echo "Начало копирования файлов из ${LOCAL_DIR}"
+          lcd ${LOCAL_DIR}
+          !pwd
+          !ls -la
+          mirror --reverse --delete --verbose --exclude-glob .git* --exclude-glob node_modules* --exclude-glob .DS_Store . .
+          echo "Содержимое после копирования:"
+          ls -la
+          quit
+          LFTP_EOF
