@@ -24,6 +24,7 @@ const jitiPlugin = (): Plugin => {
 
 // https://vite.dev/config/
 export default defineConfig({
+  base: '/report/',
   plugins: [
     vue(),
     jitiPlugin(),
