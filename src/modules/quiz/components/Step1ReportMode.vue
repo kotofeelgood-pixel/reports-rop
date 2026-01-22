@@ -2,6 +2,7 @@
 import RadioGroupComponent from '@/components/radio-group/RadioGroupComponent.vue'
 import BadgeComponent from '@/components/badge/BadgeComponent.vue'
 import BannerComponent from '@/components/banner/BannerComponent.vue'
+import ScrollAreaComponent from '@/components/scroll-area/ScrollAreaComponent.vue'
 
 export interface StepOneModel {
   label: string
@@ -19,15 +20,15 @@ const getItemByLabel = (label: string | undefined) => {
 </script>
 
 <template>
-  <div class="bg-white dark:bg-gray-800 rounded-lg p-6">
+  <div class="bg-white dark:bg-gray-800 rounded-lg p-6 h-full flex flex-col">
     <BannerComponent
-      title="Выберите режим отчёта"
+      title="1. Выберите режим отчёта"
       description="Выберите режим отчёта для генерации отчёта"
       color="air-primary"
       size="sm"
-      class="mb-6"
+      class="mb-4"
     />
-    <ScrollAreaComponent class="h-[425px]">
+    <ScrollAreaComponent class="flex-1 min-h-0">
       <RadioGroupComponent
         v-model="model"
         :items="data"
@@ -42,7 +43,7 @@ const getItemByLabel = (label: string | undefined) => {
               variant="new"
               size="sm"
             >
-              Новое
+              NEW
             </BadgeComponent>
           </div>
         </template>

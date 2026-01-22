@@ -7,12 +7,15 @@ import InputComponent from '@/components/inputs/InputComponent.vue'
 import BannerComponent from '@/components/banner/BannerComponent.vue'
 import ScrollAreaComponent from '@/components/scroll-area/ScrollAreaComponent.vue'
 import AvatarComponent from '@/components/avatar/AvatarComponent.vue'
+import ButtonComponent from '@/components/buttons/ButtonComponent.vue'
+import ModalComponent from '@/components/modal/ModalComponent.vue'
 import type { Employee } from '@/stores/useReportsQuizStore'
 
 const store = useReportQuizStore()
 const { selectedEmployees, startDate, endDate, employeesData } = storeToRefs(store)
 
 const showDismissed = ref(false)
+const isModalOpen = ref(false)
 
 const filteredEmployees = computed(() => {
   return showDismissed.value
@@ -117,22 +120,63 @@ const toggleEmployee = (employee: Employee) => {
     selectedEmployees.value.push(employee)
   }
 }
+
+const selectedEmployeesCount = computed(() => {
+  if (!Array.isArray(selectedEmployees.value)) return 0
+  return selectedEmployees.value.length
+})
 </script>
 
 <template>
-  <div class="bg-white dark:bg-gray-800 rounded-lg p-6">
+  <div class="bg-white dark:bg-gray-800 rounded-lg p-6 h-full flex flex-col">
     <BannerComponent
-      title="Выберите сотрудников"
-      description="Выберите сотрудников для генерации отчета"
+      title="2. Пользователи / период"
+      description="Выберите пользователей и период отчета"
       color="air-primary"
       size="sm"
-      class="mb-6"
+      class="mb-4"
     />
-    <div class="space-y-4">
+    <div class="space-y-4 flex-1 flex flex-col">
+      <!-- Кнопка выбора сотрудников -->
+      <div>
+        <ButtonComponent
+          :label="`Выбрано сотрудников: ${selectedEmployeesCount}`"
+          variant="outline"
+          color="air-primary"
+          size="md"
+          class="w-full"
+          @click="isModalOpen = true"
+        />
+      </div>
 
-      <!-- Список сотрудников -->
+      <!-- Период -->
+      <div>
+        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+          Отчётный период:
+        </label>
+        <div class="flex items-center gap-2">
+          <InputComponent
+            v-model="startDate"
+            type="date"
+            class="flex-1"
+          />
+          <span class="text-gray-500 dark:text-gray-400">—</span>
+          <InputComponent
+            v-model="endDate"
+            type="date"
+            class="flex-1"
+          />
+        </div>
+      </div>
+    </div>
+
+    <!-- Модальное окно выбора сотрудников -->
+    <ModalComponent
+      v-model:open="isModalOpen"
+      title="Выберите сотрудников"
+    >
       <div class="border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden">
-        <ScrollAreaComponent class="h-[425px]">
+        <ScrollAreaComponent class="h-[400px]">
           <div class="p-4 space-y-1">
             <!-- Чекбокс "Выбрать все" -->
             <div class="pb-2 mb-2 border-b border-gray-200 dark:border-gray-700">
@@ -187,26 +231,6 @@ const toggleEmployee = (employee: Employee) => {
           </div>
         </ScrollAreaComponent>
       </div>
-      <div>
-        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-          Отчётный период:
-        </label>
-        <div class="flex items-center gap-4">
-          <div class="">
-            <InputComponent
-              v-model="startDate"
-              type="date"
-            />
-          </div>
-          <span class="text-gray-500 dark:text-gray-400">—</span>
-          <div class="flex-1">
-            <InputComponent
-              v-model="endDate"
-              type="date"
-            />
-          </div>
-        </div>
-      </div>
-    </div>
+    </ModalComponent>
   </div>
 </template>

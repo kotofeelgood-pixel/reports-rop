@@ -128,7 +128,20 @@ export const useReportQuizStore = defineStore('reportQuiz', () => {
     }
   }
 
+  // Computed свойства для фильтрации данных в зависимости от режима отчета
+  const filteredDealDirections = computed(() => {
+    // Здесь можно добавить логику фильтрации направлений сделок
+    // в зависимости от выбранного режима отчета
+    // Пока возвращаем все направления
+    return dealDirectionsList.value
+  })
 
+  const filteredFunnelStages = computed(() => {
+    // Здесь можно добавить логику фильтрации этапов воронки
+    // в зависимости от выбранного режима отчета
+    // Пока возвращаем все этапы
+    return funnelStages.value
+  })
 
   const loadDealCategories = async () => {
     try {
@@ -158,6 +171,8 @@ export const useReportQuizStore = defineStore('reportQuiz', () => {
 
     // Computed
     allDirectionsSelected,
+    filteredDealDirections,
+    filteredFunnelStages,
 
     // Data
     reportModes,

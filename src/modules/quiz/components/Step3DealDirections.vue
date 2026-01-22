@@ -20,49 +20,43 @@ const handleSelectAll = (checked: boolean) => {
   if (checked) {
     // Выбираем все - создаем новый массив со всеми значениями
     const allValues = data.map((d) => d.value)
-    // Используем splice для замены всех элементов
-    if (model.value.length === 0) {
-      model.value.push(...allValues)
-    } else {
-      model.value.splice(0, model.value.length, ...allValues)
-    }
+    model.value = [...allValues]
   } else {
-    // Снимаем все - удаляем все элементы через splice
-    const currentLength = model.value.length
-    if (currentLength > 0) {
-      model.value.splice(0, currentLength)
-    }
+    // Снимаем все - создаем пустой массив
+    model.value = []
   }
 }
 
 const handleToggleDirection = (directionValue: string) => (checked: boolean) => {
+  // Создаем новый массив для гарантии реактивности
+  const currentValues = model.value && Array.isArray(model.value) ? [...model.value] : []
+
   if (checked) {
-    if (!model.value.includes(directionValue)) {
-      model.value.push(directionValue)
+    // Добавляем значение, если его еще нет
+    if (!currentValues.includes(directionValue)) {
+      model.value = [...currentValues, directionValue]
     }
   } else {
-    const index = model.value.indexOf(directionValue)
-    if (index > -1) {
-      model.value.splice(index, 1)
-    }
+    // Удаляем значение, создавая новый массив без него
+    model.value = currentValues.filter(v => v !== directionValue)
   }
 }
 
 const isDirectionSelected = (value: string) => {
-  return model.value.includes(value)
+  return model.value && Array.isArray(model.value) && model.value.includes(value)
 }
 </script>
 
 <template>
-  <div class="bg-white dark:bg-gray-800 rounded-lg p-6">
+  <div class="bg-white dark:bg-gray-800 rounded-lg p-6 h-full flex flex-col">
     <BannerComponent
-      title="Выберите направления сделок"
+      title="3. Выберите направления сделок"
       description="Выберите направления сделок для генерации отчёта"
       color="air-primary"
       size="sm"
-      class="mb-6"
+      class="mb-4"
     />
-    <ScrollAreaComponent class="h-[425px]">
+    <ScrollAreaComponent class="flex-1 min-h-0">
       <div class="space-y-2">
         <CheckboxComponent
           :model-value="allDirectionsSelected"

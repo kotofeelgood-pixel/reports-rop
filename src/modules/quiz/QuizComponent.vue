@@ -7,11 +7,10 @@ import Step2UsersPeriod from './components/Step2UsersPeriod.vue'
 import Step3DealDirections from './components/Step3DealDirections.vue'
 import Step4FunnelStages from './components/Step4FunnelStages.vue'
 import Step5ReportSettings from './components/Step5ReportSettings.vue'
-import QuizStepsIndicator from './components/QuizStepsIndicator.vue'
-import QuizNavigation from './components/QuizNavigation.vue'
 import ColorModeSwitchComponent from '@/components/color-mode-switch/ColorModeSwitchComponent.vue'
+import ButtonComponent from '@/components/buttons/ButtonComponent.vue'
 
-const { currentStep, reportModes, dealDirectionsList, dealDirections, reportMode, funnelStages, funnelStage, hideCallsSection, hideLeadsSection, hideDealsSection, effectiveCallSeconds, isLoading, loadingError, loadErrors } = useReportQuizStoreRefs()
+const { reportModes, filteredDealDirections, filteredFunnelStages, dealDirections, reportMode, funnelStage, hideCallsSection, hideLeadsSection, hideDealsSection, effectiveCallSeconds, isLoading, loadingError, loadErrors } = useReportQuizStoreRefs()
 const { loadDealCategories } = useReportQuizStore()
 
 // Инициализация при монтировании компонента
@@ -35,14 +34,6 @@ const isDark = computed({
   },
 })
 
-const steps = computed(() => [
-  { component: Step1ReportMode, title: 'Выберите режим отчёта', data: reportModes.value },
-  { component: Step2UsersPeriod, title: 'Пользователи / период' },
-  { component: Step3DealDirections, title: 'Выберите направления сделок', data: dealDirectionsList.value },
-  { component: Step4FunnelStages, title: 'Выберите ключевые этапы воронки', data: funnelStages.value },
-  { component: Step5ReportSettings, title: 'Настройки отчета' },
-])
-
 const reportSettings = computed({
   get: () => ({
     hideCallsSection: hideCallsSection.value,
@@ -58,12 +49,6 @@ const reportSettings = computed({
   },
 })
 
-
-const isLastStep = computed(() => currentStep.value === steps.value.length - 1)
-const isFirstStep = computed(() => currentStep.value === 0)
-
-
-
 const handleGenerateReport = () => {
   // generateReport()
 }
@@ -71,8 +56,12 @@ const handleGenerateReport = () => {
 
 <template>
   <div class="min-h-dvh bg-white dark:bg-gray-900 p-6">
-    <div class="mx-auto space-y-6 w-full">
-      <div class="flex justify-end mb-4">
+    <div class="mx-auto space-y-6 w-full max-w-[1800px]">
+      <!-- Заголовок и переключатель темы -->
+      <div class="flex justify-between items-center mb-4">
+        <h1 class="text-2xl font-bold text-gray-900 dark:text-gray-100">
+          Инструкция по работе с отчетом
+        </h1>
         <ColorModeSwitchComponent
           v-model="isDark"
           label="Темная тема"
@@ -128,42 +117,57 @@ const handleGenerateReport = () => {
         <span class="ml-3 text-gray-700 dark:text-gray-300">Загрузка данных...</span>
       </div>
 
-      <QuizStepsIndicator
-        :steps="steps"
-        v-model="currentStep"
-      />
+      <!-- Основной контент: колонки 1-4 -->
+      <div class="grid grid-cols-4 gap-4 mb-6 items-stretch">
+        <!-- Колонка 1: Выберите режим отчёта -->
+        <div class="flex">
+          <Step1ReportMode
+            :data="reportModes"
+            v-model="reportMode"
+            class="w-full"
+          />
+        </div>
 
-      <div class="space-y-6">
-        <Step1ReportMode
-          v-if="currentStep === 0"
-          :data="reportModes"
-          v-model="reportMode"
-        />
-        <Step2UsersPeriod
-          v-else-if="currentStep === 1"
-        />
-        <Step3DealDirections
-          v-else-if="currentStep === 2"
-          :data="dealDirectionsList"
-          v-model="dealDirections"
-        />
-        <Step4FunnelStages
-          v-else-if="currentStep === 3"
-          :data="funnelStages"
-          v-model="funnelStage"
-        />
+        <!-- Колонка 2: Пользователи / период -->
+        <div class="flex">
+          <Step2UsersPeriod class="w-full" />
+        </div>
+
+        <!-- Колонка 3: Выберите направления сделок -->
+        <div class="flex">
+          <Step3DealDirections
+            :data="filteredDealDirections"
+            v-model="dealDirections"
+            class="w-full"
+          />
+        </div>
+
+        <!-- Колонка 4: Выберите ключевые этапы воронки -->
+        <div class="flex">
+          <Step4FunnelStages
+            :data="filteredFunnelStages"
+            v-model="funnelStage"
+            class="w-full"
+          />
+        </div>
+      </div>
+
+      <!-- Раздел 5: Настройки отчета -->
+      <div class="mb-6">
         <Step5ReportSettings
-          v-else-if="currentStep === 4"
           v-model="reportSettings"
         />
       </div>
 
-      <QuizNavigation
-        :is-first-step="isFirstStep"
-        :is-last-step="isLastStep"
-        v-model="currentStep"
-        @generate="handleGenerateReport"
-      />
+      <!-- Кнопка Сформировать отчёт -->
+      <div class="flex justify-end">
+        <ButtonComponent
+          label="Сформировать отчёт"
+          color="air-primary-success"
+          size="lg"
+          @click="handleGenerateReport"
+        />
+      </div>
     </div>
   </div>
 </template>
