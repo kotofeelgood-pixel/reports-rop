@@ -1,12 +1,12 @@
 <script lang="ts" setup>
 import type { InputTimeModel } from './model';
-import type { AcceptableInputValue } from '@bitrix24/b24ui-nuxt';
+import type { AcceptableValue } from '@bitrix24/b24ui-nuxt';
 
 const props = defineProps<InputTimeModel>();
-const modelValue = defineModel<AcceptableInputValue | null>('modelValue');
+const modelValue = defineModel<AcceptableValue | null>('modelValue');
 
 defineEmits<{
-  'update:modelValue': [payload: AcceptableInputValue | null];
+  'update:modelValue': [payload: AcceptableValue | null];
   change: [event: Event];
   blur: [event: FocusEvent];
   focus: [event: FocusEvent];
@@ -24,12 +24,12 @@ defineEmits<{
     @focus="$emit('focus', $event)"
   >
     <template
-      v-for="(_, slot) in $slots"
+      v-for="(_, slot) in ($slots as any)"
       :key="slot"
       #[slot]="scope"
     >
       <slot
-        :name="slot"
+        :name="slot as string"
         v-bind="scope"
       />
     </template>

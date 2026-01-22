@@ -37,12 +37,12 @@ const pagination = defineModel<Record<string, any>>('pagination');
     v-model:pagination="pagination"
   >
     <template
-      v-for="(_, slot) in $slots"
+      v-for="(_, slot) in ($slots as any)"
       :key="slot"
       #[slot]="scope"
     >
       <slot
-        :name="slot"
+        :name="slot as string"
         v-bind="scope"
       />
     </template>

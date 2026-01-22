@@ -1,4 +1,4 @@
-import type { TableColumn, TableMeta, TableRow } from '@bitrix24/b24ui-nuxt';
+import type { TableColumn, TableRow } from '@bitrix24/b24ui-nuxt';
 import type { WatchOptions } from 'vue';
 
 export type TableLoadingColor =
@@ -11,6 +11,8 @@ export type TableLoadingColor =
 export type TableLoadingAnimation = 'loading' | 'carousel' | 'carousel-inverse' | 'swing' | 'elastic';
 
 export type TableSticky = boolean | 'header' | 'footer';
+
+export type TableMeta<T = unknown> = Record<string, any>;
 
 export interface TableModel {
   as?: any;

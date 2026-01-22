@@ -1,4 +1,4 @@
-import type { IconComponent, AvatarProps, AcceptableInputValue } from '@bitrix24/b24ui-nuxt';
+import type { IconComponent, AvatarProps, AcceptableValue } from '@bitrix24/b24ui-nuxt';
 
 export type InputTagsColor = 
   | 'air-primary'
@@ -38,8 +38,8 @@ export interface InputTagsModel {
   tag?: string;
   tagColor?: InputTagsTagColor;
   highlight?: boolean;
-  modelValue?: AcceptableInputValue[] | null;
-  defaultValue?: AcceptableInputValue[];
+  modelValue?: AcceptableValue[] | null;
+  defaultValue?: AcceptableValue[];
   addOnPaste?: boolean;
   addOnTab?: boolean;
   addOnBlur?: boolean;
@@ -48,8 +48,8 @@ export interface InputTagsModel {
   delimiter?: string | RegExp;
   max?: number;
   id?: string;
-  convertValue?: (value: string) => AcceptableInputValue;
-  displayValue?: (value: AcceptableInputValue) => string;
+  convertValue?: (value: string) => AcceptableValue;
+  displayValue?: (value: AcceptableValue) => string;
   name?: string;
   required?: boolean;
   icon?: IconComponent;

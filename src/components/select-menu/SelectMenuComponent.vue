@@ -35,12 +35,12 @@ defineEmits<{
     @update:search-term="$emit('update:searchTerm', $event)"
   >
     <template
-      v-for="(_, slot) in $slots"
+      v-for="(_, slot) in ($slots as any)"
       :key="slot"
       #[slot]="scope"
     >
       <slot
-        :name="slot"
+        :name="slot as string"
         v-bind="scope"
       />
     </template>

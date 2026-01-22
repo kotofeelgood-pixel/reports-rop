@@ -1,18 +1,18 @@
 <script lang="ts" setup>
 import type { InputTagsModel } from './model';
-import type { AcceptableInputValue } from '@bitrix24/b24ui-nuxt';
+import type { AcceptableValue } from '@bitrix24/b24ui-nuxt';
 
 const props = defineProps<InputTagsModel>();
-const modelValue = defineModel<AcceptableInputValue[] | null>('modelValue');
+const modelValue = defineModel<AcceptableValue[] | null>('modelValue');
 
 defineEmits<{
-  'update:modelValue': [payload: AcceptableInputValue[]];
+  'update:modelValue': [payload: AcceptableValue[]];
   change: [event: Event];
   blur: [event: FocusEvent];
   focus: [event: FocusEvent];
-  invalid: [payload: AcceptableInputValue];
-  addTag: [payload: AcceptableInputValue];
-  removeTag: [payload: AcceptableInputValue];
+  invalid: [payload: AcceptableValue];
+  addTag: [payload: AcceptableValue];
+  removeTag: [payload: AcceptableValue];
 }>();
 
 </script>
@@ -30,12 +30,12 @@ defineEmits<{
     @remove-tag="$emit('removeTag', $event)"
   >
     <template
-      v-for="(_, slot) in $slots"
+      v-for="(_, slot) in ($slots as any)"
       :key="slot"
       #[slot]="scope"
     >
       <slot
-        :name="slot"
+        :name="slot as string"
         v-bind="scope"
       />
     </template>
