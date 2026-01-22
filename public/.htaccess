@@ -7,5 +7,5 @@
   RewriteCond %{REQUEST_FILENAME} !-d
   
   # Все остальные запросы перенаправляем на index.html
-  RewriteRule . /report/index.html [L]
+  RewriteRule ^(.*)$ index.html [L,QSA]
 </IfModule>
