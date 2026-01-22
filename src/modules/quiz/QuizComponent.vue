@@ -12,11 +12,11 @@ import QuizNavigation from './components/QuizNavigation.vue'
 import ColorModeSwitchComponent from '@/components/color-mode-switch/ColorModeSwitchComponent.vue'
 
 const { currentStep, reportModes, dealDirectionsList, dealDirections, reportMode, funnelStages, funnelStage, hideCallsSection, hideLeadsSection, hideDealsSection, effectiveCallSeconds, isLoading, loadingError, loadErrors } = useReportQuizStoreRefs()
-const { generateReport, initializeQuiz } = useReportQuizStore()
+const { loadDealCategories } = useReportQuizStore()
 
 // Инициализация при монтировании компонента
 onMounted(() => {
-  initializeQuiz()
+  loadDealCategories()
 })
 
 const colorMode = useColorMode({
@@ -58,15 +58,14 @@ const reportSettings = computed({
   },
 })
 
-const currentStepComponent = computed(() => steps.value[currentStep.value]?.component)
-const currentStepData = computed(() => steps.value[currentStep.value]?.data)
+
 const isLastStep = computed(() => currentStep.value === steps.value.length - 1)
 const isFirstStep = computed(() => currentStep.value === 0)
 
 
 
 const handleGenerateReport = () => {
-  generateReport()
+  // generateReport()
 }
 </script>
 
