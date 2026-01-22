@@ -22,7 +22,7 @@ const model = defineModel<ReportSettingsModel>({
 </script>
 
 <template>
-  <div class="bg-white dark:bg-gray-800 rounded-lg p-6">
+  <div class="bg-white dark:bg-gray-800 rounded-lg">
     <BannerComponent
       title="5. Настройки отчета"
       description="Настройте параметры генерации отчёта"

@@ -20,7 +20,7 @@ const getItemByLabel = (label: string | undefined) => {
 </script>
 
 <template>
-  <div class="bg-white dark:bg-gray-800 rounded-lg p-6 h-full flex flex-col">
+  <div class="bg-white dark:bg-gray-800 rounded-lg h-full flex flex-col">
     <BannerComponent
       title="1. Выберите режим отчёта"
       description="Выберите режим отчёта для генерации отчёта"

@@ -38,7 +38,7 @@ const handleSelectAll = (checked: boolean) => {
 </script>
 
 <template>
-  <div class="bg-white dark:bg-gray-800 rounded-lg p-6 h-full flex flex-col">
+  <div class="bg-white dark:bg-gray-800 rounded-lg h-full flex flex-col">
     <BannerComponent
       title="3. Выберите направления сделок"
       description="Выберите направления сделок для генерации отчёта"

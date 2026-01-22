@@ -128,7 +128,7 @@ const selectedEmployeesCount = computed(() => {
 </script>
 
 <template>
-  <div class="bg-white dark:bg-gray-800 rounded-lg p-6 h-full flex flex-col">
+  <div class="bg-white dark:bg-gray-800 rounded-lg h-full flex flex-col">
     <BannerComponent
       title="2. Пользователи / период"
       description="Выберите пользователей и период отчета"
