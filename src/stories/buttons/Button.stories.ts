@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from '@storybook/vue3-vite'
 import ButtonComponent from '../../components/buttons/ButtonComponent.vue'
 import { commonMeta } from '../meta'
 
-const meta: Meta<typeof ButtonComponent> = {
+const meta = {
   ...commonMeta,
   title: 'Element/Button',
   component: ButtonComponent,
@@ -45,11 +45,11 @@ const meta: Meta<typeof ButtonComponent> = {
       control: 'select',
       options: ['button', 'submit', 'reset'],
     },
-  } as any,
+  },
   args: {
     label: 'Button',
-  } as any,
-}
+  },
+} as Meta<typeof ButtonComponent>
 
 export default meta
 type Story = StoryObj<typeof meta>
