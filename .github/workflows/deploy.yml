@@ -36,7 +36,7 @@ jobs:
           SFTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
           SFTP_SERVER: ${{ secrets.FTP_SERVER }}
           SFTP_PORT: ${{ secrets.FTP_PORT }}
-          SFTP_DIR: '/var/www/vueapp_itcen_usr/data/www/vueapp.itcenter.pro/report'
+          SFTP_DIR: '/var/www/vueapp_itcen_usr/data/www/vueapp.itcenter.pro/call'
           LOCAL_DIR: ${{ github.workspace }}/.output/public
         run: |
           echo "Подключение к серверу ${SFTP_SERVER}:${SFTP_PORT}"

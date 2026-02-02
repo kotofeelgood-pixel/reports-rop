@@ -1,8 +1,10 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 import AvatarComponent from '@/components/avatar/AvatarComponent.vue'
 import LinkComponent from '@/components/navigation/link/LinkComponent.vue'
 import UserCallsModal from './UserCallsModal.vue'
+import SelectComponent from '@/components/select/SelectComponent.vue'
+import InputDateComponent from '@/components/form/input-date/InputDateComponent.vue'
 
 type Row = {
   id: string
@@ -46,6 +48,32 @@ const tableTotals = computed(() => props.totals)
 
 const sortBy = ref<SortKey | null>(null)
 const sortDir = ref<SortDir>('asc')
+
+const dateRange = ref<string | null>(null)
+const dateValue = ref(null)
+const selectedUser = ref<string | null>(null)
+
+const showDatePicker = computed(() => dateRange.value === 'custom')
+
+watch(dateRange, (newVal) => {
+  console.log('Date range changed:', newVal, 'showDatePicker:', showDatePicker.value)
+})
+
+const dateRangeOptions = [
+  { label: 'В реальном времени', value: 'realtime' },
+  { label: 'Сегодня', value: 'today' },
+  { label: 'Вчера', value: 'yesterday' },
+  { label: 'Эта неделя', value: 'this_week' },
+  { label: 'Прошлая неделя', value: 'last_week' },
+  { label: 'Этот месяц', value: 'this_month' },
+  { label: 'Прошлый месяц', value: 'last_month' },
+  { label: 'Произвольный период', value: 'custom' },
+]
+
+const userOptions = computed(() => [
+  { label: 'Все пользователи', value: null },
+  ...rows.value.map(row => ({ label: row.name, value: row.id }))
+])
 
 const isCallsModalOpen = ref(false)
 const selectedUserName = ref('')
@@ -181,6 +209,45 @@ const sortedRows = computed(() => {
 <template>
   <section class="flex min-w-0 flex-1 flex-col rounded-lg border border-gray-200 bg-white dark:border-gray-700 dark:bg-[#252525]">
     <h2 class="border-b border-gray-200 bg-white px-4 py-3 text-base font-semibold text-gray-900 dark:border-gray-700 dark:bg-[#252525] dark:text-white">Пользователи</h2>
+
+    <!-- Фильтры -->
+    <div class="border-b border-gray-200 px-4 py-4 dark:border-gray-700">
+      <div class="grid grid-cols-2 gap-4">
+        <!-- Фильтр по дате -->
+        <div class="space-y-2">
+          <label class="block text-sm font-medium text-gray-800 dark:text-gray-200">Дата</label>
+          <div class="flex gap-2">
+            <SelectComponent
+              v-model="dateRange"
+              :items="dateRangeOptions"
+              placeholder="Диапазон"
+              :class="dateRange === 'custom' ? '!w-auto min-w-[200px]' : '!w-full'"
+              :style="dateRange === 'custom' ? 'width: auto !important; min-width: 200px;' : 'width: 100% !important;'"
+            />
+            <InputDateComponent
+              v-if="showDatePicker"
+              v-model="dateValue"
+              range
+              placeholder="27.02.2025 -"
+              class="flex-1"
+            />
+          </div>
+        </div>
+
+        <!-- Фильтр по пользователям -->
+        <div class="space-y-2">
+          <label class="block text-sm font-medium text-gray-800 dark:text-gray-200">Пользователи</label>
+          <SelectComponent
+            v-model="selectedUser"
+            :items="userOptions"
+            placeholder="ОТВЕТСТВЕННЫЙ"
+            class="!w-full"
+            style="width: 100% !important;"
+          />
+        </div>
+      </div>
+    </div>
+
     <div class="flex-1 overflow-auto">
       <table class="w-full text-left text-sm">
         <thead class="sticky top-0 z-10 bg-[#e0f7fc] text-gray-700 dark:bg-[#1e3a47] dark:text-gray-300">
