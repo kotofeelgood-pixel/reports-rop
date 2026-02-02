@@ -53,7 +53,6 @@ const selectedCallType = ref('')
 const selectedCalls = ref<Call[]>([])
 
 function openCallsModal(userName: string, callType: string) {
-  console.log('Opening modal for:', userName, callType)
   selectedUserName.value = userName
   selectedCallType.value = callType
   // Тестовые данные
@@ -130,7 +129,6 @@ function openCallsModal(userName: string, callType: string) {
     },
   ]
   isCallsModalOpen.value = true
-  console.log('Modal open state:', isCallsModalOpen.value)
 }
 
 function parseDuration(s: string): number {
