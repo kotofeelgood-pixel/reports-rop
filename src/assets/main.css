@@ -43,3 +43,9 @@ html.dark .settings-button:active {
   background-color: #374151 !important;
   color: #e5e7eb !important;
 }
+
+/* User calls modal wider */
+.user-calls-modal .b24-modal__dialog {
+  max-width: 1400px !important;
+  width: 95vw !important;
+}

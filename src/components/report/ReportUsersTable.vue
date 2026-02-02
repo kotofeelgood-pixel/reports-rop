@@ -2,6 +2,7 @@
 import { computed, ref } from 'vue'
 import AvatarComponent from '@/components/avatar/AvatarComponent.vue'
 import LinkComponent from '@/components/navigation/link/LinkComponent.vue'
+import UserCallsModal from './UserCallsModal.vue'
 
 type Row = {
   id: string
@@ -11,6 +12,17 @@ type Row = {
   missed: number
   processedMissed: number
   duration: string
+}
+
+type Call = {
+  id: string
+  time: string
+  number: string
+  type: string
+  duration: string
+  status: string
+  crm: string
+  hasRecording: boolean
 }
 
 type Totals = {
@@ -34,6 +46,92 @@ const tableTotals = computed(() => props.totals)
 
 const sortBy = ref<SortKey | null>(null)
 const sortDir = ref<SortDir>('asc')
+
+const isCallsModalOpen = ref(false)
+const selectedUserName = ref('')
+const selectedCallType = ref('')
+const selectedCalls = ref<Call[]>([])
+
+function openCallsModal(userName: string, callType: string) {
+  console.log('Opening modal for:', userName, callType)
+  selectedUserName.value = userName
+  selectedCallType.value = callType
+  // Тестовые данные
+  selectedCalls.value = [
+    {
+      id: '1',
+      time: '09:15:32',
+      number: '79161234567',
+      type: 'Исходящий',
+      duration: '00:03:45',
+      status: 'Завершен',
+      crm: 'Иван Петров',
+      hasRecording: true,
+    },
+    {
+      id: '2',
+      time: '10:22:18',
+      number: '79267894561',
+      type: 'Входящий',
+      duration: '00:05:12',
+      status: 'Завершен',
+      crm: 'Мария Сидорова',
+      hasRecording: true,
+    },
+    {
+      id: '3',
+      time: '11:20:19',
+      number: '79640774400',
+      type: 'Исходящий',
+      duration: '00:00:00',
+      status: 'Вызов отменен',
+      crm: 'Евгений',
+      hasRecording: false,
+    },
+    {
+      id: '4',
+      time: '12:45:08',
+      number: '79151239876',
+      type: 'Входящий',
+      duration: '00:02:33',
+      status: 'Завершен',
+      crm: 'Алексей Козлов',
+      hasRecording: true,
+    },
+    {
+      id: '5',
+      time: '13:10:55',
+      number: '79039876543',
+      type: 'Пропущенный',
+      duration: '00:00:00',
+      status: 'Не отвечен',
+      crm: 'Ольга Смирнова',
+      hasRecording: false,
+    },
+    {
+      id: '6',
+      time: '14:33:21',
+      number: '79267771234',
+      type: 'Исходящий',
+      duration: '00:01:15',
+      status: 'Завершен',
+      crm: 'Дмитрий Волков',
+      hasRecording: true,
+    },
+    {
+      id: '7',
+      time: '15:52:44',
+      number: '79121234567',
+      type: 'Входящий',
+      duration: '00:04:28',
+      status: 'Завершен',
+      crm: 'Елена Новикова',
+      hasRecording: true,
+    },
+  ]
+  isCallsModalOpen.value = true
+  console.log('Modal open state:', isCallsModalOpen.value)
+}
 
 function parseDuration(s: string): number {
   const [h, m, sec] = s.split(':').map(Number)
@@ -181,10 +279,30 @@ const sortedRows = computed(() => {
                 </LinkComponent>
               </div>
             </td>
-            <td class="px-4 py-2 font-medium text-green-600 dark:text-green-400">{{ row.outgoing }}</td>
-            <td class="px-4 py-2 font-medium text-[#2563eb] dark:text-blue-400">{{ row.incoming }}</td>
-            <td class="px-4 py-2 font-medium text-red-600 dark:text-red-400">{{ row.missed }}</td>
-            <td class="px-4 py-2 font-medium text-orange-600 dark:text-orange-400">{{ row.processedMissed }}</td>
+            <td
+              class="cursor-pointer px-4 py-2 font-medium text-green-600 transition-all hover:underline hover:opacity-80 dark:text-green-400"
+              @click="openCallsModal(row.name, 'исходящие')"
+            >
+              {{ row.outgoing }}
+            </td>
+            <td
+              class="cursor-pointer px-4 py-2 font-medium text-[#2563eb] transition-all hover:underline hover:opacity-80 dark:text-blue-400"
+              @click="openCallsModal(row.name, 'входящие')"
+            >
+              {{ row.incoming }}
+            </td>
+            <td
+              class="cursor-pointer px-4 py-2 font-medium text-red-600 transition-all hover:underline hover:opacity-80 dark:text-red-400"
+              @click="openCallsModal(row.name, 'пропущенные')"
+            >
+              {{ row.missed }}
+            </td>
+            <td
+              class="cursor-pointer px-4 py-2 font-medium text-orange-600 transition-all hover:underline hover:opacity-80 dark:text-orange-400"
+              @click="openCallsModal(row.name, 'обработанные пропущенные')"
+            >
+              {{ row.processedMissed }}
+            </td>
             <td class="px-4 py-2 text-gray-700 dark:text-gray-300">{{ row.duration }}</td>
           </tr>
         </tbody>
@@ -200,6 +318,13 @@ const sortedRows = computed(() => {
         </tfoot>
       </table>
     </div>
+
+    <UserCallsModal
+      v-model:open="isCallsModalOpen"
+      :user-name="selectedUserName"
+      :call-type="selectedCallType"
+      :calls="selectedCalls"
+    />
   </section>
 </template>
 
