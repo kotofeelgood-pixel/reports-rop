@@ -44,8 +44,8 @@ html.dark .settings-button:active {
   color: #e5e7eb !important;
 }
 
-/* User calls modal wider */
-.user-calls-modal .b24-modal__dialog {
-  max-width: 1400px !important;
-  width: 95vw !important;
+/* Аудио-плеер всегда поверх модалок */
+.audio-player-fixed {
+  z-index: 999999 !important;
+  position: fixed !important;
 }
