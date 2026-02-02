@@ -4,7 +4,8 @@ import AvatarComponent from '@/components/avatar/AvatarComponent.vue'
 import LinkComponent from '@/components/navigation/link/LinkComponent.vue'
 import UserCallsModal from './UserCallsModal.vue'
 import SelectComponent from '@/components/select/SelectComponent.vue'
-import InputDateComponent from '@/components/form/input-date/InputDateComponent.vue'
+import CalendarComponent from '@/components/element/calendar/CalendarComponent.vue'
+import PopoverComponent from '@/components/overlay/popover/PopoverComponent.vue'
 
 type Row = {
   id: string
@@ -49,14 +50,65 @@ const tableTotals = computed(() => props.totals)
 const sortBy = ref<SortKey | null>(null)
 const sortDir = ref<SortDir>('asc')
 
-const dateRange = ref<string | null>(null)
-const dateValue = ref(null)
+const dateRange = ref<string>('realtime')
 const selectedUser = ref<string | null>(null)
+const isDatePickerOpen = ref(false)
 
 const showDatePicker = computed(() => dateRange.value === 'custom')
 
-watch(dateRange, (newVal) => {
-  console.log('Date range changed:', newVal, 'showDatePicker:', showDatePicker.value)
+const dateValue = ref({ start: null, end: null })
+
+const dateDisplayValue = computed(() => {
+  if (!dateValue.value || (!dateValue.value.start && !dateValue.value.end)) return '27.02.2025 -'
+  // Calendar возвращает объект с start и end в формате CalendarDateRange
+  try {
+    const range = dateValue.value as any
+    if (range?.start && range?.end) {
+      const start = range.start
+      const end = range.end
+      const startStr = `${String(start.day).padStart(2, '0')}.${String(start.month).padStart(2, '0')}.${start.year}`
+      const endStr = `${String(end.day).padStart(2, '0')}.${String(end.month).padStart(2, '0')}.${end.year}`
+      return `${startStr} - ${endStr}`
+    }
+    if (range?.start) {
+      const start = range.start
+      const startStr = `${String(start.day).padStart(2, '0')}.${String(start.month).padStart(2, '0')}.${start.year}`
+      return `${startStr} -`
+    }
+  } catch (e) {
+    console.error('Error formatting date:', e)
+  }
+  return '27.02.2025 -'
+})
+
+// Отслеживаем изменения dateValue для автоматического закрытия popover
+watch(dateValue, (newValue) => {
+  console.log('Date value changed:', newValue)
+  if (newValue && typeof newValue === 'object' && 'start' in newValue && 'end' in newValue) {
+    const range = newValue as any
+    // Проверяем, что обе даты выбраны и валидны
+    if (range.start && range.end) {
+      const start = range.start
+      const end = range.end
+      // Проверяем наличие всех необходимых полей
+      if (start && end &&
+          start.day !== undefined && start.month !== undefined && start.year !== undefined &&
+          end.day !== undefined && end.month !== undefined && end.year !== undefined) {
+        // Небольшая задержка перед закрытием, чтобы пользователь увидел выбор
+        setTimeout(() => {
+          isDatePickerOpen.value = false
+        }, 200)
+      }
+    }
+  }
+}, { deep: true })
+
+// Сбрасываем dateValue при изменении dateRange (кроме custom)
+watch(dateRange, (newValue) => {
+  if (newValue !== 'custom') {
+    dateValue.value = { start: null, end: null }
+    isDatePickerOpen.value = false
+  }
 })
 
 const dateRangeOptions = [
@@ -212,7 +264,7 @@ const sortedRows = computed(() => {
 
     <!-- Фильтры -->
     <div class="border-b border-gray-200 px-4 py-4 dark:border-gray-700">
-      <div class="grid grid-cols-2 gap-4">
+      <div class="flex gap-2">
         <!-- Фильтр по дате -->
         <div class="space-y-2">
           <label class="block text-sm font-medium text-gray-800 dark:text-gray-200">Дата</label>
@@ -220,17 +272,36 @@ const sortedRows = computed(() => {
             <SelectComponent
               v-model="dateRange"
               :items="dateRangeOptions"
-              placeholder="Диапазон"
               :class="dateRange === 'custom' ? '!w-auto min-w-[200px]' : '!w-full'"
               :style="dateRange === 'custom' ? 'width: auto !important; min-width: 200px;' : 'width: 100% !important;'"
             />
-            <InputDateComponent
+            <PopoverComponent
               v-if="showDatePicker"
-              v-model="dateValue"
-              range
-              placeholder="27.02.2025 -"
+              v-model:open="isDatePickerOpen"
+              side="bottom"
+              align="start"
               class="flex-1"
-            />
+            >
+              <ButtonComponent
+                icon="calendar"
+                color="light-border"
+                size="md"
+                class="w-full"
+
+                @click="isDatePickerOpen = true"
+              >
+            {{ dateDisplayValue }}
+            </ButtonComponent>
+              <template #content>
+                <div class="p-4">
+                  <CalendarComponent
+                    v-model="dateValue"
+                    range
+                    locale="ru-RU"
+                  />
+                </div>
+              </template>
+            </PopoverComponent>
           </div>
         </div>
 
