@@ -24,7 +24,7 @@ const jitiPlugin = (): Plugin => {
 
 // https://vite.dev/config/
 export default defineConfig({
-  base: '/call/',
+  base: '/calls/',
   plugins: [
     vue(),
     jitiPlugin(),
