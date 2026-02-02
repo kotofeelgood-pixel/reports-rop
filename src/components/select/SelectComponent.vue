@@ -1,15 +1,21 @@
 <script lang="ts" setup>
-import { useSlots } from 'vue';
+import { useSlots, computed } from 'vue';
 
 const slots = useSlots();
 const slotNames = Object.keys(slots) as string[];
+
+const props = defineProps<{
+  fullWidth?: boolean;
+}>();
+
+const widthValue = computed(() => props.fullWidth ? '100%' : 'auto');
 
 defineEmits<{
   'update:open': [value: boolean];
   change: [event: Event];
   blur: [event: FocusEvent];
   focus: [event: FocusEvent];
-  'update:modelValue': [value: any];
+  'update:modelValue': [value: unknown];
 }>();
 
 </script>
@@ -35,3 +41,9 @@ defineEmits<{
     </template>
   </B24Select>
 </template>
+
+<style scoped>
+.isolate {
+  width: v-bind(widthValue) !important;
+}
+</style>

@@ -1,2 +1,45 @@
 @import "tailwindcss";
 @import "@bitrix24/b24ui-nuxt";
+
+html,
+body,
+#app {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+html.dark {
+  background-color: #1a1a1a;
+  color-scheme: dark;
+}
+
+html.dark body,
+html.dark #app {
+  background-color: #1a1a1a;
+}
+
+.settings-button {
+  background-color: #f3f4f6 !important; /* bg-gray-100 */
+  border: none !important;
+  color: #4b5563 !important; /* text-gray-600 */
+}
+
+.settings-button:hover,
+.settings-button:focus,
+.settings-button:active {
+  background-color: #f3f4f6 !important; /* тот же фон, не меняем */
+  color: #111827 !important; /* text-gray-900 — темнее только иконка */
+}
+
+html.dark .settings-button {
+  background-color: #374151 !important; /* dark mode gray */
+  color: #9ca3af !important;
+}
+
+html.dark .settings-button:hover,
+html.dark .settings-button:focus,
+html.dark .settings-button:active {
+  background-color: #374151 !important;
+  color: #e5e7eb !important;
+}
