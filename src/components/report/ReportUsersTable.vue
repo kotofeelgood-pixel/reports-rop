@@ -310,7 +310,6 @@ watch(dateValue, (val) => {
                   color="light-border"
                   size="md"
                   class="w-full"
-                  @click="isDatePickerOpen = true"
                 >
                   {{ startDateDisplay }}
                 </ButtonComponent>
@@ -319,7 +318,6 @@ watch(dateValue, (val) => {
                   color="light-border"
                   size="md"
                   class="w-full"
-                  @click="isDatePickerOpen = true"
                 >
                   {{ endDateDisplay }}
                 </ButtonComponent>

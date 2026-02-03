@@ -165,7 +165,7 @@ const isOutgoingCall = (call: TelephonyCallRecord): boolean => {
 }
 
 const completedCalls = computed(() =>
-  buildTopList(call => isOutgoingCall(call) && !isMissedCall(call))
+  buildTopList(call => isOutgoingCall(call))
 )
 
 const missedCalls = computed(() =>
