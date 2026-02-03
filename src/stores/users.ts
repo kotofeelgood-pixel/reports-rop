@@ -70,6 +70,8 @@ export const useUsersStore = defineStore('users', () => {
         })
         .filter(Boolean) as AppUser[]
       loadedAt.value = Date.now()
+
+      console.log('users', users.value)
       return users.value
     } catch (e) {
       console.error('fetchUsers:', e)
