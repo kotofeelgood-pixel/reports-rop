@@ -130,7 +130,7 @@ const { isCallsModalOpen, selectedUserName, selectedCallType, selectedCalls, ope
               @click="setSort('name')"
               @keydown.enter="setSort('name')"
             >
-              <span class="inline-flex items-center gap-1">
+              <span class="inline-flex items-center gap-1 text-xs">
                 ОТВЕТСТВЕННЫЙ
                 <span v-if="sortBy === 'name'" class="text-gray-900">{{ sortDir === 'asc' ? '↑' : '↓' }}</span>
               </span>
@@ -142,8 +142,8 @@ const { isCallsModalOpen, selectedUserName, selectedCallType, selectedCalls, ope
               @click="setSort('outgoing')"
               @keydown.enter="setSort('outgoing')"
             >
-              <span class="inline-flex items-center gap-1">
-                <span class="inline-block size-4 rounded bg-green-500/80" />
+              <span class="inline-flex items-center gap-1 text-xs">
+                <span class="inline-block size-3 rounded bg-green-500/80" />
                 ИСХ.
                 <span v-if="sortBy === 'outgoing'" class="text-gray-900">{{ sortDir === 'asc' ? '↑' : '↓' }}</span>
               </span>
@@ -155,8 +155,8 @@ const { isCallsModalOpen, selectedUserName, selectedCallType, selectedCalls, ope
               @click="setSort('incoming')"
               @keydown.enter="setSort('incoming')"
             >
-              <span class="inline-flex items-center gap-1">
-                <span class="inline-block size-4 rounded bg-[#2fc6f6]/80" />
+              <span class="inline-flex items-center gap-1 text-xs">
+                <span class="inline-block size-3 rounded bg-[#2fc6f6]/80" />
                 ВХОД.
                 <span v-if="sortBy === 'incoming'" class="text-gray-900">{{ sortDir === 'asc' ? '↑' : '↓' }}</span>
               </span>
@@ -168,8 +168,8 @@ const { isCallsModalOpen, selectedUserName, selectedCallType, selectedCalls, ope
               @click="setSort('missed')"
               @keydown.enter="setSort('missed')"
             >
-              <span class="inline-flex items-center gap-1">
-                <span class="inline-block size-4 rounded bg-red-500/80" />
+              <span class="inline-flex items-center gap-1 text-xs">
+                <span class="inline-block size-3 rounded bg-red-500/80" />
                 ПР.
                 <span v-if="sortBy === 'missed'" class="text-gray-900">{{ sortDir === 'asc' ? '↑' : '↓' }}</span>
               </span>
@@ -181,8 +181,8 @@ const { isCallsModalOpen, selectedUserName, selectedCallType, selectedCalls, ope
               @click="setSort('processedMissed')"
               @keydown.enter="setSort('processedMissed')"
             >
-              <span class="inline-flex items-center gap-1">
-                <span class="inline-block size-4 rounded bg-orange-500/80" />
+              <span class="inline-flex items-center gap-1 text-xs">
+                <span class="inline-block size-3 rounded bg-orange-500/80" />
                 ОБ. ПР.
                 <span v-if="sortBy === 'processedMissed'" class="text-gray-900">{{ sortDir === 'asc' ? '↑' : '↓' }}</span>
               </span>
@@ -194,7 +194,7 @@ const { isCallsModalOpen, selectedUserName, selectedCallType, selectedCalls, ope
               @click="setSort('duration')"
               @keydown.enter="setSort('duration')"
             >
-              <span class="inline-flex items-center gap-1">
+              <span class="inline-flex items-center gap-1 text-xs">
                 ДЛИТЕЛЬНОСТЬ
                 <span v-if="sortBy === 'duration'" class="text-gray-900">{{ sortDir === 'asc' ? '↑' : '↓' }}</span>
               </span>
