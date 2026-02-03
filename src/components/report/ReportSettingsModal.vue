@@ -2,21 +2,11 @@
 import { computed } from 'vue'
 import { useColorMode } from '@vueuse/core'
 import { useReportSettingsStoreRefs } from '@/stores/reportSettings'
+import { useUsersStoreRefs } from '@/stores/users'
 import ModalComponent from '@/components/modal/ModalComponent.vue'
 import SelectComponent from '@/components/select/SelectComponent.vue'
 import CheckboxComponent from '@/components/inputs/Checkbox/CheckboxComponent.vue'
 import ButtonComponent from '@/components/buttons/ButtonComponent.vue'
-
-type Employee = {
-  id: string
-  name: string
-}
-
-const props = defineProps<{
-  employees: Employee[]
-}>()
-
-const employees = computed(() => props.employees)
 
 const model = defineModel<boolean>('open', { default: false })
 
@@ -32,6 +22,12 @@ const {
   embedAnalytics,
   embedStatsMenu,
 } = useReportSettingsStoreRefs()
+
+const { users } = useUsersStoreRefs()
+
+const employeeOptions = computed(() =>
+  (users.value || []).map(u => ({ label: u.name, value: u.id }))
+)
 
 const mode = useColorMode({
   initialValue: 'dark',
@@ -145,7 +141,7 @@ const hours = Array.from({ length: 25 }, (_, i) => ({
               <label class="block text-sm font-medium text-gray-800 dark:text-gray-200">Исключить сотрудников</label>
               <SelectComponent
                 v-model="excludedEmployeeIds"
-                :items="employees.map(emp => ({ label: emp.name, value: emp.id }))"
+                :items="employeeOptions"
                 multiple
                 placeholder="Выберите сотрудников"
                 full-width

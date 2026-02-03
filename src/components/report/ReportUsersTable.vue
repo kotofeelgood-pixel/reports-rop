@@ -10,6 +10,8 @@ import ButtonComponent from '@/components/buttons/ButtonComponent.vue'
 import { useTableSort } from '@/composables/useTableSort'
 import { useCallsModal } from '@/composables/useCallsModal'
 import { useDateRange } from '@/composables/useDateRange'
+import { useUsersStoreRefs } from '@/stores/users'
+import { useReportSettingsStoreRefs } from '@/stores/reportSettings'
 
 type Row = {
   id: string
@@ -50,10 +52,24 @@ const {
 
 const selectedUser = ref<string | null>(null)
 
-const userOptions = computed(() => [
-  { label: 'Все пользователи', value: null },
-  ...rows.value.map(row => ({ label: row.name, value: row.id }))
-])
+const { users: allUsers } = useUsersStoreRefs()
+const { excludedEmployeeIds } = useReportSettingsStoreRefs()
+
+const userOptions = computed(() => {
+  const fromStore = (allUsers.value || []).map(u => ({ label: u.name, value: u.id }))
+  const fromRows = rows.value.map(row => ({ label: row.name, value: row.id }))
+
+  // Если список пользователей уже загрузили — используем его, иначе fallback на строки отчёта
+  const items = fromStore.length ? fromStore : fromRows
+
+  const excluded = new Set((excludedEmployeeIds.value || []).map(String))
+  const filteredItems = items.filter(i => !excluded.has(String(i.value)))
+
+  return [
+    { label: 'Все пользователи', value: null },
+    ...filteredItems,
+  ]
+})
 
 const { isCallsModalOpen, selectedUserName, selectedCallType, selectedCalls, openCallsModal, openTotalsCallsModal } = useCallsModal(rows)
 </script>

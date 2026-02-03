@@ -1,13 +1,20 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { onMounted, ref } from 'vue'
 import ReportHeader from '@/components/report/ReportHeader.vue'
 import ReportUsersTable from '@/components/report/ReportUsersTable.vue'
 import ReportChart from '@/components/report/ReportChart.vue'
 import ReportRating from '@/components/report/ReportRating.vue'
 import ReportSettingsModal from '@/components/report/ReportSettingsModal.vue'
 import { useReportSettingsStoreRefs } from '@/stores/reportSettings'
+import { useUsersStore } from '@/stores/users'
 
 const { layoutType } = useReportSettingsStoreRefs()
+const usersStore = useUsersStore()
+
+onMounted(() => {
+  // Загружаем список пользователей (для фильтров/настроек/маппинга по id)
+  void usersStore.fetchUsers()
+})
 
 const tableData = [
   { id: '1', name: 'Лебедева Мария', outgoing: 2, incoming: 15, missed: 11, processedMissed: 0, duration: '00:17:26' },
@@ -74,7 +81,6 @@ const isSettingsOpen = ref(false)
 
     <ReportSettingsModal
       v-model:open="isSettingsOpen"
-      :employees="tableData"
     />
   </div>
 </template>
