@@ -54,6 +54,7 @@ export const useUsersStore = defineStore('users', () => {
     error.value = null
     try {
       const raw = await getUsers()
+      console.log('raw', raw)
       const rawArr = Array.isArray(raw) ? raw as BitrixUser[] : []
       users.value = rawArr
         .map((u) => {
