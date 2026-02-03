@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import AvatarComponent from '@/components/avatar/AvatarComponent.vue'
 import LinkComponent from '@/components/navigation/link/LinkComponent.vue'
 import UserCallsModal from './UserCallsModal.vue'
@@ -12,6 +12,7 @@ import { useCallsModal } from '@/composables/useCallsModal'
 import { useDateRange } from '@/composables/useDateRange'
 import { useUsersStore, useUsersStoreRefs } from '@/stores/users'
 import { useReportSettingsStoreRefs } from '@/stores/reportSettings'
+import { telephonyCallList, type TelephonyCallRecord } from '@/api/calls'
 
 type Row = {
   id: string
@@ -36,10 +37,92 @@ const props = defineProps<{
   totals: Totals
 }>()
 
-const rows = computed(() => props.rows)
-const tableTotals = computed(() => props.totals)
+const usersStore = useUsersStore()
+const { users: allUsers, usersById } = useUsersStoreRefs()
+const { excludedEmployeeIds } = useReportSettingsStoreRefs()
 
-const { sortBy, sortDir, setSort, sortedRows } = useTableSort(rows)
+const calls = ref<TelephonyCallRecord[]>([])
+const isLoading = ref(false)
+const error = ref<string | null>(null)
+
+const rowsFromCalls = computed<Row[]>(() => {
+  if (!calls.value.length) return []
+  const excluded = new Set((excludedEmployeeIds.value || []).map(String))
+  const map = new Map<string, Row & { _seconds: number }>()
+  for (const call of calls.value) {
+    const userIdRaw = call.PORTAL_USER_ID ?? call.USER_ID ?? call.RESPONSIBLE_ID ?? call.ASSIGNED_BY_ID
+    const userId = String(userIdRaw ?? '').trim()
+    if (!userId || excluded.has(userId)) continue
+
+    const callTypeRaw = call.CALL_TYPE ?? call.callType ?? call.TYPE ?? call.type
+    const callTypeNum = Number(callTypeRaw)
+    const durationRaw = call.DURATION ?? call.CALL_DURATION ?? call.duration ?? 0
+    const duration = Number(durationRaw)
+    const isMissed = callTypeNum === 3 || duration <= 0
+
+    const user = usersById.value.get(userId)
+    const name = user?.name ?? `#${userId}`
+
+    if (!map.has(userId)) {
+      map.set(userId, {
+        id: userId,
+        name,
+        outgoing: 0,
+        incoming: 0,
+        missed: 0,
+        processedMissed: 0,
+        duration: '00:00:00',
+        _seconds: 0,
+      })
+    }
+    const row = map.get(userId)!
+    if (callTypeNum === 2) row.outgoing += 1
+    else if (callTypeNum === 1) row.incoming += 1
+    if (isMissed) row.missed += 1
+
+    if (Number.isFinite(duration) && duration > 0) {
+      row._seconds += duration
+    }
+  }
+
+  for (const row of map.values()) {
+    const total = Math.max(0, row._seconds)
+    const h = Math.floor(total / 3600)
+    const m = Math.floor((total % 3600) / 60)
+    const s = total % 60
+    row.duration = `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`
+    delete (row as { _seconds?: number })._seconds
+  }
+
+  return Array.from(map.values())
+})
+
+const totalsFromCalls = computed<Totals>(() => {
+  if (!rowsFromCalls.value.length) return props.totals
+  const totals = rowsFromCalls.value.reduce((acc, row) => {
+    acc.outgoing += row.outgoing
+    acc.incoming += row.incoming
+    acc.missed += row.missed
+    acc.processedMissed += row.processedMissed
+    const parts = row.duration.split(':').map(Number)
+    const h = parts[0] ?? 0
+    const m = parts[1] ?? 0
+    const s = parts[2] ?? 0
+    acc._seconds += (h * 3600) + (m * 60) + (s || 0)
+    return acc
+  }, { outgoing: 0, incoming: 0, missed: 0, processedMissed: 0, duration: '00:00:00', _seconds: 0 } as Totals & { _seconds: number })
+  const total = Math.max(0, totals._seconds)
+  const h = Math.floor(total / 3600)
+  const m = Math.floor((total % 3600) / 60)
+  const s = total % 60
+  totals.duration = `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`
+  return totals
+})
+
+const computedRows = computed(() => (rowsFromCalls.value.length ? rowsFromCalls.value : props.rows))
+const tableTotals = computed(() => (rowsFromCalls.value.length ? totalsFromCalls.value : props.totals))
+
+const { sortBy, sortDir, setSort, sortedRows } = useTableSort(computedRows)
 
 const {
   dateRange,
@@ -52,13 +135,9 @@ const {
 
 const selectedUser = ref<string | null>(null)
 
-const usersStore = useUsersStore()
-const { users: allUsers } = useUsersStoreRefs()
-const { excludedEmployeeIds } = useReportSettingsStoreRefs()
-
 const userOptions = computed(() => {
   const fromStore = (allUsers.value || []).map(u => ({ label: u.name, value: u.id }))
-  const fromRows = rows.value.map(row => ({ label: row.name, value: row.id }))
+  const fromRows = computedRows.value.map(row => ({ label: row.name, value: row.id }))
 
   // Если список пользователей уже загрузили — используем его, иначе fallback на строки отчёта
   const items = fromStore.length ? fromStore : fromRows
@@ -72,11 +151,106 @@ const userOptions = computed(() => {
   ]
 })
 
-const { isCallsModalOpen, selectedUserName, selectedCallType, selectedCalls, openCallsModal, openTotalsCallsModal } = useCallsModal(rows)
+const { isCallsModalOpen, selectedUserName, selectedCallType, selectedCalls, openCallsModal, openTotalsCallsModal } = useCallsModal(computedRows)
+
+const formatB24Date = (d: Date): string => {
+  const y = d.getFullYear()
+  const m = String(d.getMonth() + 1).padStart(2, '0')
+  const day = String(d.getDate()).padStart(2, '0')
+  const h = String(d.getHours()).padStart(2, '0')
+  const min = String(d.getMinutes()).padStart(2, '0')
+  const s = String(d.getSeconds()).padStart(2, '0')
+  return `${y}-${m}-${day} ${h}:${min}:${s}`
+}
+
+const getDateRange = () => {
+  const now = new Date()
+  const startOfDay = (d: Date) => new Date(d.getFullYear(), d.getMonth(), d.getDate(), 0, 0, 0, 0)
+  const endOfDay = (d: Date) => new Date(d.getFullYear(), d.getMonth(), d.getDate(), 23, 59, 59, 999)
+  const startOfWeek = (d: Date) => {
+    const day = d.getDay() || 7
+    const diff = day - 1
+    const out = new Date(d)
+    out.setDate(d.getDate() - diff)
+    return startOfDay(out)
+  }
+  const endOfWeek = (d: Date) => {
+    const start = startOfWeek(d)
+    const out = new Date(start)
+    out.setDate(start.getDate() + 6)
+    return endOfDay(out)
+  }
+
+  switch (dateRange.value) {
+    case 'today':
+      return { start: startOfDay(now), end: endOfDay(now) }
+    case 'yesterday': {
+      const d = new Date(now)
+      d.setDate(d.getDate() - 1)
+      return { start: startOfDay(d), end: endOfDay(d) }
+    }
+    case 'this_week':
+      return { start: startOfWeek(now), end: endOfWeek(now) }
+    case 'last_week': {
+      const d = new Date(now)
+      d.setDate(d.getDate() - 7)
+      return { start: startOfWeek(d), end: endOfWeek(d) }
+    }
+    case 'this_month': {
+      const start = new Date(now.getFullYear(), now.getMonth(), 1, 0, 0, 0, 0)
+      const end = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59, 999)
+      return { start, end }
+    }
+    case 'last_month': {
+      const start = new Date(now.getFullYear(), now.getMonth() - 1, 1, 0, 0, 0, 0)
+      const end = new Date(now.getFullYear(), now.getMonth(), 0, 23, 59, 59, 999)
+      return { start, end }
+    }
+    case 'custom': {
+      const range = dateValue.value
+      if (range?.start && range?.end) {
+        const start = new Date(range.start.year, range.start.month - 1, range.start.day, 0, 0, 0, 0)
+        const end = new Date(range.end.year, range.end.month - 1, range.end.day, 23, 59, 59, 999)
+        return { start, end }
+      }
+      return null
+    }
+    default:
+      return null
+  }
+}
+
+const fetchCalls = async () => {
+  isLoading.value = true
+  error.value = null
+  try {
+    const range = getDateRange()
+    const filter: Record<string, unknown> = {}
+    if (selectedUser.value) {
+      filter.PORTAL_USER_ID = selectedUser.value
+    }
+    if (range?.start && range?.end) {
+      filter['>=CALL_START_DATE'] = formatB24Date(range.start)
+      filter['<=CALL_START_DATE'] = formatB24Date(range.end)
+    }
+    const data = await telephonyCallList({ filter })
+    calls.value = Array.isArray(data) ? data : []
+  } catch (e) {
+    error.value = e instanceof Error ? e.message : String(e)
+    calls.value = []
+  } finally {
+    isLoading.value = false
+  }
+}
 
 onMounted(() => {
   void usersStore.fetchUsers()
+  void fetchCalls()
 })
+
+watch([dateRange, dateValue, selectedUser], () => {
+  void fetchCalls()
+}, { deep: true })
 </script>
 
 <template>
