@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import AvatarComponent from '@/components/avatar/AvatarComponent.vue'
 import LinkComponent from '@/components/navigation/link/LinkComponent.vue'
 import UserCallsModal from './UserCallsModal.vue'
@@ -10,7 +10,7 @@ import ButtonComponent from '@/components/buttons/ButtonComponent.vue'
 import { useTableSort } from '@/composables/useTableSort'
 import { useCallsModal } from '@/composables/useCallsModal'
 import { useDateRange } from '@/composables/useDateRange'
-import { useUsersStoreRefs } from '@/stores/users'
+import { useUsersStore, useUsersStoreRefs } from '@/stores/users'
 import { useReportSettingsStoreRefs } from '@/stores/reportSettings'
 
 type Row = {
@@ -52,6 +52,7 @@ const {
 
 const selectedUser = ref<string | null>(null)
 
+const usersStore = useUsersStore()
 const { users: allUsers } = useUsersStoreRefs()
 const { excludedEmployeeIds } = useReportSettingsStoreRefs()
 
@@ -72,6 +73,10 @@ const userOptions = computed(() => {
 })
 
 const { isCallsModalOpen, selectedUserName, selectedCallType, selectedCalls, openCallsModal, openTotalsCallsModal } = useCallsModal(rows)
+
+onMounted(() => {
+  void usersStore.fetchUsers()
+})
 </script>
 
 <template>

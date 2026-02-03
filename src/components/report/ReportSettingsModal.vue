@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, onMounted } from 'vue'
 import { useColorMode } from '@vueuse/core'
 import { useReportSettingsStoreRefs } from '@/stores/reportSettings'
-import { useUsersStoreRefs } from '@/stores/users'
+import { useUsersStore, useUsersStoreRefs } from '@/stores/users'
 import ModalComponent from '@/components/modal/ModalComponent.vue'
 import SelectComponent from '@/components/select/SelectComponent.vue'
 import CheckboxComponent from '@/components/inputs/Checkbox/CheckboxComponent.vue'
@@ -23,11 +23,16 @@ const {
   embedStatsMenu,
 } = useReportSettingsStoreRefs()
 
+const usersStore = useUsersStore()
 const { users } = useUsersStoreRefs()
 
 const employeeOptions = computed(() =>
   (users.value || []).map(u => ({ label: u.name, value: u.id }))
 )
+
+onMounted(() => {
+  void usersStore.fetchUsers()
+})
 
 const mode = useColorMode({
   initialValue: 'dark',
