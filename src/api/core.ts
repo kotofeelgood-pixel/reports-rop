@@ -142,7 +142,25 @@ export const callBatchPromise = async (b24: any, params: unknown[]): Promise<unk
       }
 
       // Извлекаем данные из результата batch запроса
-      const result = (batchResult as any)?.items ?? (batchResult as any)?.result ?? batchResult
+      const batchData = typeof (batchResult as any)?.data === 'function'
+        ? (() => {
+          try {
+            return (batchResult as any).data()
+          } catch {
+            return batchResult
+          }
+        })()
+        : batchResult
+
+      let result = (batchData as any)?.items ?? (batchData as any)?.result ?? batchData
+      if (typeof result === 'function') {
+        try {
+          result = result()
+        } catch {
+          result = batchData
+        }
+      }
+
       if (Array.isArray(result)) {
         resultArray = [...resultArray, ...result]
       } else if (result && typeof result === 'object') {
