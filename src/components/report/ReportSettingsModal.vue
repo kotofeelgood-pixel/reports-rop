@@ -3,6 +3,7 @@ import { computed, onMounted } from 'vue'
 import { useColorMode } from '@vueuse/core'
 import { useReportSettingsStoreRefs } from '@/stores/reportSettings'
 import { useUsersStore, useUsersStoreRefs } from '@/stores/users'
+import { useDepartmentsStore, useDepartmentsStoreRefs } from '@/stores/departments'
 import ModalComponent from '@/components/modal/ModalComponent.vue'
 import SelectComponent from '@/components/select/SelectComponent.vue'
 import CheckboxComponent from '@/components/inputs/Checkbox/CheckboxComponent.vue'
@@ -25,13 +26,20 @@ const {
 
 const usersStore = useUsersStore()
 const { users } = useUsersStoreRefs()
+const departmentsStore = useDepartmentsStore()
+const { departments } = useDepartmentsStoreRefs()
 
 const employeeOptions = computed(() =>
   (users.value || []).map(u => ({ label: u.name, value: u.id }))
 )
 
+const departmentOptions = computed(() =>
+  (departments.value || []).map(d => ({ label: d.name, value: d.id }))
+)
+
 onMounted(() => {
   void usersStore.fetchUsers()
+  void departmentsStore.fetchDepartments()
 })
 
 const mode = useColorMode({
@@ -44,13 +52,6 @@ const isDarkTheme = computed({
     mode.value = value ? 'dark' : 'light'
   },
 })
-
-const departments = [
-  { label: 'Отдел продаж', value: 'sales' },
-  { label: 'Служба поддержки', value: 'support' },
-  { label: 'Менеджмент', value: 'management' },
-  { label: 'Разработка', value: 'development' },
-]
 
 const hours = Array.from({ length: 25 }, (_, i) => ({
   label: `${i}:00`,
@@ -135,7 +136,7 @@ const hours = Array.from({ length: 25 }, (_, i) => ({
               <label class="block text-sm font-medium text-gray-800 dark:text-gray-200">Исключить отдел</label>
               <SelectComponent
                 v-model="excludedDepartment"
-                :items="departments"
+                :items="departmentOptions"
                 placeholder="Выберите отдел"
                 full-width
               />
