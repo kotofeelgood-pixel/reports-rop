@@ -81,6 +81,8 @@ export const userGet = async (
       data.push(...batchResult)
     }
 
+    console.log('data', data)
+
     return data
   } catch (error) {
     console.error(error)
