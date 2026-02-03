@@ -124,7 +124,7 @@ const normalizeUserId = (call: TelephonyCallRecord): string => {
 }
 
 const normalizeDuration = (call: TelephonyCallRecord): number => {
-  const raw = call.DURATION ?? call.CALL_DURATION ?? call.duration ?? 0
+  const raw = call.CALL_DURATION ?? call.DURATION ?? call.duration ?? 0
   const val = Number(raw)
   return Number.isFinite(val) ? val : 0
 }
@@ -132,6 +132,7 @@ const normalizeDuration = (call: TelephonyCallRecord): number => {
 const isMissedCall = (call: TelephonyCallRecord): boolean => {
   const duration = normalizeDuration(call)
   if (duration <= 0) return true
+  if (call.CALL_FAILED_CODE ?? call.call_failed_code) return true
   const statusRaw = String(call.CALL_STATUS ?? call.STATUS ?? call.status ?? '').toLowerCase()
   if (!statusRaw) return false
   return /(missed|no\s*answer|failed|busy|cancel|reject)/i.test(statusRaw)

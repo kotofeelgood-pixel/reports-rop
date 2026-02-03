@@ -5,54 +5,32 @@ export type TelephonyCallRecord = Record<string, unknown>
 
 type CallListParams = {
   filter?: Record<string, unknown>
-  select?: string[]
-  order?: Record<string, 'asc' | 'desc' | 'ASC' | 'DESC'>
-  maxCount?: number
+  sort?: string
+  order?: 'asc' | 'desc' | 'ASC' | 'DESC'
 }
 
 /**
  * Получить список звонков из телефонии.
  *
- * https://apidocs.bitrix24.ru/api-reference/telephony/calls/telephony-call-list.html
+ * https://apidocs.bitrix24.com/api-reference/telephony/voximplant-statistic-get.html
  */
 export const telephonyCallList = async ({
   filter = {},
-  select = ['ID', 'CALL_START_DATE', 'PORTAL_USER_ID', 'USER_ID', 'CALL_TYPE', 'STATUS', 'DURATION', 'CALL_STATUS'],
-  order = { ID: 'desc' },
-  maxCount = 500,
+  sort = 'CALL_START_DATE',
+  order = 'DESC',
 }: CallListParams = {}): Promise<TelephonyCallRecord[]> => {
   const b24 = await useB24()
   try {
-    const response: any = await callMethodPromise(b24, 'telephony.call.list', {
-      filter,
-      order,
-      select,
+    const response: any = await callMethodPromise(b24, 'voximplant.statistic.get', {
+      FILTER: filter,
+      SORT: sort,
+      ORDER: order,
     })
 
     const answer = response
-    let results = Array.isArray(answer?.result) ? answer.result : []
-
-    if (answer?.next !== undefined && answer?.total !== undefined) {
-      const total = answer.total
-      let next = answer.next
-      while (next < total && results.length < maxCount) {
-        const nextResponse: any = await callMethodPromise(b24, 'telephony.call.list', {
-          filter,
-          order,
-          select,
-          start: next,
-        })
-        const nextAnswer = nextResponse
-        if (Array.isArray(nextAnswer?.result)) {
-          results = [...results, ...nextAnswer.result]
-        }
-        next = nextAnswer?.next || total
-      }
-    }
-
-    return results.slice(0, maxCount)
+    return Array.isArray(answer?.result) ? answer.result : []
   } catch (error) {
-    console.error('telephony.call.list error:', error)
+    console.error('voximplant.statistic.get error:', error)
     return []
   }
 }

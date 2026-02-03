@@ -56,9 +56,9 @@ const rowsFromCalls = computed<Row[]>(() => {
 
     const callTypeRaw = call.CALL_TYPE ?? call.callType ?? call.TYPE ?? call.type
     const callTypeNum = Number(callTypeRaw)
-    const durationRaw = call.DURATION ?? call.CALL_DURATION ?? call.duration ?? 0
+    const durationRaw = call.CALL_DURATION ?? call.DURATION ?? call.duration ?? 0
     const duration = Number(durationRaw)
-    const isMissed = callTypeNum === 3 || duration <= 0
+    const isMissed = duration <= 0 || Boolean(call.CALL_FAILED_CODE ?? call.call_failed_code)
 
     const user = usersById.value.get(userId)
     const name = user?.name ?? `#${userId}`
@@ -76,8 +76,8 @@ const rowsFromCalls = computed<Row[]>(() => {
       })
     }
     const row = map.get(userId)!
-    if (callTypeNum === 2) row.outgoing += 1
-    else if (callTypeNum === 1) row.incoming += 1
+    if (callTypeNum === 1) row.outgoing += 1
+    else row.incoming += 1
     if (isMissed) row.missed += 1
 
     if (Number.isFinite(duration) && duration > 0) {
@@ -153,15 +153,7 @@ const userOptions = computed(() => {
 
 const { isCallsModalOpen, selectedUserName, selectedCallType, selectedCalls, openCallsModal, openTotalsCallsModal } = useCallsModal(computedRows)
 
-const formatB24Date = (d: Date): string => {
-  const y = d.getFullYear()
-  const m = String(d.getMonth() + 1).padStart(2, '0')
-  const day = String(d.getDate()).padStart(2, '0')
-  const h = String(d.getHours()).padStart(2, '0')
-  const min = String(d.getMinutes()).padStart(2, '0')
-  const s = String(d.getSeconds()).padStart(2, '0')
-  return `${y}-${m}-${day} ${h}:${min}:${s}`
-}
+const formatB24Date = (d: Date): string => d.toISOString()
 
 const getDateRange = () => {
   const now = new Date()
@@ -233,7 +225,7 @@ const fetchCalls = async () => {
       filter['>=CALL_START_DATE'] = formatB24Date(range.start)
       filter['<=CALL_START_DATE'] = formatB24Date(range.end)
     }
-    const data = await telephonyCallList({ filter })
+    const data = await telephonyCallList({ filter, sort: 'CALL_START_DATE', order: 'DESC' })
     calls.value = Array.isArray(data) ? data : []
   } catch (e) {
     error.value = e instanceof Error ? e.message : String(e)
