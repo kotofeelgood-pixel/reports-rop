@@ -126,8 +126,10 @@ export const callBatchPromise = async (b24: any, params: unknown[]): Promise<unk
       if (Array.isArray(result)) {
         resultArray = [...resultArray, ...result]
       } else if (result && typeof result === 'object') {
-        // Если результат - объект, проверяем наличие вложенных массивов
-        if ((result as any).tasks && Array.isArray((result as any).tasks)) {
+        // user.get возвращает объект вида { result: [...], total, next, time }
+        if (Array.isArray((result as any).result)) {
+          resultArray = [...resultArray, ...(result as any).result]
+        } else if ((result as any).tasks && Array.isArray((result as any).tasks)) {
           resultArray = [...resultArray, ...(result as any).tasks]
         } else {
           resultArray.push(result)
