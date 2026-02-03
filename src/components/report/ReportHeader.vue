@@ -14,7 +14,7 @@ const emit = defineEmits<{
     <ButtonComponent
       variant="ghost"
       size="icon"
-      class="settings-button rounded-lg"
+      class="rounded-lg border-none"
       aria-label="Настройки"
       @click="emit('openSettings')"
     >

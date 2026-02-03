@@ -1,11 +1,15 @@
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue'
+import { computed, ref } from 'vue'
 import AvatarComponent from '@/components/avatar/AvatarComponent.vue'
 import LinkComponent from '@/components/navigation/link/LinkComponent.vue'
 import UserCallsModal from './UserCallsModal.vue'
 import SelectComponent from '@/components/select/SelectComponent.vue'
 import CalendarComponent from '@/components/element/calendar/CalendarComponent.vue'
 import PopoverComponent from '@/components/overlay/popover/PopoverComponent.vue'
+import ButtonComponent from '@/components/buttons/ButtonComponent.vue'
+import { useTableSort } from '@/composables/useTableSort'
+import { useCallsModal } from '@/composables/useCallsModal'
+import { useDateRange } from '@/composables/useDateRange'
 
 type Row = {
   id: string
@@ -17,17 +21,6 @@ type Row = {
   duration: string
 }
 
-type Call = {
-  id: string
-  time: string
-  number: string
-  type: string
-  duration: string
-  status: string
-  crm: string
-  hasRecording: boolean
-}
-
 type Totals = {
   outgoing: number
   incoming: number
@@ -35,9 +28,6 @@ type Totals = {
   processedMissed: number
   duration: string
 }
-
-type SortKey = 'name' | 'outgoing' | 'incoming' | 'missed' | 'processedMissed' | 'duration'
-type SortDir = 'asc' | 'desc'
 
 const props = defineProps<{
   rows: Row[]
@@ -47,215 +37,25 @@ const props = defineProps<{
 const rows = computed(() => props.rows)
 const tableTotals = computed(() => props.totals)
 
-const sortBy = ref<SortKey | null>(null)
-const sortDir = ref<SortDir>('asc')
+const { sortBy, sortDir, setSort, sortedRows } = useTableSort(rows)
 
-const dateRange = ref<string>('realtime')
+const {
+  dateRange,
+  dateValue,
+  isDatePickerOpen,
+  showDatePicker,
+  dateDisplayValue,
+  dateRangeOptions,
+} = useDateRange()
+
 const selectedUser = ref<string | null>(null)
-const isDatePickerOpen = ref(false)
-
-const showDatePicker = computed(() => dateRange.value === 'custom')
-
-const dateValue = ref({ start: null, end: null })
-
-const dateDisplayValue = computed(() => {
-  if (!dateValue.value || (!dateValue.value.start && !dateValue.value.end)) return '27.02.2025 -'
-  // Calendar возвращает объект с start и end в формате CalendarDateRange
-  try {
-    const range = dateValue.value as any
-    if (range?.start && range?.end) {
-      const start = range.start
-      const end = range.end
-      const startStr = `${String(start.day).padStart(2, '0')}.${String(start.month).padStart(2, '0')}.${start.year}`
-      const endStr = `${String(end.day).padStart(2, '0')}.${String(end.month).padStart(2, '0')}.${end.year}`
-      return `${startStr} - ${endStr}`
-    }
-    if (range?.start) {
-      const start = range.start
-      const startStr = `${String(start.day).padStart(2, '0')}.${String(start.month).padStart(2, '0')}.${start.year}`
-      return `${startStr} -`
-    }
-  } catch (e) {
-    console.error('Error formatting date:', e)
-  }
-  return '27.02.2025 -'
-})
-
-// Отслеживаем изменения dateValue для автоматического закрытия popover
-watch(dateValue, (newValue) => {
-  console.log('Date value changed:', newValue)
-  if (newValue && typeof newValue === 'object' && 'start' in newValue && 'end' in newValue) {
-    const range = newValue as any
-    // Проверяем, что обе даты выбраны и валидны
-    if (range.start && range.end) {
-      const start = range.start
-      const end = range.end
-      // Проверяем наличие всех необходимых полей
-      if (start && end &&
-          start.day !== undefined && start.month !== undefined && start.year !== undefined &&
-          end.day !== undefined && end.month !== undefined && end.year !== undefined) {
-        // Небольшая задержка перед закрытием, чтобы пользователь увидел выбор
-        setTimeout(() => {
-          isDatePickerOpen.value = false
-        }, 200)
-      }
-    }
-  }
-}, { deep: true })
-
-// Сбрасываем dateValue при изменении dateRange (кроме custom)
-watch(dateRange, (newValue) => {
-  if (newValue !== 'custom') {
-    dateValue.value = { start: null, end: null }
-    isDatePickerOpen.value = false
-  }
-})
-
-const dateRangeOptions = [
-  { label: 'В реальном времени', value: 'realtime' },
-  { label: 'Сегодня', value: 'today' },
-  { label: 'Вчера', value: 'yesterday' },
-  { label: 'Эта неделя', value: 'this_week' },
-  { label: 'Прошлая неделя', value: 'last_week' },
-  { label: 'Этот месяц', value: 'this_month' },
-  { label: 'Прошлый месяц', value: 'last_month' },
-  { label: 'Произвольный период', value: 'custom' },
-]
 
 const userOptions = computed(() => [
   { label: 'Все пользователи', value: null },
   ...rows.value.map(row => ({ label: row.name, value: row.id }))
 ])
 
-const isCallsModalOpen = ref(false)
-const selectedUserName = ref('')
-const selectedCallType = ref('')
-const selectedCalls = ref<Call[]>([])
-
-function openCallsModal(userName: string, callType: string) {
-  selectedUserName.value = userName
-  selectedCallType.value = callType
-  // Тестовые данные
-  selectedCalls.value = [
-    {
-      id: '1',
-      time: '09:15:32',
-      number: '79161234567',
-      type: 'Исходящий',
-      duration: '00:03:45',
-      status: 'Завершен',
-      crm: 'Иван Петров',
-      hasRecording: true,
-    },
-    {
-      id: '2',
-      time: '10:22:18',
-      number: '79267894561',
-      type: 'Входящий',
-      duration: '00:05:12',
-      status: 'Завершен',
-      crm: 'Мария Сидорова',
-      hasRecording: true,
-    },
-    {
-      id: '3',
-      time: '11:20:19',
-      number: '79640774400',
-      type: 'Исходящий',
-      duration: '00:00:00',
-      status: 'Вызов отменен',
-      crm: 'Евгений',
-      hasRecording: false,
-    },
-    {
-      id: '4',
-      time: '12:45:08',
-      number: '79151239876',
-      type: 'Входящий',
-      duration: '00:02:33',
-      status: 'Завершен',
-      crm: 'Алексей Козлов',
-      hasRecording: true,
-    },
-    {
-      id: '5',
-      time: '13:10:55',
-      number: '79039876543',
-      type: 'Пропущенный',
-      duration: '00:00:00',
-      status: 'Не отвечен',
-      crm: 'Ольга Смирнова',
-      hasRecording: false,
-    },
-    {
-      id: '6',
-      time: '14:33:21',
-      number: '79267771234',
-      type: 'Исходящий',
-      duration: '00:01:15',
-      status: 'Завершен',
-      crm: 'Дмитрий Волков',
-      hasRecording: true,
-    },
-    {
-      id: '7',
-      time: '15:52:44',
-      number: '79121234567',
-      type: 'Входящий',
-      duration: '00:04:28',
-      status: 'Завершен',
-      crm: 'Елена Новикова',
-      hasRecording: true,
-    },
-  ]
-  isCallsModalOpen.value = true
-}
-
-function parseDuration(s: string): number {
-  const [h, m, sec] = s.split(':').map(Number)
-  return (h ?? 0) * 3600 + (m ?? 0) * 60 + (sec ?? 0)
-}
-
-function setSort(key: SortKey) {
-  if (sortBy.value === key) {
-    sortDir.value = sortDir.value === 'asc' ? 'desc' : 'asc'
-  } else {
-    sortBy.value = key
-    sortDir.value = 'asc'
-  }
-}
-
-const sortedRows = computed(() => {
-  const data = [...rows.value]
-  if (!sortBy.value) return data
-  const dir = sortDir.value === 'asc' ? 1 : -1
-  return data.sort((a, b) => {
-    let cmp = 0
-    switch (sortBy.value) {
-      case 'name':
-        cmp = a.name.localeCompare(b.name)
-        break
-      case 'outgoing':
-        cmp = a.outgoing - b.outgoing
-        break
-      case 'incoming':
-        cmp = a.incoming - b.incoming
-        break
-      case 'missed':
-        cmp = a.missed - b.missed
-        break
-      case 'processedMissed':
-        cmp = a.processedMissed - b.processedMissed
-        break
-      case 'duration':
-        cmp = parseDuration(a.duration) - parseDuration(b.duration)
-        break
-      default:
-        return 0
-    }
-    return cmp * dir
-  })
-})
+const { isCallsModalOpen, selectedUserName, selectedCallType, selectedCalls, openCallsModal, openTotalsCallsModal } = useCallsModal(rows)
 </script>
 
 <template>
@@ -417,25 +217,25 @@ const sortedRows = computed(() => {
             </td>
             <td
               class="cursor-pointer px-4 py-2 font-medium text-green-600 transition-all hover:underline hover:opacity-80 dark:text-green-400"
-              @click="openCallsModal(row.name, 'исходящие')"
+              @click="openCallsModal(row.id, row.name, 'исходящие')"
             >
               {{ row.outgoing }}
             </td>
             <td
               class="cursor-pointer px-4 py-2 font-medium text-[#2563eb] transition-all hover:underline hover:opacity-80 dark:text-blue-400"
-              @click="openCallsModal(row.name, 'входящие')"
+              @click="openCallsModal(row.id, row.name, 'входящие')"
             >
               {{ row.incoming }}
             </td>
             <td
               class="cursor-pointer px-4 py-2 font-medium text-red-600 transition-all hover:underline hover:opacity-80 dark:text-red-400"
-              @click="openCallsModal(row.name, 'пропущенные')"
+              @click="openCallsModal(row.id, row.name, 'пропущенные')"
             >
               {{ row.missed }}
             </td>
             <td
               class="cursor-pointer px-4 py-2 font-medium text-orange-600 transition-all hover:underline hover:opacity-80 dark:text-orange-400"
-              @click="openCallsModal(row.name, 'обработанные пропущенные')"
+              @click="openCallsModal(row.id, row.name, 'обработанные пропущенные')"
             >
               {{ row.processedMissed }}
             </td>
@@ -445,10 +245,30 @@ const sortedRows = computed(() => {
         <tfoot>
           <tr class="border-t-2 border-gray-200 bg-[#e0f7fc] font-medium dark:border-gray-600 dark:bg-[#1e3a47]">
             <td class="px-4 py-2 dark:text-gray-300">ИТОГИ:</td>
-            <td class="px-4 py-2 text-green-600 dark:text-green-400">{{ tableTotals.outgoing }}</td>
-            <td class="px-4 py-2 text-[#2563eb] dark:text-blue-400">{{ tableTotals.incoming }}</td>
-            <td class="px-4 py-2 text-red-600 dark:text-red-400">{{ tableTotals.missed }}</td>
-            <td class="px-4 py-2 text-orange-600 dark:text-orange-400">{{ tableTotals.processedMissed }}</td>
+            <td
+              class="cursor-pointer px-4 py-2 text-green-600 transition-all hover:underline hover:opacity-80 dark:text-green-400"
+              @click="openTotalsCallsModal('исходящие')"
+            >
+              {{ tableTotals.outgoing }}
+            </td>
+            <td
+              class="cursor-pointer px-4 py-2 text-[#2563eb] transition-all hover:underline hover:opacity-80 dark:text-blue-400"
+              @click="openTotalsCallsModal('входящие')"
+            >
+              {{ tableTotals.incoming }}
+            </td>
+            <td
+              class="cursor-pointer px-4 py-2 text-red-600 transition-all hover:underline hover:opacity-80 dark:text-red-400"
+              @click="openTotalsCallsModal('пропущенные')"
+            >
+              {{ tableTotals.missed }}
+            </td>
+            <td
+              class="cursor-pointer px-4 py-2 text-orange-600 transition-all hover:underline hover:opacity-80 dark:text-orange-400"
+              @click="openTotalsCallsModal('обработанные пропущенные')"
+            >
+              {{ tableTotals.processedMissed }}
+            </td>
             <td class="px-4 py-2 text-gray-700 dark:text-gray-300">{{ tableTotals.duration }}</td>
           </tr>
         </tfoot>

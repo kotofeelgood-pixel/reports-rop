@@ -2,17 +2,7 @@
 import { computed, watch, ref } from 'vue'
 import ModalComponent from '@/components/modal/ModalComponent.vue'
 import ButtonComponent from '@/components/buttons/ButtonComponent.vue'
-
-type Call = {
-  id: string
-  time: string
-  number: string
-  type: string
-  duration: string
-  status: string
-  crm: string
-  hasRecording: boolean
-}
+import type { Call } from '@/tools/calls'
 
 type Props = {
   userName: string
