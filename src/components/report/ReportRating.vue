@@ -9,6 +9,7 @@ const { layoutType } = useReportSettingsStoreRefs()
 
 type Call = {
   id: string
+  userId: string
   time: string
   number: string
   type: string
@@ -30,6 +31,7 @@ function openCallsModal(userName: string, callType: string) {
   selectedCalls.value = [
     {
       id: '1',
+      userId: userName,
       time: '09:15:32',
       number: '79161234567',
       type: 'Исходящий',
@@ -40,6 +42,7 @@ function openCallsModal(userName: string, callType: string) {
     },
     {
       id: '2',
+      userId: userName,
       time: '10:22:18',
       number: '79267894561',
       type: 'Входящий',
@@ -50,6 +53,7 @@ function openCallsModal(userName: string, callType: string) {
     },
     {
       id: '3',
+      userId: userName,
       time: '11:20:19',
       number: '79640774400',
       type: 'Исходящий',
@@ -60,6 +64,7 @@ function openCallsModal(userName: string, callType: string) {
     },
     {
       id: '4',
+      userId: userName,
       time: '12:45:08',
       number: '79151239876',
       type: 'Входящий',
@@ -70,6 +75,7 @@ function openCallsModal(userName: string, callType: string) {
     },
     {
       id: '5',
+      userId: userName,
       time: '13:10:55',
       number: '79039876543',
       type: 'Пропущенный',
@@ -80,6 +86,7 @@ function openCallsModal(userName: string, callType: string) {
     },
     {
       id: '6',
+      userId: userName,
       time: '14:33:21',
       number: '79267771234',
       type: 'Исходящий',
@@ -90,6 +97,7 @@ function openCallsModal(userName: string, callType: string) {
     },
     {
       id: '7',
+      userId: userName,
       time: '15:52:44',
       number: '79121234567',
       type: 'Входящий',

@@ -203,7 +203,7 @@ export const tasksTaskList = async (
       next += answer.next
     }
 
-    let data: unknown[] = []
+    const data: unknown[] = []
     const chunkSize = 50
     for (let i = 0; i < params.length; i += chunkSize) {
       const chunk = params.slice(i, i + chunkSize)

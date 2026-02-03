@@ -51,7 +51,7 @@ export const crmContactList = async (
       next += answer.next
     }
 
-    let data: unknown[] = []
+    const data: unknown[] = []
     const chunkSize = 50
     for (let i = 0; i < params.length; i += chunkSize) {
       const chunk = params.slice(i, i + chunkSize)
@@ -116,7 +116,7 @@ export const crmActivityList = async (
       next += answer.next
     }
 
-    let data: unknown[] = []
+    const data: unknown[] = []
     const chunkSize = 50
     for (let i = 0; i < params.length; i += chunkSize) {
       const chunk = params.slice(i, i + chunkSize)
@@ -181,7 +181,7 @@ export const crmDealList = async (
       next += answer.next
     }
 
-    let data: unknown[] = []
+    const data: unknown[] = []
     const chunkSize = 50
     for (let i = 0; i < params.length; i += chunkSize) {
       const chunk = params.slice(i, i + chunkSize)
