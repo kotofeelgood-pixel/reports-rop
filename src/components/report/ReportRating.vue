@@ -1,11 +1,15 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import AvatarComponent from '@/components/avatar/AvatarComponent.vue'
 import ProgressComponent from '@/components/progress/ProgressComponent.vue'
 import UserCallsModal from './UserCallsModal.vue'
 import { useReportSettingsStoreRefs } from '@/stores/reportSettings'
+import { useUsersStore, useUsersStoreRefs } from '@/stores/users'
+import { telephonyCallList, type TelephonyCallRecord } from '@/api/calls'
 
 const { layoutType } = useReportSettingsStoreRefs()
+const usersStore = useUsersStore()
+const { usersById } = useUsersStoreRefs()
 
 type Call = {
   id: string
@@ -110,20 +114,76 @@ function openCallsModal(userName: string, callType: string) {
   isCallsModalOpen.value = true
 }
 
-const completedCalls = [
-  { name: 'Кудрявцев Арсений', count: 26, max: 26 },
-  { name: 'Петрова Евгения', count: 13, max: 26 },
-  { name: 'Попова София', count: 8, max: 26 },
-  { name: 'Семенова Анастасия', count: 7, max: 26 },
-  { name: 'Лебедева Мария', count: 6, max: 26 },
-]
+const calls = ref<TelephonyCallRecord[]>([])
+const isLoading = ref(false)
+const error = ref<string | null>(null)
 
-const missedCalls = [
-  { name: 'Лебедева Мария', count: 11, max: 11 },
-  { name: 'Семенова Анастасия', count: 6, max: 11 },
-  { name: 'Кудрявцев Арсений', count: 3, max: 11 },
-  { name: 'Попова София', count: 2, max: 11 },
-]
+const normalizeUserId = (call: TelephonyCallRecord): string => {
+  const id = call.PORTAL_USER_ID ?? call.USER_ID ?? call.RESPONSIBLE_ID ?? call.ASSIGNED_BY_ID
+  return String(id ?? '').trim()
+}
+
+const normalizeDuration = (call: TelephonyCallRecord): number => {
+  const raw = call.DURATION ?? call.CALL_DURATION ?? call.duration ?? 0
+  const val = Number(raw)
+  return Number.isFinite(val) ? val : 0
+}
+
+const isMissedCall = (call: TelephonyCallRecord): boolean => {
+  const duration = normalizeDuration(call)
+  if (duration <= 0) return true
+  const statusRaw = String(call.CALL_STATUS ?? call.STATUS ?? call.status ?? '').toLowerCase()
+  if (!statusRaw) return false
+  return /(missed|no\s*answer|failed|busy|cancel|reject)/i.test(statusRaw)
+}
+
+const buildTopList = (predicate: (call: TelephonyCallRecord) => boolean) => {
+  const counts = new Map<string, number>()
+  for (const call of calls.value) {
+    if (!predicate(call)) continue
+    const userId = normalizeUserId(call)
+    if (!userId) continue
+    counts.set(userId, (counts.get(userId) ?? 0) + 1)
+  }
+
+  const items = Array.from(counts.entries()).map(([userId, count]) => {
+    const user = usersById.value.get(String(userId))
+    const name = user?.name ?? `#${userId}`
+    return { name, count }
+  })
+
+  items.sort((a, b) => b.count - a.count)
+  const top = items.slice(0, 5)
+  const max = top[0]?.count ?? 1
+  return top.map(item => ({ ...item, max }))
+}
+
+const completedCalls = computed(() =>
+  buildTopList(call => !isMissedCall(call))
+)
+
+const missedCalls = computed(() =>
+  buildTopList(call => isMissedCall(call))
+)
+
+const fetchCalls = async () => {
+  isLoading.value = true
+  error.value = null
+  try {
+    const data = await telephonyCallList()
+    calls.value = Array.isArray(data) ? data : []
+  } catch (e) {
+    error.value = e instanceof Error ? e.message : String(e)
+    calls.value = []
+  } finally {
+    isLoading.value = false
+  }
+}
+
+onMounted(() => {
+  void usersStore.fetchUsers()
+  void fetchCalls()
+})
 </script>
 
 <template>
