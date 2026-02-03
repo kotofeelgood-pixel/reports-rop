@@ -114,11 +114,31 @@ export const callBatchPromise = async (b24: any, params: unknown[]): Promise<unk
       const batchResult = data[key]
 
       // Проверяем наличие ошибки в конкретном результате
-      if (batchResult && typeof batchResult === 'object' && (batchResult as any).error) {
-        console.warn(`Error in batch result ${key}:`, (batchResult as any).error)
-        // Добавляем объект с ошибкой, чтобы вызывающий код мог его обработать
-        resultArray.push({ error: (batchResult as any).error, error_description: (batchResult as any).error_description })
-        continue
+      if (batchResult && typeof batchResult === 'object' && 'error' in (batchResult as any)) {
+        const errorValue = typeof (batchResult as any).error === 'function'
+          ? (() => {
+            try {
+              return (batchResult as any).error()
+            } catch {
+              return (batchResult as any).error
+            }
+          })()
+          : (batchResult as any).error
+        if (errorValue) {
+          const errorDescription = typeof (batchResult as any).error_description === 'function'
+            ? (() => {
+              try {
+                return (batchResult as any).error_description()
+              } catch {
+                return (batchResult as any).error_description
+              }
+            })()
+            : (batchResult as any).error_description
+          console.warn(`Error in batch result ${key}:`, errorValue)
+          // Добавляем объект с ошибкой, чтобы вызывающий код мог его обработать
+          resultArray.push({ error: errorValue, error_description: errorDescription })
+          continue
+        }
       }
 
       // Извлекаем данные из результата batch запроса
