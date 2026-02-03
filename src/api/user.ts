@@ -37,6 +37,8 @@ export const userGet = async (
       select: ['ID', 'NAME', 'LAST_NAME', 'LOGIN', 'UF_DEPARTMENT', 'PERSONAL_PHOTO'],
     })
 
+    console.log('response', response)
+
     const answer = response
     if (answer?.next === undefined) {
       return answer?.result ?? []
