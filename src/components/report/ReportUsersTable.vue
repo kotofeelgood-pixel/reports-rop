@@ -129,11 +129,28 @@ const {
   dateValue,
   isDatePickerOpen,
   showDatePicker,
-  dateDisplayValue,
   dateRangeOptions,
 } = useDateRange()
 
 const selectedUser = ref<string | null>(null)
+const selectedYear = ref<number | null>(null)
+
+const yearOptions = computed(() => {
+  const current = new Date().getFullYear()
+  const years = Array.from({ length: 7 }, (_, i) => current - 3 + i)
+  return years.map(y => ({ label: String(y), value: y }))
+})
+
+const formatDate = (value: { day: number; month: number; year: number } | null): string => {
+  if (!value) return '—'
+  const d = String(value.day).padStart(2, '0')
+  const m = String(value.month).padStart(2, '0')
+  const y = value.year
+  return `${d}.${m}.${y}`
+}
+
+const startDateDisplay = computed(() => formatDate(dateValue.value.start))
+const endDateDisplay = computed(() => formatDate(dateValue.value.end))
 
 const userOptions = computed(() => {
   const fromStore = (allUsers.value || []).map(u => ({ label: u.name, value: u.id }))
@@ -243,6 +260,24 @@ onMounted(() => {
 watch([dateRange, dateValue, selectedUser], () => {
   void fetchCalls()
 }, { deep: true })
+
+watch(selectedYear, (year) => {
+  if (!year) return
+  dateRange.value = 'custom'
+  dateValue.value = {
+    start: { day: 1, month: 1, year },
+    end: { day: 31, month: 12, year },
+  }
+})
+
+watch(dateValue, (val) => {
+  if (!val?.start || !val?.end) {
+    selectedYear.value = null
+    return
+  }
+  const sameYear = val.start.year === val.end.year
+  selectedYear.value = sameYear ? val.start.year : null
+}, { deep: true })
 </script>
 
 <template>
@@ -269,16 +304,26 @@ watch([dateRange, dateValue, selectedUser], () => {
               align="start"
               class="flex-1"
             >
-              <ButtonComponent
-                icon="calendar"
-                color="light-border"
-                size="md"
-                class="w-full"
-
-                @click="isDatePickerOpen = true"
-              >
-            {{ dateDisplayValue }}
-            </ButtonComponent>
+              <div class="flex w-full gap-2">
+                <ButtonComponent
+                  icon="calendar"
+                  color="light-border"
+                  size="md"
+                  class="w-full"
+                  @click="isDatePickerOpen = true"
+                >
+                  {{ startDateDisplay }}
+                </ButtonComponent>
+                <ButtonComponent
+                  icon="calendar"
+                  color="light-border"
+                  size="md"
+                  class="w-full"
+                  @click="isDatePickerOpen = true"
+                >
+                  {{ endDateDisplay }}
+                </ButtonComponent>
+              </div>
               <template #content>
                 <div class="p-4">
                   <CalendarComponent
@@ -289,6 +334,15 @@ watch([dateRange, dateValue, selectedUser], () => {
                 </div>
               </template>
             </PopoverComponent>
+          </div>
+          <div v-if="dateRange === 'custom'" class="max-w-[200px]">
+            <SelectComponent
+              v-model="selectedYear"
+              :items="yearOptions"
+              placeholder="Год"
+              class="!w-full"
+              style="width: 100% !important;"
+            />
           </div>
         </div>
 
