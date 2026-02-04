@@ -43,7 +43,7 @@ const props = withDefaults(
 
 const usersStore = useUsersStore()
 const { users: allUsers, usersById } = useUsersStoreRefs()
-const { excludedEmployeeIds } = useReportSettingsStoreRefs()
+const { excludedEmployeeIds, minCallDurationSeconds } = useReportSettingsStoreRefs()
 
 const calls = ref<TelephonyCallRecord[]>([])
 const isLoading = ref(false)
@@ -52,16 +52,19 @@ const error = ref<string | null>(null)
 const rowsFromCalls = computed<Row[]>(() => {
   if (!calls.value.length) return []
   const excluded = new Set((excludedEmployeeIds.value || []).map(String))
+  const minDuration = Number(minCallDurationSeconds.value) || 0
   const map = new Map<string, Row & { _seconds: number }>()
   for (const call of calls.value) {
+    const durationRaw = call.CALL_DURATION ?? call.DURATION ?? call.duration ?? 0
+    const duration = Number(durationRaw)
+    if (duration < minDuration) continue
+
     const userIdRaw = call.PORTAL_USER_ID ?? call.USER_ID ?? call.RESPONSIBLE_ID ?? call.ASSIGNED_BY_ID
     const userId = String(userIdRaw ?? '').trim()
     if (!userId || excluded.has(userId)) continue
 
     const callTypeRaw = call.CALL_TYPE ?? call.callType ?? call.TYPE ?? call.type
     const callTypeNum = Number(callTypeRaw)
-    const durationRaw = call.CALL_DURATION ?? call.DURATION ?? call.duration ?? 0
-    const duration = Number(durationRaw)
     const isMissed = duration <= 0 || Boolean(call.CALL_FAILED_CODE ?? call.call_failed_code)
 
     const user = usersById.value.get(userId)
@@ -156,7 +159,10 @@ const dateRangeDisplay = computed(
 type DayCallStats = { outgoing: number; incoming: number; missed: number }
 const callsByDate = computed(() => {
   const map = new Map<string, DayCallStats>()
+  const minDuration = Number(minCallDurationSeconds.value) || 0
   for (const call of calls.value) {
+    const duration = Number(call.CALL_DURATION ?? call.DURATION ?? call.duration ?? 0)
+    if (duration < minDuration) continue
     const raw = call.CALL_START_DATE ?? call.call_start_date ?? ''
     const dateStr = String(raw).slice(0, 10)
     if (!dateStr || dateStr.length < 10) continue
@@ -165,7 +171,6 @@ const callsByDate = computed(() => {
     }
     const stat = map.get(dateStr)!
     const callTypeNum = Number(call.CALL_TYPE ?? call.callType ?? call.TYPE ?? call.type)
-    const duration = Number(call.CALL_DURATION ?? call.DURATION ?? call.duration ?? 0)
     const isMissed = duration <= 0 || Boolean(call.CALL_FAILED_CODE ?? call.call_failed_code)
     if (callTypeNum === 1) stat.outgoing += 1
     else stat.incoming += 1

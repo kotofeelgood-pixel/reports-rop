@@ -9,7 +9,7 @@ import { useDateRange } from '@/composables/useDateRange'
 import { useCallsModal } from '@/composables/useCallsModal'
 import { telephonyCallList, type TelephonyCallRecord } from '@/api/calls'
 
-const { layoutType } = useReportSettingsStoreRefs()
+const { layoutType, minCallDurationSeconds } = useReportSettingsStoreRefs()
 const usersStore = useUsersStore()
 const { usersById } = useUsersStoreRefs()
 const { dateRange, dateValue, getDateRange, formatB24Date } = useDateRange()
@@ -52,7 +52,10 @@ const isMissedCall = (call: TelephonyCallRecord): boolean => {
 
 const buildTopList = (predicate: (call: TelephonyCallRecord) => boolean) => {
   const counts = new Map<string, number>()
+  const minDuration = Number(minCallDurationSeconds.value) || 0
   for (const call of calls.value) {
+    const duration = normalizeDuration(call)
+    if (duration < minDuration) continue
     if (!predicate(call)) continue
     const userId = normalizeUserId(call)
     if (!userId) continue

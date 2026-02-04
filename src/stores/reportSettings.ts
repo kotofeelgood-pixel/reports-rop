@@ -14,7 +14,6 @@ type StoredSettings = {
   excludedDepartment?: string | null
   excludedEmployeeIds?: string[]
   minCallDurationSeconds?: number
-  fontSizePercent?: number
   embedAnalytics?: boolean
   embedStatsMenu?: boolean
   dateRange?: string
@@ -51,7 +50,6 @@ export const useReportSettingsStore = defineStore('reportSettings', () => {
   const excludedDepartment = ref<string | null>(stored?.excludedDepartment ?? null)
   const excludedEmployeeIds = ref<string[]>(Array.isArray(stored?.excludedEmployeeIds) ? stored.excludedEmployeeIds : [])
   const minCallDurationSeconds = ref(stored?.minCallDurationSeconds ?? 0)
-  const fontSizePercent = ref(stored?.fontSizePercent ?? 100)
   const embedAnalytics = ref(stored?.embedAnalytics ?? true)
   const embedStatsMenu = ref(stored?.embedStatsMenu ?? true)
   const dateRange = ref<string>(stored?.dateRange ?? 'realtime')
@@ -70,7 +68,6 @@ export const useReportSettingsStore = defineStore('reportSettings', () => {
       excludedDepartment,
       excludedEmployeeIds,
       minCallDurationSeconds,
-      fontSizePercent,
       embedAnalytics,
       embedStatsMenu,
       dateRange,
@@ -85,7 +82,6 @@ export const useReportSettingsStore = defineStore('reportSettings', () => {
         excludedDepartment: excludedDepartment.value,
         excludedEmployeeIds: excludedEmployeeIds.value,
         minCallDurationSeconds: minCallDurationSeconds.value,
-        fontSizePercent: fontSizePercent.value,
         embedAnalytics: embedAnalytics.value,
         embedStatsMenu: embedStatsMenu.value,
         dateRange: dateRange.value,
@@ -103,7 +99,6 @@ export const useReportSettingsStore = defineStore('reportSettings', () => {
     excludedDepartment,
     excludedEmployeeIds,
     minCallDurationSeconds,
-    fontSizePercent,
     embedAnalytics,
     embedStatsMenu,
     dateRange,

@@ -48,12 +48,21 @@ function buildChartDataFromCalls(calls: TelephonyCallRecord[]): ChartDataPoint[]
  * Данные загружаются за выбранный период (как таблица и рейтинг).
  */
 export function useChartData() {
-  const { chartType, chartStartHour, chartEndHour } = useReportSettingsStoreRefs()
+  const { chartType, chartStartHour, chartEndHour, minCallDurationSeconds } = useReportSettingsStoreRefs()
   const mode = useColorMode()
   const { dateRange, dateValue, getDateRange, formatB24Date } = useDateRange()
 
   const calls = ref<TelephonyCallRecord[]>([])
-  const chartDataFromApi = computed(() => buildChartDataFromCalls(calls.value))
+  const callsFilteredByMinDuration = computed(() => {
+    const list = calls.value
+    const minDuration = Number(minCallDurationSeconds.value) || 0
+    if (minDuration <= 0) return list
+    return list.filter(call => {
+      const duration = Number(call.CALL_DURATION ?? call.DURATION ?? call.duration ?? 0)
+      return duration >= minDuration
+    })
+  })
+  const chartDataFromApi = computed(() => buildChartDataFromCalls(callsFilteredByMinDuration.value))
 
   const fetchCalls = async () => {
     try {

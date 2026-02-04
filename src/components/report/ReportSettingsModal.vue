@@ -19,7 +19,6 @@ const {
   excludedDepartment,
   excludedEmployeeIds,
   minCallDurationSeconds,
-  fontSizePercent,
   embedAnalytics,
   embedStatsMenu,
 } = useReportSettingsStoreRefs()
@@ -168,23 +167,6 @@ const hours = Array.from({ length: 25 }, (_, i) => ({
               />
               <span class="min-w-[72px] rounded bg-white px-2 py-1 text-xs text-center shadow dark:bg-gray-700 dark:text-gray-200">
                 {{ minCallDurationSeconds }} сек.
-              </span>
-            </div>
-          </div>
-
-          <!-- Размер шрифта -->
-          <div class="space-y-2">
-            <label class="block text-sm font-medium text-gray-800 dark:text-gray-200">Размер шрифта</label>
-            <div class="flex items-center gap-3">
-              <input
-                v-model="fontSizePercent"
-                type="range"
-                min="50"
-                max="150"
-                class="h-1 flex-1 cursor-pointer rounded-full bg-blue-200 accent-[#2fc6f6] dark:bg-gray-700"
-              />
-              <span class="min-w-[56px] rounded bg-white px-2 py-1 text-xs text-center shadow dark:bg-gray-700 dark:text-gray-200">
-                {{ fontSizePercent }}
               </span>
             </div>
           </div>

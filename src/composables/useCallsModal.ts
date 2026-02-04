@@ -4,10 +4,12 @@ import type { Call } from '@/tools/calls'
 import { getCallsFromTelephonyRecords } from '@/tools/calls'
 import type { TelephonyCallRecord } from '@/api/calls'
 import { getCrmEntityName } from '@/api/crm'
+import { useReportSettingsStoreRefs } from '@/stores/reportSettings'
 
 /**
  * Композабл для управления модальным окном звонков.
  * Использует реальные данные из API телефонии; подгружает имена контактов/лидов/компаний из CRM Битрикс.
+ * Учитывает настройку «Минимальная длительность звонка».
  * @param apiCalls - массив звонков из voximplant.statistic.get
  * @param usersById - карта пользователей по id для отображения имён и CRM
  */
@@ -15,12 +17,23 @@ export function useCallsModal(
   apiCalls: Ref<TelephonyCallRecord[]>,
   usersById: Ref<Map<string, { name: string }>>
 ) {
+  const { minCallDurationSeconds } = useReportSettingsStoreRefs()
   const isCallsModalOpen = ref(false)
   const selectedUserName = ref('')
   const selectedCallType = ref('')
   const selectedCalls = ref<Call[]>([])
   /** Кэш имён CRM: ключ "ENTITYTYPE_ID" (например CONTACT_1042), значение — отображаемое имя */
   const crmNames = ref<Map<string, string>>(new Map())
+
+  const callsFilteredByMinDuration = (): TelephonyCallRecord[] => {
+    const list = apiCalls.value
+    const minDuration = Number(minCallDurationSeconds.value) || 0
+    if (minDuration <= 0) return list
+    return list.filter(call => {
+      const duration = Number(call.CALL_DURATION ?? call.DURATION ?? call.duration ?? 0)
+      return duration >= minDuration
+    })
+  }
 
   watch(
     selectedCalls,
@@ -58,7 +71,7 @@ export function useCallsModal(
     selectedUserName.value = userName
     selectedCallType.value = callType
     selectedCalls.value = getCallsFromTelephonyRecords(
-      apiCalls.value,
+      callsFilteredByMinDuration(),
       usersById.value,
       userId,
       callType
@@ -70,7 +83,7 @@ export function useCallsModal(
     selectedUserName.value = 'Все сотрудники'
     selectedCallType.value = callType
     selectedCalls.value = getCallsFromTelephonyRecords(
-      apiCalls.value,
+      callsFilteredByMinDuration(),
       usersById.value,
       null,
       callType
