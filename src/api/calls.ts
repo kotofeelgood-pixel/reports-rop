@@ -38,15 +38,15 @@ export const telephonyCallList = async ({
 }: CallListParams = {}): Promise<TelephonyCallRecord[]> => {
   const b24 = await useB24()
   try {
-    // REST API ожидает параметры в нижнем регистре: filter, sort, order, select
-    // (см. пример URL с filter[>=CALL_START_DATE], filter[<=CALL_START_DATE])
+    // Параметры в верхнем регистре: SDK BX24 передаёт их в REST как filter, sort, order, select
     const params: Record<string, unknown> = {
-      filter,
-      sort,
-      order,
+      FILTER: filter,
+      SORT: sort,
+      ORDER: order,
     }
     if (select.length) {
-      params.select = select.reduce<Record<string, string>>((acc, field, i) => {
+      // Индексированный объект → select[0]=ID, select[1]=CALL_ID в запросе (как в документации Bitrix)
+      params.SELECT = select.reduce<Record<string, string>>((acc, field, i) => {
         acc[String(i)] = field
         return acc
       }, {})
