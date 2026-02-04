@@ -21,6 +21,7 @@ const isPlaying = ref(false)
 const audioCurrentTime = ref(0)
 const audioDuration = ref(0)
 const audioError = ref<string | null>(null)
+let rafId: number | null = null
 
 const modalBodyClass = computed(() => ({
   body: currentPlayingCall.value ? 'pb-40' : ''
@@ -62,9 +63,41 @@ const onAudioTimeUpdate = () => {
   audioCurrentTime.value = audio.currentTime
 }
 
+const startRafSync = () => {
+  if (rafId != null) return
+  const tick = () => {
+    const audio = audioRef.value
+    if (audio) {
+      audioCurrentTime.value = audio.currentTime
+      if (audioDuration.value === 0 && Number.isFinite(audio.duration)) {
+        audioDuration.value = audio.duration
+      }
+    }
+    rafId = requestAnimationFrame(tick)
+  }
+  rafId = requestAnimationFrame(tick)
+}
+
+const stopRafSync = () => {
+  if (rafId == null) return
+  cancelAnimationFrame(rafId)
+  rafId = null
+}
+
+const onAudioPlay = () => {
+  isPlaying.value = true
+  startRafSync()
+}
+
+const onAudioPause = () => {
+  isPlaying.value = false
+  stopRafSync()
+}
+
 const onAudioError = () => {
   audioError.value = 'Не удалось загрузить запись'
   isPlaying.value = false
+  stopRafSync()
 }
 
 const playRecording = (call: Call) => {
@@ -102,6 +135,7 @@ const closePlayer = () => {
   audioCurrentTime.value = 0
   audioDuration.value = 0
   audioError.value = null
+  stopRafSync()
 }
 
 const togglePlayPause = () => {
@@ -194,11 +228,11 @@ const exportToExcel = () => {
     <!-- Скрытый аудио-элемент для воспроизведения записи -->
     <audio
       ref="audioRef"
-      class="hidden"
+      class="pointer-events-none absolute h-px w-px opacity-0"
       preload="metadata"
-      @play="isPlaying = true"
-      @pause="isPlaying = false"
-      @ended="isPlaying = false"
+      @play="onAudioPlay"
+      @pause="onAudioPause"
+      @ended="onAudioPause"
       @timeupdate="onAudioTimeUpdate"
       @loadedmetadata="onAudioLoadedMetadata"
       @error="onAudioError"
