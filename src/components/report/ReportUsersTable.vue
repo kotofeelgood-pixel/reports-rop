@@ -134,6 +134,8 @@ const {
 
 const selectedUser = ref<string | null>(null)
 
+const dateFormatter = new Intl.DateTimeFormat('ru-RU', { dateStyle: 'medium' })
+
 const formatDate = (value: { day: number; month: number; year: number } | null): string => {
   if (!value) return '—'
   const d = String(value.day).padStart(2, '0')
@@ -142,9 +144,17 @@ const formatDate = (value: { day: number; month: number; year: number } | null):
   return `${d}.${m}.${y}`
 }
 
+const formatDateMedium = (value: { day: number; month: number; year: number } | null): string => {
+  if (!value) return '—'
+  const date = new Date(value.year, value.month - 1, value.day)
+  return dateFormatter.format(date)
+}
+
 const startDateDisplay = computed(() => formatDate(dateValue.value.start))
 const endDateDisplay = computed(() => formatDate(dateValue.value.end))
-const dateRangeDisplay = computed(() => `${startDateDisplay.value} — ${endDateDisplay.value}`)
+const dateRangeDisplay = computed(
+  () => `${formatDateMedium(dateValue.value.start)} — ${formatDateMedium(dateValue.value.end)}`
+)
 
 type DayCallStats = { outgoing: number; incoming: number; missed: number }
 const callsByDate = computed(() => {
@@ -320,6 +330,7 @@ watch([dateRange, dateValue, selectedUser], () => {
                     v-model="dateValue"
                     range
                     locale="ru-RU"
+                    :number-of-months="2"
                     year-controls
                   >
                     <template #day="{ day }">
