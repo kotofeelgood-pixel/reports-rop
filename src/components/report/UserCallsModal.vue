@@ -3,7 +3,6 @@ import { computed, watch, ref } from 'vue'
 import * as XLSX from 'xlsx'
 import ModalComponent from '@/components/modal/ModalComponent.vue'
 import ButtonComponent from '@/components/buttons/ButtonComponent.vue'
-import { useNotify } from '@/composables/useNotify'
 import type { Call } from '@/tools/calls'
 
 type Props = {
@@ -183,36 +182,14 @@ const playRecording = (call: Call) => {
   startPlayback(call)
 }
 
-/** Скачивание записи звонка по URL с осмысленным именем файла и отображением прогресса */
+/** Скачивание записи звонка по URL с осмысленным именем файла */
 const downloadRecording = (call: Call) => {
   if (!call.hasRecording || !call.recordingUrl) return
-  const toast = notify.progress({
-    title: 'Скачивание записи',
-    description: '0%',
-    percent: 0,
-  })
   const xhr = new XMLHttpRequest()
   xhr.open('GET', call.recordingUrl, true)
   xhr.responseType = 'blob'
-  xhr.onprogress = (e) => {
-    if (e.lengthComputable && e.total > 0) {
-      const percent = Math.round((e.loaded / e.total) * 100)
-      notify.update(toast.id, { description: `${percent}%`, progress: percent })
-    } else {
-      const loadedKb = Math.round(e.loaded / 1024)
-      notify.update(toast.id, { description: `Загружено ${loadedKb} КБ` })
-    }
-  }
   xhr.onload = () => {
-    if (xhr.status < 200 || xhr.status >= 300) {
-      notify.update(toast.id, {
-        type: 'error',
-        title: 'Ошибка скачивания',
-        description: `HTTP ${xhr.status}`,
-        progress: 100,
-      })
-      return
-    }
+    if (xhr.status < 200 || xhr.status >= 300) return
     const blob = xhr.response as Blob
     const baseUrl = call.recordingUrl!.split(/[#?]/)[0] ?? ''
     const ext =
@@ -226,16 +203,8 @@ const downloadRecording = (call: Call) => {
     a.download = filename
     a.click()
     URL.revokeObjectURL(url)
-    notify.update(toast.id, { type: 'success', title: 'Запись скачана', description: filename, progress: 100 })
   }
-  xhr.onerror = () => {
-    notify.update(toast.id, {
-      type: 'error',
-      title: 'Ошибка скачивания',
-      description: 'Не удалось загрузить запись',
-      progress: 100,
-    })
-  }
+  xhr.onerror = () => {}
   xhr.send()
 }
 
@@ -291,18 +260,9 @@ const onSeek = (e: Event) => {
   audioCurrentTime.value = audio.currentTime
 }
 
-const notify = useNotify()
-
 const exportToExcel = async () => {
   const list = (props.calls || []) as Call[]
-  const toast = notify.progress({
-    title: 'Экспорт отчёта',
-    description: 'Подготовка...',
-    percent: 0,
-  })
   try {
-    notify.update(toast.id, { description: 'Формирование данных...', progress: 20 })
-    await new Promise((r) => setTimeout(r, 50))
     const headers = ['ВРЕМЯ', 'НОМЕР', 'ТИП', 'ДЛИТЕЛЬНОСТЬ', 'CRM', 'Запись']
     const rows = list.map((c) => [
       c.time,
@@ -313,33 +273,14 @@ const exportToExcel = async () => {
       c.hasRecording ? 'Да' : '—',
     ])
     const data = [headers, ...rows]
-
-    notify.update(toast.id, { description: 'Создание файла...', progress: 60 })
-    await new Promise((r) => setTimeout(r, 50))
     const ws = XLSX.utils.aoa_to_sheet(data)
     const wb = XLSX.utils.book_new()
     XLSX.utils.book_append_sheet(wb, ws, 'Звонки')
-
-    notify.update(toast.id, { description: 'Скачивание...', progress: 90 })
-    await new Promise((r) => setTimeout(r, 50))
     const date = new Date().toISOString().slice(0, 10)
     const fileName = `report-calls-${date}.xlsx`
     XLSX.writeFile(wb, fileName)
-
-    notify.update(toast.id, { description: 'Готово', progress: 100 })
-    notify.remove(toast.id)
-    notify.add({
-      title: 'Экспорт завершён',
-      description: `Файл ${fileName} сохранён`,
-      type: 'success',
-    })
-  } catch (e) {
-    notify.remove(toast.id)
-    notify.add({
-      title: 'Ошибка экспорта',
-      description: e instanceof Error ? e.message : String(e),
-      type: 'error',
-    })
+  } catch {
+    // экспорт без уведомлений
   }
 }
 </script>
