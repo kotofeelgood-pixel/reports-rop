@@ -119,8 +119,11 @@ const totalsFromCalls = computed<Totals>(() => {
   return totals
 })
 
-const computedRows = computed(() => (rowsFromCalls.value.length ? rowsFromCalls.value : props.rows))
-const tableTotals = computed(() => (rowsFromCalls.value.length ? totalsFromCalls.value : props.totals))
+// Всегда показываем результат запроса по выбранному периоду; при отсутствии данных — пустая таблица
+const computedRows = computed(() => rowsFromCalls.value)
+const tableTotals = computed((): Totals =>
+  rowsFromCalls.value.length ? totalsFromCalls.value : { outgoing: 0, incoming: 0, missed: 0, processedMissed: 0, duration: '00:00:00' }
+)
 
 const { sortBy, sortDir, setSort, sortedRows } = useTableSort(computedRows)
 
