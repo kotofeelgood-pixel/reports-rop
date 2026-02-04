@@ -4,7 +4,7 @@ import AvatarComponent from '@/components/avatar/AvatarComponent.vue'
 import LinkComponent from '@/components/navigation/link/LinkComponent.vue'
 import UserCallsModal from './UserCallsModal.vue'
 import SelectComponent from '@/components/select/SelectComponent.vue'
-import CalendarComponent from '@/components/element/calendar/CalendarComponent.vue'
+import CustomDateRangeCalendar from '@/components/element/calendar/CustomDateRangeCalendar.vue'
 import PopoverComponent from '@/components/overlay/popover/PopoverComponent.vue'
 import ButtonComponent from '@/components/buttons/ButtonComponent.vue'
 import { useTableSort } from '@/composables/useTableSort'
@@ -133,24 +133,21 @@ const {
 } = useDateRange()
 
 const selectedUser = ref<string | null>(null)
-const selectedYear = ref<number | null>(null)
 
-const yearOptions = computed(() => {
-  const current = new Date().getFullYear()
-  const years = Array.from({ length: 7 }, (_, i) => current - 3 + i)
-  return years.map(y => ({ label: String(y), value: y }))
+const arbitraryPeriodLabel = computed(() => {
+  const range = dateValue.value
+  if (!range?.start && !range?.end) return 'Произвольный период'
+  if (range?.start && range?.end) {
+    const d = (v: { day: number; month: number; year: number }) =>
+      `${String(v.day).padStart(2, '0')}.${String(v.month).padStart(2, '0')}.${v.year}`
+    return `${d(range.start)} — ${d(range.end)}`
+  }
+  if (range?.start) {
+    const v = range.start
+    return `${String(v.day).padStart(2, '0')}.${String(v.month).padStart(2, '0')}.${v.year} — …`
+  }
+  return 'Произвольный период'
 })
-
-const formatDate = (value: { day: number; month: number; year: number } | null): string => {
-  if (!value) return '—'
-  const d = String(value.day).padStart(2, '0')
-  const m = String(value.month).padStart(2, '0')
-  const y = value.year
-  return `${d}.${m}.${y}`
-}
-
-const startDateDisplay = computed(() => formatDate(dateValue.value.start))
-const endDateDisplay = computed(() => formatDate(dateValue.value.end))
 
 const userOptions = computed(() => {
   const fromStore = (allUsers.value || []).map(u => ({ label: u.name, value: u.id }))
@@ -260,24 +257,6 @@ onMounted(() => {
 watch([dateRange, dateValue, selectedUser], () => {
   void fetchCalls()
 }, { deep: true })
-
-watch(selectedYear, (year) => {
-  if (!year) return
-  dateRange.value = 'custom'
-  dateValue.value = {
-    start: { day: 1, month: 1, year },
-    end: { day: 31, month: 12, year },
-  }
-})
-
-watch(dateValue, (val) => {
-  if (!val?.start || !val?.end) {
-    selectedYear.value = null
-    return
-  }
-  const sameYear = val.start.year === val.end.year
-  selectedYear.value = sameYear ? val.start.year : null
-}, { deep: true })
 </script>
 
 <template>
@@ -287,10 +266,10 @@ watch(dateValue, (val) => {
     <!-- Фильтры -->
     <div class="border-b border-gray-200 px-4 py-4 dark:border-gray-700">
       <div class="flex gap-2">
-        <!-- Фильтр по дате -->
+        <!-- Фильтр по дате: одно поле — пресет или «Произвольный период» с календарём по клику -->
         <div class="space-y-2">
           <label class="block text-sm font-medium text-gray-800 dark:text-gray-200">Дата</label>
-          <div class="flex gap-2">
+          <div class="flex gap-2 flex-wrap">
             <SelectComponent
               v-model="dateRange"
               :items="dateRangeOptions"
@@ -302,45 +281,22 @@ watch(dateValue, (val) => {
               v-model:open="isDatePickerOpen"
               side="bottom"
               align="start"
-              class="flex-1"
             >
-              <div class="flex w-full gap-2">
-                <ButtonComponent
-                  icon="calendar"
-                  color="light-border"
-                  size="md"
-                  class="w-full"
-                >
-                  {{ startDateDisplay }}
-                </ButtonComponent>
-                <ButtonComponent
-                  icon="calendar"
-                  color="light-border"
-                  size="md"
-                  class="w-full"
-                >
-                  {{ endDateDisplay }}
-                </ButtonComponent>
-              </div>
+              <button
+                type="button"
+                class="flex min-w-[220px] items-center justify-between gap-2 rounded-xl border-2 border-[#2fc6f6] bg-white px-3 py-2.5 text-left text-sm text-gray-700 shadow-sm transition-colors hover:border-[#2eb5e0] focus:outline-none focus:ring-2 focus:ring-[#2fc6f6]/30 dark:border-[#2fc6f6] dark:bg-gray-800 dark:text-gray-200"
+              >
+                <span class="min-w-0 truncate">{{ arbitraryPeriodLabel }}</span>
+                <svg class="size-4 shrink-0 text-gray-500 dark:text-gray-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                  <path d="M8 10l4 4 4-4" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </button>
               <template #content>
                 <div class="p-4">
-                  <CalendarComponent
-                    v-model="dateValue"
-                    range
-                    locale="ru-RU"
-                  />
+                  <CustomDateRangeCalendar v-model="dateValue" />
                 </div>
               </template>
             </PopoverComponent>
-          </div>
-          <div v-if="dateRange === 'custom'" class="max-w-[200px]">
-            <SelectComponent
-              v-model="selectedYear"
-              :items="yearOptions"
-              placeholder="Год"
-              class="!w-full"
-              style="width: 100% !important;"
-            />
           </div>
         </div>
 

@@ -1,12 +1,53 @@
-type CalendarDate = {
+import { CalendarDate as IntlCalendarDate } from '@internationalized/date'
+
+export type CalendarDate = {
   day: number
   month: number
   year: number
 }
 
-type CalendarDateRange = {
+export type CalendarDateRange = {
   start: CalendarDate | null
   end: CalendarDate | null
+}
+
+/**
+ * Преобразует нашу дату { day, month, year } в CalendarDate из @internationalized/date
+ */
+export function toCalendarDate(d: CalendarDate | null): IntlCalendarDate | null {
+  if (!d) return null
+  return new IntlCalendarDate(d.year, d.month, d.day)
+}
+
+/**
+ * Преобразует CalendarDate из @internationalized/date в нашу дату { day, month, year }
+ */
+export function fromCalendarDate(d: { year: number; month: number; day: number } | null): CalendarDate | null {
+  if (!d) return null
+  return { day: d.day, month: d.month, year: d.year }
+}
+
+/**
+ * Преобразует DateRange (reka-ui) в наш CalendarDateRange
+ */
+export function fromDateRange(
+  range: { start: { year: number; month: number; day: number }; end: { year: number; month: number; day: number } } | null
+): CalendarDateRange {
+  if (!range) return { start: null, end: null }
+  return {
+    start: fromCalendarDate(range.start),
+    end: fromCalendarDate(range.end),
+  }
+}
+
+/**
+ * Преобразует наш CalendarDateRange в DateRange для reka-ui
+ */
+export function toDateRange(range: CalendarDateRange): { start: IntlCalendarDate; end: IntlCalendarDate } | null {
+  const start = toCalendarDate(range?.start ?? null)
+  const end = toCalendarDate(range?.end ?? null)
+  if (!start || !end) return null
+  return { start, end }
 }
 
 /**
