@@ -79,3 +79,11 @@ export const getTaskUrl = (taskId: number | string): string => {
   return domain ? `https://${domain}${path}` : path
 }
 
+/** URL карточки сотрудника в Bitrix24 (профиль пользователя). */
+export const getUserProfileUrl = (userId: string | number): string => {
+  const w = globalThis as any
+  const domain = w?.BX24?.getDomain?.()
+  const path = `/company/personal/user/${userId}/`
+  return domain ? `https://${domain}${path}` : path
+}
+

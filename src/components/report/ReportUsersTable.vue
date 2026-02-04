@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { computed, onMounted, ref, watch } from 'vue'
 import AvatarComponent from '@/components/avatar/AvatarComponent.vue'
-import LinkComponent from '@/components/navigation/link/LinkComponent.vue'
 import UserCallsModal from './UserCallsModal.vue'
 import SelectComponent from '@/components/select/SelectComponent.vue'
 import CalendarComponent from '@/components/element/calendar/CalendarComponent.vue'
@@ -13,6 +12,7 @@ import { useDateRange } from '@/composables/useDateRange'
 import { useUsersStore, useUsersStoreRefs } from '@/stores/users'
 import { useReportSettingsStoreRefs } from '@/stores/reportSettings'
 import { telephonyCallList, type TelephonyCallRecord } from '@/api/calls'
+import { getUserProfileUrl } from '@/tools'
 
 type Row = {
   id: string
@@ -405,9 +405,14 @@ watch([dateRange, dateValue, selectedUser], () => {
             <td class="px-4 py-2">
               <div class="flex items-center gap-2">
                 <AvatarComponent :name="row.name" size="sm" />
-                <LinkComponent :to="`#user-${row.id}`" class="text-[#2563eb] hover:underline">
+                <a
+                  :href="getUserProfileUrl(row.id)"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="text-[#2563eb] hover:underline"
+                >
                   {{ row.name }}
-                </LinkComponent>
+                </a>
               </div>
             </td>
             <td
