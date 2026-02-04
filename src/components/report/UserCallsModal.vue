@@ -183,6 +183,61 @@ const playRecording = (call: Call) => {
   startPlayback(call)
 }
 
+/** Скачивание записи звонка по URL с осмысленным именем файла и отображением прогресса */
+const downloadRecording = (call: Call) => {
+  if (!call.hasRecording || !call.recordingUrl) return
+  const toast = notify.progress({
+    title: 'Скачивание записи',
+    description: '0%',
+    percent: 0,
+  })
+  const xhr = new XMLHttpRequest()
+  xhr.open('GET', call.recordingUrl, true)
+  xhr.responseType = 'blob'
+  xhr.onprogress = (e) => {
+    if (e.lengthComputable && e.total > 0) {
+      const percent = Math.round((e.loaded / e.total) * 100)
+      notify.update(toast.id, { description: `${percent}%`, progress: percent })
+    } else {
+      const loadedKb = Math.round(e.loaded / 1024)
+      notify.update(toast.id, { description: `Загружено ${loadedKb} КБ` })
+    }
+  }
+  xhr.onload = () => {
+    if (xhr.status < 200 || xhr.status >= 300) {
+      notify.update(toast.id, {
+        type: 'error',
+        title: 'Ошибка скачивания',
+        description: `HTTP ${xhr.status}`,
+        progress: 100,
+      })
+      return
+    }
+    const blob = xhr.response as Blob
+    const ext =
+      (call.recordingUrl!.split(/[#?]/)[0].match(/\.(mp3|wav|ogg|m4a|webm|opus)$/i)?.[1]?.toLowerCase()) ?? 'mp3'
+    const safeTime = call.time.replace(/[^\d-]/g, '-').replace(/-+/g, '-').slice(0, 8)
+    const safeNumber = (call.number || 'unknown').replace(/\D/g, '').slice(-10) || 'call'
+    const filename = `zapis_${safeTime}_${safeNumber}.${ext}`
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = filename
+    a.click()
+    URL.revokeObjectURL(url)
+    notify.update(toast.id, { type: 'success', title: 'Запись скачана', description: filename, progress: 100 })
+  }
+  xhr.onerror = () => {
+    notify.update(toast.id, {
+      type: 'error',
+      title: 'Ошибка скачивания',
+      description: 'Не удалось загрузить запись',
+      progress: 100,
+    })
+  }
+  xhr.send()
+}
+
 const closePlayer = () => {
   if (audioRef.value) {
     audioRef.value.pause()
@@ -332,23 +387,45 @@ const exportToExcel = async () => {
                 <td class="px-4 py-4 text-center">
                   <span
                     v-if="recordingStatus(call) === 'Проигрывается'"
-                    class="font-medium text-green-600 dark:text-green-400"
+                    class="inline-flex items-center gap-2"
                   >
-                    Проигрывается
+                    <span class="font-medium text-green-600 dark:text-green-400">Проигрывается</span>
+                    <span class="text-gray-300 dark:text-gray-600">|</span>
+                    <button
+                      class="text-blue-600 hover:underline dark:text-blue-400"
+                      @click="downloadRecording(call)"
+                    >
+                      Скачать
+                    </button>
                   </span>
                   <span
                     v-else-if="recordingStatus(call) === 'На паузе'"
-                    class="font-medium text-gray-600 dark:text-gray-400"
+                    class="inline-flex items-center gap-2"
                   >
-                    На паузе
+                    <span class="font-medium text-gray-600 dark:text-gray-400">На паузе</span>
+                    <span class="text-gray-300 dark:text-gray-600">|</span>
+                    <button
+                      class="text-blue-600 hover:underline dark:text-blue-400"
+                      @click="downloadRecording(call)"
+                    >
+                      Скачать
+                    </button>
                   </span>
-                  <button
-                    v-else-if="call.hasRecording"
-                    class="text-blue-600 hover:underline dark:text-blue-400"
-                    @click="playRecording(call)"
-                  >
-                    Прослушать
-                  </button>
+                  <span v-else-if="call.hasRecording" class="inline-flex items-center gap-2">
+                    <button
+                      class="text-blue-600 hover:underline dark:text-blue-400"
+                      @click="playRecording(call)"
+                    >
+                      Прослушать
+                    </button>
+                    <span class="text-gray-300 dark:text-gray-600">|</span>
+                    <button
+                      class="text-blue-600 hover:underline dark:text-blue-400"
+                      @click="downloadRecording(call)"
+                    >
+                      Скачать
+                    </button>
+                  </span>
                   <span v-else class="text-gray-400">—</span>
                 </td>
               </tr>
