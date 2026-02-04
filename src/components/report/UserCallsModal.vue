@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, watch, ref, nextTick } from 'vue'
+import { computed, watch, ref } from 'vue'
 import ModalComponent from '@/components/modal/ModalComponent.vue'
 import ButtonComponent from '@/components/buttons/ButtonComponent.vue'
 import type { Call } from '@/tools/calls'
@@ -42,34 +42,60 @@ watch(model, (newVal) => {
   if (!newVal) {
     currentPlayingCall.value = null
     audioError.value = null
+    if (audioRef.value) {
+      audioRef.value.pause()
+      audioRef.value.removeAttribute('src')
+      audioRef.value.load()
+    }
   }
 })
 
-watch(currentPlayingCall, (call) => {
-  audioError.value = null
-  audioCurrentTime.value = 0
-  audioDuration.value = 0
-  if (!call?.recordingUrl || !audioRef.value) return
-  nextTick(() => {
-    const audio = audioRef.value
-    if (!audio) return
-    audio.src = call.recordingUrl!
-    audio.load()
-    audio.play().catch((e) => {
-      audioError.value = e?.message ?? 'Не удалось воспроизвести'
-    })
-  })
-})
+const onAudioLoadedMetadata = () => {
+  const audio = audioRef.value
+  if (!audio) return
+  audioDuration.value = Number.isFinite(audio.duration) ? audio.duration : 0
+}
+
+const onAudioTimeUpdate = () => {
+  const audio = audioRef.value
+  if (!audio) return
+  audioCurrentTime.value = audio.currentTime
+}
+
+const onAudioError = () => {
+  audioError.value = 'Не удалось загрузить запись'
+  isPlaying.value = false
+}
 
 const playRecording = (call: Call) => {
   if (!call.hasRecording || !call.recordingUrl) return
   currentPlayingCall.value = call
+  audioError.value = null
+  audioCurrentTime.value = 0
+  audioDuration.value = 0
+
+  const audio = audioRef.value
+  if (!audio) {
+    audioError.value = 'Аудиоплеер не инициализирован'
+    return
+  }
+
+  // Важно: play() вызываем прямо в обработчике клика, иначе браузер блокирует autoplay.
+  if (audio.src !== call.recordingUrl) {
+    audio.src = call.recordingUrl
+  }
+  audio.currentTime = 0
+  audio.play().catch((e) => {
+    audioError.value = e?.message ?? 'Не удалось воспроизвести'
+    isPlaying.value = false
+  })
 }
 
 const closePlayer = () => {
   if (audioRef.value) {
     audioRef.value.pause()
-    audioRef.value.src = ''
+    audioRef.value.removeAttribute('src')
+    audioRef.value.load()
   }
   currentPlayingCall.value = null
   isPlaying.value = false
@@ -167,15 +193,15 @@ const exportToExcel = () => {
 
     <!-- Скрытый аудио-элемент для воспроизведения записи -->
     <audio
-      v-if="currentPlayingCall"
       ref="audioRef"
       class="hidden"
+      preload="metadata"
       @play="isPlaying = true"
       @pause="isPlaying = false"
       @ended="isPlaying = false"
-      @timeupdate="audioRef && (audioCurrentTime = audioRef.currentTime)"
-      @loadedmetadata="audioRef && (audioDuration = audioRef.duration)"
-      @error="audioError = 'Ошибка загрузки записи'"
+      @timeupdate="onAudioTimeUpdate"
+      @loadedmetadata="onAudioLoadedMetadata"
+      @error="onAudioError"
     />
 
     <!-- Аудио-плеер внутри модалки -->
