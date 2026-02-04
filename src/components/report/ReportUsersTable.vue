@@ -294,6 +294,7 @@ watch([dateRange, dateValue, selectedUser], () => {
                     v-model="dateValue"
                     range
                     locale="ru-RU"
+                    year-controls
                   />
                 </div>
               </template>
