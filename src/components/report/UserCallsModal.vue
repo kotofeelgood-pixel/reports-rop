@@ -21,6 +21,8 @@ const isPlaying = ref(false)
 const audioCurrentTime = ref(0)
 const audioDuration = ref(0)
 const audioError = ref<string | null>(null)
+const playbackRate = ref(1)
+const playbackRates = [1, 1.25, 1.5, 2] as const
 let rafId: number | null = null
 const PROGRESS_UPDATE_INTERVAL_MS = 100
 let lastProgressUpdate = 0
@@ -69,6 +71,7 @@ watch(model, (newVal) => {
 const onAudioLoadedMetadata = () => {
   const audio = audioRef.value
   if (!audio) return
+  audio.playbackRate = playbackRate.value
   audioDuration.value = Number.isFinite(audio.duration) ? audio.duration : 0
 }
 
@@ -136,11 +139,19 @@ const startPlayback = (call: Call) => {
   if (audio.src !== call.recordingUrl) {
     audio.src = call.recordingUrl
   }
+  audio.playbackRate = playbackRate.value
   audio.currentTime = 0
   audio.play().catch((e) => {
     audioError.value = e?.message ?? 'Не удалось воспроизвести'
     isPlaying.value = false
   })
+}
+
+const setPlaybackRate = (rate: number) => {
+  playbackRate.value = rate
+  if (audioRef.value) {
+    audioRef.value.playbackRate = rate
+  }
 }
 
 const playRecording = (call: Call) => {
@@ -347,6 +358,22 @@ const exportToExcel = () => {
               <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
                 <path d="M4.555 5.168A1 1 0 003 6v8a1 1 0 001.555.832L10 11.202V14a1 1 0 001.555.832l6-4a1 1 0 000-1.664l-6-4A1 1 0 0010 6v2.798l-5.445-3.63z" />
               </svg>
+            </button>
+          </div>
+
+          <!-- Скорость воспроизведения -->
+          <div class="flex shrink-0 items-center gap-1">
+            <button
+              v-for="rate in playbackRates"
+              :key="rate"
+              type="button"
+              class="rounded-md border px-2 py-1 text-xs font-medium transition-colors"
+              :class="playbackRate === rate
+                ? 'border-gray-900 bg-gray-900 text-white dark:border-white dark:bg-white dark:text-gray-900'
+                : 'border-gray-200 bg-white text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:bg-[#2a2a2a] dark:text-gray-200 dark:hover:bg-gray-700'"
+              @click="setPlaybackRate(rate)"
+            >
+              x{{ rate }}
             </button>
           </div>
 
