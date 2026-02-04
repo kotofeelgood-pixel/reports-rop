@@ -67,7 +67,6 @@ export function useDateRange() {
   const dateRangeOptions = [
     { label: 'Произвольный период', value: 'custom' },
     { label: 'В реальном времени', value: 'realtime' },
-    { label: 'Сегодня', value: 'today' },
     { label: 'Вчера', value: 'yesterday' },
     { label: 'Эта неделя', value: 'this_week' },
     { label: 'Прошлая неделя', value: 'last_week' },

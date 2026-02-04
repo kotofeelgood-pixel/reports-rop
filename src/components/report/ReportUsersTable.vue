@@ -136,14 +136,6 @@ const selectedUser = ref<string | null>(null)
 
 const dateFormatter = new Intl.DateTimeFormat('ru-RU', { dateStyle: 'medium' })
 
-const formatDate = (value: { day: number; month: number; year: number } | null): string => {
-  if (!value) return '—'
-  const d = String(value.day).padStart(2, '0')
-  const m = String(value.month).padStart(2, '0')
-  const y = String(value.year).slice(-2)
-  return `${d}.${m}.${y}`
-}
-
 const formatDateMedium = (value: { day: number; month: number; year: number } | null): string => {
   if (!value) return '—'
   const date = new Date(value.year, value.month - 1, value.day)
@@ -198,7 +190,23 @@ const userOptions = computed(() => {
 
 const { isCallsModalOpen, selectedUserName, selectedCallType, selectedCalls, openCallsModal, openTotalsCallsModal } = useCallsModal(calls, usersById)
 
-const formatB24Date = (d: Date): string => d.toISOString()
+const formatB24Date = (d: Date): string => {
+  const pad = (n: number) => String(n).padStart(2, '0')
+  const yyyy = d.getFullYear()
+  const mm = pad(d.getMonth() + 1)
+  const dd = pad(d.getDate())
+  const hh = pad(d.getHours())
+  const mi = pad(d.getMinutes())
+  const ss = pad(d.getSeconds())
+
+  // Локальный offset (например +03:00), чтобы границы дня не сдвигались как при toISOString()
+  const tzMin = -d.getTimezoneOffset()
+  const sign = tzMin >= 0 ? '+' : '-'
+  const abs = Math.abs(tzMin)
+  const tzh = pad(Math.floor(abs / 60))
+  const tzm = pad(abs % 60)
+  return `${yyyy}-${mm}-${dd}T${hh}:${mi}:${ss}${sign}${tzh}:${tzm}`
+}
 
 const getDateRange = () => {
   const now = new Date()
@@ -219,6 +227,9 @@ const getDateRange = () => {
   }
 
   switch (dateRange.value) {
+    case 'realtime':
+      // Чтобы не подтягивать историю, в "реальном времени" показываем звонки за текущий день
+      return { start: startOfDay(now), end: endOfDay(now) }
     case 'today':
       return { start: startOfDay(now), end: endOfDay(now) }
     case 'yesterday': {
