@@ -23,6 +23,7 @@ const audioDuration = ref(0)
 const audioError = ref<string | null>(null)
 const playbackRate = ref(1)
 const playbackRates = [1, 1.25, 1.5, 2] as const
+const autoAdvance = ref(false)
 let rafId: number | null = null
 const PROGRESS_UPDATE_INTERVAL_MS = 100
 let lastProgressUpdate = 0
@@ -114,6 +115,17 @@ const onAudioPlay = () => {
 const onAudioPause = () => {
   isPlaying.value = false
   stopRafSync()
+}
+
+const onAudioEnded = () => {
+  if (autoAdvance.value && hasNext.value) {
+    const nextCall = playableCalls.value[currentPlayableIndex.value + 1]
+    if (nextCall) {
+      startPlayback(nextCall)
+      return
+    }
+  }
+  onAudioPause()
 }
 
 const onAudioError = () => {
@@ -289,7 +301,7 @@ const exportToExcel = () => {
       preload="metadata"
       @play="onAudioPlay"
       @pause="onAudioPause"
-      @ended="onAudioPause"
+      @ended="onAudioEnded"
       @timeupdate="onAudioTimeUpdate"
       @loadedmetadata="onAudioLoadedMetadata"
       @error="onAudioError"
@@ -376,6 +388,18 @@ const exportToExcel = () => {
               x{{ rate }}
             </button>
           </div>
+
+          <!-- Автопереход -->
+          <button
+            type="button"
+            class="shrink-0 rounded-md border px-2 py-1 text-xs font-medium transition-colors"
+            :class="autoAdvance
+              ? 'border-gray-900 bg-gray-900 text-white dark:border-white dark:bg-white dark:text-gray-900'
+              : 'border-gray-200 bg-white text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:bg-[#2a2a2a] dark:text-gray-200 dark:hover:bg-gray-700'"
+            @click="autoAdvance = !autoAdvance"
+          >
+            Авто: {{ autoAdvance ? 'вкл' : 'выкл' }}
+          </button>
 
           <!-- Прогресс и время -->
           <div class="flex min-w-0 flex-1 flex-col gap-1">
