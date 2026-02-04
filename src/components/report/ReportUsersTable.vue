@@ -144,6 +144,7 @@ const formatDate = (value: { day: number; month: number; year: number } | null):
 
 const startDateDisplay = computed(() => formatDate(dateValue.value.start))
 const endDateDisplay = computed(() => formatDate(dateValue.value.end))
+const dateRangeDisplay = computed(() => `${startDateDisplay.value} — ${endDateDisplay.value}`)
 
 const userOptions = computed(() => {
   const fromStore = (allUsers.value || []).map(u => ({ label: u.name, value: u.id }))
@@ -279,24 +280,14 @@ watch([dateRange, dateValue, selectedUser], () => {
               align="start"
               class="flex-1"
             >
-              <div class="flex w-full gap-2">
-                <ButtonComponent
-                  icon="calendar"
-                  color="light-border"
-                  size="md"
-                  class="w-full"
-                >
-                  {{ startDateDisplay }}
-                </ButtonComponent>
-                <ButtonComponent
-                  icon="calendar"
-                  color="light-border"
-                  size="md"
-                  class="w-full"
-                >
-                  {{ endDateDisplay }}
-                </ButtonComponent>
-              </div>
+              <ButtonComponent
+                icon="calendar"
+                color="light-border"
+                size="md"
+                class="w-full"
+              >
+                {{ dateRangeDisplay }}
+              </ButtonComponent>
               <template #content>
                 <div class="p-4">
                   <CalendarComponent
