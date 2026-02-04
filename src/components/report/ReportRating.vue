@@ -6,6 +6,7 @@ import UserCallsModal from './UserCallsModal.vue'
 import { useReportSettingsStoreRefs } from '@/stores/reportSettings'
 import { useUsersStore, useUsersStoreRefs } from '@/stores/users'
 import { useDateRange } from '@/composables/useDateRange'
+import { useCallsModal } from '@/composables/useCallsModal'
 import { telephonyCallList, type TelephonyCallRecord } from '@/api/calls'
 
 const { layoutType } = useReportSettingsStoreRefs()
@@ -13,110 +14,19 @@ const usersStore = useUsersStore()
 const { usersById } = useUsersStoreRefs()
 const { dateRange, dateValue, getDateRange, formatB24Date } = useDateRange()
 
-type Call = {
-  id: string
-  userId: string
-  time: string
-  number: string
-  type: string
-  duration: string
-  status: string
-  crm: string
-  hasRecording: boolean
-}
-
-const isCallsModalOpen = ref(false)
-const selectedUserName = ref('')
-const selectedCallType = ref('')
-const selectedCalls = ref<Call[]>([])
-
-function openCallsModal(userName: string, callType: string) {
-  selectedUserName.value = userName
-  selectedCallType.value = callType
-  // Тестовые данные
-  selectedCalls.value = [
-    {
-      id: '1',
-      userId: userName,
-      time: '09:15:32',
-      number: '79161234567',
-      type: 'Исходящий',
-      duration: '00:03:45',
-      status: 'Завершен',
-      crm: 'Иван Петров',
-      hasRecording: true,
-    },
-    {
-      id: '2',
-      userId: userName,
-      time: '10:22:18',
-      number: '79267894561',
-      type: 'Входящий',
-      duration: '00:05:12',
-      status: 'Завершен',
-      crm: 'Мария Сидорова',
-      hasRecording: true,
-    },
-    {
-      id: '3',
-      userId: userName,
-      time: '11:20:19',
-      number: '79640774400',
-      type: 'Исходящий',
-      duration: '00:00:00',
-      status: 'Вызов отменен',
-      crm: 'Евгений',
-      hasRecording: false,
-    },
-    {
-      id: '4',
-      userId: userName,
-      time: '12:45:08',
-      number: '79151239876',
-      type: 'Входящий',
-      duration: '00:02:33',
-      status: 'Завершен',
-      crm: 'Алексей Козлов',
-      hasRecording: true,
-    },
-    {
-      id: '5',
-      userId: userName,
-      time: '13:10:55',
-      number: '79039876543',
-      type: 'Пропущенный',
-      duration: '00:00:00',
-      status: 'Не отвечен',
-      crm: 'Ольга Смирнова',
-      hasRecording: false,
-    },
-    {
-      id: '6',
-      userId: userName,
-      time: '14:33:21',
-      number: '79267771234',
-      type: 'Исходящий',
-      duration: '00:01:15',
-      status: 'Завершен',
-      crm: 'Дмитрий Волков',
-      hasRecording: true,
-    },
-    {
-      id: '7',
-      userId: userName,
-      time: '15:52:44',
-      number: '79121234567',
-      type: 'Входящий',
-      duration: '00:04:28',
-      status: 'Завершен',
-      crm: 'Елена Новикова',
-      hasRecording: true,
-    },
-  ]
-  isCallsModalOpen.value = true
-}
-
 const calls = ref<TelephonyCallRecord[]>([])
+const { isCallsModalOpen, selectedUserName, selectedCallType, selectedCalls, crmNames, openCallsModal, openTotalsCallsModal } = useCallsModal(calls, usersById)
+
+function openRatingCallsModal(userId: string, userName: string, callTypeLabel: string) {
+  const callType = callTypeLabel === 'совершенные звонки' ? 'исходящие' : 'пропущенные'
+  openCallsModal(userId, userName, callType)
+}
+
+function openRatingTotalsModal(callTypeLabel: string) {
+  const callType = callTypeLabel === 'совершенные звонки' ? 'исходящие' : 'пропущенные'
+  openTotalsCallsModal(callType)
+}
+
 const isLoading = ref(false)
 const error = ref<string | null>(null)
 
@@ -152,7 +62,7 @@ const buildTopList = (predicate: (call: TelephonyCallRecord) => boolean) => {
   const items = Array.from(counts.entries()).map(([userId, count]) => {
     const user = usersById.value.get(String(userId))
     const name = user?.name ?? `#${userId}`
-    return { name, count }
+    return { userId: String(userId), name, count }
   })
 
   items.sort((a, b) => b.count - a.count)
@@ -215,9 +125,9 @@ watch([dateRange, dateValue], () => {
         <ul class="space-y-2 p-2">
           <li
             v-for="item in completedCalls"
-            :key="item.name"
+            :key="item.userId"
             class="flex cursor-pointer items-center justify-between gap-2 rounded-lg bg-gray-100 px-2 py-2 transition-colors hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700"
-            @click="openCallsModal(item.name, 'совершенные звонки')"
+            @click="openRatingCallsModal(item.userId, item.name, 'совершенные звонки')"
           >
             <div class="flex min-w-0 items-center gap-2">
               <AvatarComponent :name="item.name" size="sm" />
@@ -246,9 +156,9 @@ watch([dateRange, dateValue], () => {
         <ul class="space-y-2 p-2">
           <li
             v-for="item in missedCalls"
-            :key="item.name"
+            :key="item.userId"
             class="flex cursor-pointer items-center justify-between gap-2 rounded-lg bg-gray-100 px-2 py-2 transition-colors hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700"
-            @click="openCallsModal(item.name, 'пропущенные')"
+            @click="openRatingCallsModal(item.userId, item.name, 'пропущенные')"
           >
             <div class="flex min-w-0 items-center gap-2">
               <AvatarComponent :name="item.name" size="sm" />
@@ -276,6 +186,7 @@ watch([dateRange, dateValue], () => {
       :user-name="selectedUserName"
       :call-type="selectedCallType"
       :calls="selectedCalls"
+      :crm-names="crmNames"
     />
   </div>
 </template>

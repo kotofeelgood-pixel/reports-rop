@@ -1,4 +1,5 @@
 import { ref, computed, watch } from 'vue'
+import { storeToRefs } from 'pinia'
 import { formatDateRange } from '@/tools/date'
 import { useReportSettingsStore } from '@/stores/reportSettings'
 import type { CalendarDateRange } from '@/stores/reportSettings'
@@ -9,8 +10,7 @@ import type { CalendarDateRange } from '@/stores/reportSettings'
  */
 export function useDateRange() {
   const store = useReportSettingsStore()
-  const dateRange = store.dateRange
-  const dateValue = store.dateValue
+  const { dateRange, dateValue } = storeToRefs(store)
   const isDatePickerOpen = ref(false)
 
   const showDatePicker = computed(() => dateRange.value === 'custom')

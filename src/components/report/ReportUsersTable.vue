@@ -20,7 +20,6 @@ type Row = {
   outgoing: number
   incoming: number
   missed: number
-  processedMissed: number
   duration: string
 }
 
@@ -28,14 +27,19 @@ type Totals = {
   outgoing: number
   incoming: number
   missed: number
-  processedMissed: number
   duration: string
 }
 
-const props = defineProps<{
-  rows: Row[]
-  totals: Totals
-}>()
+const props = withDefaults(
+  defineProps<{
+    rows?: Row[]
+    totals?: Totals
+  }>(),
+  {
+    rows: () => [],
+    totals: () => ({ outgoing: 0, incoming: 0, missed: 0, duration: '00:00:00' }),
+  }
+)
 
 const usersStore = useUsersStore()
 const { users: allUsers, usersById } = useUsersStoreRefs()
@@ -70,7 +74,6 @@ const rowsFromCalls = computed<Row[]>(() => {
         outgoing: 0,
         incoming: 0,
         missed: 0,
-        processedMissed: 0,
         duration: '00:00:00',
         _seconds: 0,
       })
@@ -98,19 +101,18 @@ const rowsFromCalls = computed<Row[]>(() => {
 })
 
 const totalsFromCalls = computed<Totals>(() => {
-  if (!rowsFromCalls.value.length) return props.totals
+  if (!rowsFromCalls.value.length) return props.totals ?? { outgoing: 0, incoming: 0, missed: 0, duration: '00:00:00' }
   const totals = rowsFromCalls.value.reduce((acc, row) => {
     acc.outgoing += row.outgoing
     acc.incoming += row.incoming
     acc.missed += row.missed
-    acc.processedMissed += row.processedMissed
     const parts = row.duration.split(':').map(Number)
     const h = parts[0] ?? 0
     const m = parts[1] ?? 0
     const s = parts[2] ?? 0
     acc._seconds += (h * 3600) + (m * 60) + (s || 0)
     return acc
-  }, { outgoing: 0, incoming: 0, missed: 0, processedMissed: 0, duration: '00:00:00', _seconds: 0 } as Totals & { _seconds: number })
+  }, { outgoing: 0, incoming: 0, missed: 0, duration: '00:00:00', _seconds: 0 } as Totals & { _seconds: number })
   const total = Math.max(0, totals._seconds)
   const h = Math.floor(total / 3600)
   const m = Math.floor((total % 3600) / 60)
@@ -122,7 +124,7 @@ const totalsFromCalls = computed<Totals>(() => {
 // Всегда показываем результат запроса по выбранному периоду; при отсутствии данных — пустая таблица
 const computedRows = computed(() => rowsFromCalls.value)
 const tableTotals = computed((): Totals =>
-  rowsFromCalls.value.length ? totalsFromCalls.value : { outgoing: 0, incoming: 0, missed: 0, processedMissed: 0, duration: '00:00:00' }
+  rowsFromCalls.value.length ? totalsFromCalls.value : { outgoing: 0, incoming: 0, missed: 0, duration: '00:00:00' }
 )
 
 const { sortBy, sortDir, setSort, sortedRows } = useTableSort(computedRows)
@@ -196,17 +198,20 @@ const userOptions = computed(() => {
 const { isCallsModalOpen, selectedUserName, selectedCallType, selectedCalls, crmNames, openCallsModal, openTotalsCallsModal } = useCallsModal(calls, usersById)
 
 const fetchCalls = async () => {
+  const range = getDateRange()
+  if (!range?.start || !range?.end) {
+    calls.value = []
+    return
+  }
   isLoading.value = true
   error.value = null
   try {
-    const range = getDateRange()
-    const filter: Record<string, unknown> = {}
+    const filter: Record<string, unknown> = {
+      '>=CALL_START_DATE': formatB24Date(range.start),
+      '<=CALL_START_DATE': formatB24Date(range.end),
+    }
     if (selectedUser.value) {
       filter.PORTAL_USER_ID = selectedUser.value
-    }
-    if (range?.start && range?.end) {
-      filter['>=CALL_START_DATE'] = formatB24Date(range.start)
-      filter['<=CALL_START_DATE'] = formatB24Date(range.end)
     }
     const data = await telephonyCallList({ filter, sort: 'CALL_START_DATE', order: 'DESC' })
     calls.value = Array.isArray(data) ? data : []
@@ -373,19 +378,6 @@ watch([dateRange, dateValue, selectedUser], () => {
               class="cursor-pointer select-none px-4 py-3 font-medium hover:bg-[#bae6fd]/80 dark:hover:bg-[#2a4a5a]"
               role="button"
               tabindex="0"
-              @click="setSort('processedMissed')"
-              @keydown.enter="setSort('processedMissed')"
-            >
-              <span class="inline-flex items-center gap-1 text-xs">
-                <span class="inline-block size-3 rounded bg-orange-500/80" />
-                ОБ. ПР.
-                <span v-if="sortBy === 'processedMissed'" class="text-gray-900">{{ sortDir === 'asc' ? '↑' : '↓' }}</span>
-              </span>
-            </th>
-            <th
-              class="cursor-pointer select-none px-4 py-3 font-medium hover:bg-[#bae6fd]/80 dark:hover:bg-[#2a4a5a]"
-              role="button"
-              tabindex="0"
               @click="setSort('duration')"
               @keydown.enter="setSort('duration')"
             >
@@ -433,12 +425,6 @@ watch([dateRange, dateValue, selectedUser], () => {
             >
               {{ row.missed }}
             </td>
-            <td
-              class="cursor-pointer px-4 py-2 font-medium text-orange-600 transition-all hover:underline hover:opacity-80 dark:text-orange-400"
-              @click="openCallsModal(row.id, row.name, 'обработанные пропущенные')"
-            >
-              {{ row.processedMissed }}
-            </td>
             <td class="px-4 py-2 text-gray-700 dark:text-gray-300">{{ row.duration }}</td>
           </tr>
         </tbody>
@@ -462,12 +448,6 @@ watch([dateRange, dateValue, selectedUser], () => {
               @click="openTotalsCallsModal('пропущенные')"
             >
               {{ tableTotals.missed }}
-            </td>
-            <td
-              class="cursor-pointer px-4 py-2 text-orange-600 transition-all hover:underline hover:opacity-80 dark:text-orange-400"
-              @click="openTotalsCallsModal('обработанные пропущенные')"
-            >
-              {{ tableTotals.processedMissed }}
             </td>
             <td class="px-4 py-2 text-gray-700 dark:text-gray-300">{{ tableTotals.duration }}</td>
           </tr>

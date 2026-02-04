@@ -1,7 +1,7 @@
 import { ref, computed } from 'vue'
 import { parseDuration } from '@/tools/parseDuration'
 
-export type SortKey = 'name' | 'outgoing' | 'incoming' | 'missed' | 'processedMissed' | 'duration'
+export type SortKey = 'name' | 'outgoing' | 'incoming' | 'missed' | 'duration'
 export type SortDir = 'asc' | 'desc'
 
 type Row = {
@@ -10,7 +10,6 @@ type Row = {
   outgoing: number
   incoming: number
   missed: number
-  processedMissed: number
   duration: string
 }
 
@@ -50,9 +49,6 @@ export function useTableSort(rows: { value: Row[] }) {
           break
         case 'missed':
           cmp = a.missed - b.missed
-          break
-        case 'processedMissed':
-          cmp = a.processedMissed - b.processedMissed
           break
         case 'duration':
           cmp = parseDuration(a.duration) - parseDuration(b.duration)
