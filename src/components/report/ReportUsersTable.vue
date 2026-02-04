@@ -329,7 +329,6 @@ watch([dateRange, dateValue, selectedUser], () => {
               class="flex-1"
             >
               <ButtonComponent
-                icon="calendar"
                 color="light-border"
                 size="md"
                 class="w-full text-xs"
