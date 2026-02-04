@@ -1,6 +1,8 @@
-import { computed } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import { useColorMode } from '@vueuse/core'
 import { useReportSettingsStoreRefs } from '@/stores/reportSettings'
+import { useDateRange } from '@/composables/useDateRange'
+import { telephonyCallList, type TelephonyCallRecord } from '@/api/calls'
 
 type ChartDataPoint = {
   hour: number
@@ -10,46 +12,75 @@ type ChartDataPoint = {
   processed: number
 }
 
-/**
- * Данные графика по умолчанию
- */
-const allChartData: ChartDataPoint[] = [
-  { hour: 0, outgoing: 0, incoming: 0, missed: 0, processed: 0 },
-  { hour: 1, outgoing: 0, incoming: 0, missed: 0, processed: 0 },
-  { hour: 2, outgoing: 0, incoming: 0, missed: 0, processed: 0 },
-  { hour: 3, outgoing: 0, incoming: 0, missed: 0, processed: 0 },
-  { hour: 4, outgoing: 0, incoming: 0, missed: 0, processed: 0 },
-  { hour: 5, outgoing: 0, incoming: 0, missed: 0, processed: 0 },
-  { hour: 6, outgoing: 0, incoming: 0, missed: 0, processed: 0 },
-  { hour: 7, outgoing: 0, incoming: 0, missed: 0, processed: 0 },
-  { hour: 8, outgoing: 0, incoming: 0, missed: 0, processed: 0 },
-  { hour: 9, outgoing: 0, incoming: 1, missed: 1, processed: 0 },
-  { hour: 10, outgoing: 0, incoming: 2, missed: 0, processed: 0 },
-  { hour: 11, outgoing: 15, incoming: 1, missed: 1, processed: 2 },
-  { hour: 12, outgoing: 15, incoming: 12, missed: 6, processed: 4 },
-  { hour: 13, outgoing: 2, incoming: 16, missed: 9, processed: 0 },
-  { hour: 14, outgoing: 13, incoming: 11, missed: 5, processed: 5 },
-  { hour: 15, outgoing: 0, incoming: 0, missed: 0, processed: 0 },
-  { hour: 16, outgoing: 0, incoming: 0, missed: 0, processed: 0 },
-  { hour: 17, outgoing: 0, incoming: 0, missed: 0, processed: 0 },
-  { hour: 18, outgoing: 0, incoming: 0, missed: 0, processed: 0 },
-  { hour: 19, outgoing: 0, incoming: 0, missed: 0, processed: 0 },
-  { hour: 20, outgoing: 0, incoming: 0, missed: 0, processed: 0 },
-  { hour: 21, outgoing: 0, incoming: 0, missed: 0, processed: 0 },
-  { hour: 22, outgoing: 0, incoming: 0, missed: 0, processed: 0 },
-  { hour: 23, outgoing: 0, incoming: 0, missed: 0, processed: 0 },
-]
+function getHourFromCall(call: TelephonyCallRecord): number | null {
+  const raw = call.CALL_START_DATE ?? call.call_start_date ?? ''
+  const str = String(raw).trim()
+  if (!str) return null
+  const date = new Date(str)
+  if (Number.isNaN(date.getTime())) return null
+  return date.getHours()
+}
+
+function buildChartDataFromCalls(calls: TelephonyCallRecord[]): ChartDataPoint[] {
+  const byHour = new Map<number, { outgoing: number; incoming: number; missed: number; processed: number }>()
+  for (let h = 0; h < 24; h++) {
+    byHour.set(h, { outgoing: 0, incoming: 0, missed: 0, processed: 0 })
+  }
+  for (const call of calls) {
+    const hour = getHourFromCall(call)
+    if (hour === null) continue
+    const bucket = byHour.get(hour)!
+    const callTypeNum = Number(call.CALL_TYPE ?? call.callType ?? call.TYPE ?? call.type)
+    const duration = Number(call.CALL_DURATION ?? call.DURATION ?? call.duration ?? 0)
+    const isMissed = duration <= 0 || Boolean(call.CALL_FAILED_CODE ?? call.call_failed_code)
+    if (callTypeNum === 1) bucket.outgoing += 1
+    else bucket.incoming += 1
+    if (isMissed) bucket.missed += 1
+  }
+  return Array.from({ length: 24 }, (_, hour) => {
+    const b = byHour.get(hour)!
+    return { hour, ...b }
+  })
+}
 
 /**
- * Композабл для управления данными графика
- * @returns объект с отфильтрованными данными, сериями и настройками графика
+ * Композабл для управления данными графика.
+ * Данные загружаются за выбранный период (как таблица и рейтинг).
  */
 export function useChartData() {
   const { chartType, chartStartHour, chartEndHour } = useReportSettingsStoreRefs()
   const mode = useColorMode()
+  const { dateRange, dateValue, getDateRange, formatB24Date } = useDateRange()
+
+  const calls = ref<TelephonyCallRecord[]>([])
+  const chartDataFromApi = computed(() => buildChartDataFromCalls(calls.value))
+
+  const fetchCalls = async () => {
+    try {
+      const range = getDateRange()
+      const filter: Record<string, unknown> = {}
+      if (range?.start && range?.end) {
+        filter['>=CALL_START_DATE'] = formatB24Date(range.start)
+        filter['<=CALL_START_DATE'] = formatB24Date(range.end)
+      }
+      const data = await telephonyCallList({ filter, sort: 'CALL_START_DATE', order: 'DESC' })
+      calls.value = Array.isArray(data) ? data : []
+    } catch {
+      calls.value = []
+    }
+  }
+
+  onMounted(() => {
+    void fetchCalls()
+  })
+
+  watch([dateRange, dateValue], () => {
+    void fetchCalls()
+  }, { deep: true })
 
   const filteredChartData = computed(() => {
-    return allChartData.filter(d => d.hour >= chartStartHour.value && d.hour <= chartEndHour.value)
+    const data = chartDataFromApi.value
+    return data.filter(d => d.hour >= chartStartHour.value && d.hour <= chartEndHour.value)
   })
 
   const series = computed(() => [
