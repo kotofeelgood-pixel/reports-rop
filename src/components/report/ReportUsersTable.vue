@@ -138,7 +138,7 @@ const formatDate = (value: { day: number; month: number; year: number } | null):
   if (!value) return '—'
   const d = String(value.day).padStart(2, '0')
   const m = String(value.month).padStart(2, '0')
-  const y = value.year
+  const y = String(value.year).slice(-2)
   return `${d}.${m}.${y}`
 }
 
