@@ -22,6 +22,8 @@ const audioCurrentTime = ref(0)
 const audioDuration = ref(0)
 const audioError = ref<string | null>(null)
 let rafId: number | null = null
+const PROGRESS_UPDATE_INTERVAL_MS = 100
+let lastProgressUpdate = 0
 
 const modalBodyClass = computed(() => ({
   body: currentPlayingCall.value ? 'pb-40' : ''
@@ -65,12 +67,16 @@ const onAudioTimeUpdate = () => {
 
 const startRafSync = () => {
   if (rafId != null) return
-  const tick = () => {
+  lastProgressUpdate = 0
+  const tick = (now: number) => {
     const audio = audioRef.value
     if (audio) {
-      audioCurrentTime.value = audio.currentTime
       if (audioDuration.value === 0 && Number.isFinite(audio.duration)) {
         audioDuration.value = audio.duration
+      }
+      if (now - lastProgressUpdate >= PROGRESS_UPDATE_INTERVAL_MS) {
+        lastProgressUpdate = now
+        audioCurrentTime.value = audio.currentTime
       }
     }
     rafId = requestAnimationFrame(tick)
