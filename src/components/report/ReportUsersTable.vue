@@ -133,13 +133,6 @@ const {
 } = useDateRange()
 
 const selectedUser = ref<string | null>(null)
-const selectedYear = ref<number | null>(null)
-
-const yearOptions = computed(() => {
-  const current = new Date().getFullYear()
-  const years = Array.from({ length: 7 }, (_, i) => current - 3 + i)
-  return years.map(y => ({ label: String(y), value: y }))
-})
 
 const formatDate = (value: { day: number; month: number; year: number } | null): string => {
   if (!value) return '—'
@@ -260,24 +253,6 @@ onMounted(() => {
 watch([dateRange, dateValue, selectedUser], () => {
   void fetchCalls()
 }, { deep: true })
-
-watch(selectedYear, (year) => {
-  if (!year) return
-  dateRange.value = 'custom'
-  dateValue.value = {
-    start: { day: 1, month: 1, year },
-    end: { day: 31, month: 12, year },
-  }
-})
-
-watch(dateValue, (val) => {
-  if (!val?.start || !val?.end) {
-    selectedYear.value = null
-    return
-  }
-  const sameYear = val.start.year === val.end.year
-  selectedYear.value = sameYear ? val.start.year : null
-}, { deep: true })
 </script>
 
 <template>
@@ -332,15 +307,6 @@ watch(dateValue, (val) => {
                 </div>
               </template>
             </PopoverComponent>
-          </div>
-          <div v-if="dateRange === 'custom'" class="max-w-[200px]">
-            <SelectComponent
-              v-model="selectedYear"
-              :items="yearOptions"
-              placeholder="Год"
-              class="!w-full"
-              style="width: 100% !important;"
-            />
           </div>
         </div>
 
