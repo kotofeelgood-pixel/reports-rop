@@ -1,15 +1,17 @@
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import AvatarComponent from '@/components/avatar/AvatarComponent.vue'
 import ProgressComponent from '@/components/progress/ProgressComponent.vue'
 import UserCallsModal from './UserCallsModal.vue'
 import { useReportSettingsStoreRefs } from '@/stores/reportSettings'
 import { useUsersStore, useUsersStoreRefs } from '@/stores/users'
+import { useDateRange } from '@/composables/useDateRange'
 import { telephonyCallList, type TelephonyCallRecord } from '@/api/calls'
 
 const { layoutType } = useReportSettingsStoreRefs()
 const usersStore = useUsersStore()
 const { usersById } = useUsersStoreRefs()
+const { dateRange, dateValue, getDateRange, formatB24Date } = useDateRange()
 
 type Call = {
   id: string
@@ -176,7 +178,13 @@ const fetchCalls = async () => {
   isLoading.value = true
   error.value = null
   try {
-    const data = await telephonyCallList()
+    const range = getDateRange()
+    const filter: Record<string, unknown> = {}
+    if (range?.start && range?.end) {
+      filter['>=CALL_START_DATE'] = formatB24Date(range.start)
+      filter['<=CALL_START_DATE'] = formatB24Date(range.end)
+    }
+    const data = await telephonyCallList({ filter, sort: 'CALL_START_DATE', order: 'DESC' })
     calls.value = Array.isArray(data) ? data : []
   } catch (e) {
     error.value = e instanceof Error ? e.message : String(e)
@@ -190,6 +198,10 @@ onMounted(() => {
   void usersStore.fetchUsers()
   void fetchCalls()
 })
+
+watch([dateRange, dateValue], () => {
+  void fetchCalls()
+}, { deep: true })
 </script>
 
 <template>
@@ -199,7 +211,6 @@ onMounted(() => {
       <div class="overflow-hidden rounded-lg border border-gray-200 dark:border-gray-700">
         <div class="flex items-center gap-2 bg-[#2fc6f6] px-3 py-2">
           <span class="text-xs font-semibold uppercase tracking-wide text-white">Совершенные звонки</span>
-          <span class="flex size-5 shrink-0 items-center justify-center rounded-full border border-white/80 bg-transparent text-[10px] text-white" aria-hidden="true">?</span>
         </div>
         <ul class="space-y-2 p-2">
           <li

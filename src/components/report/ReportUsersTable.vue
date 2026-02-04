@@ -133,6 +133,8 @@ const {
   isDatePickerOpen,
   showDatePicker,
   dateRangeOptions,
+  formatB24Date,
+  getDateRange,
 } = useDateRange()
 
 const selectedUser = ref<string | null>(null)
@@ -192,84 +194,6 @@ const userOptions = computed(() => {
 })
 
 const { isCallsModalOpen, selectedUserName, selectedCallType, selectedCalls, openCallsModal, openTotalsCallsModal } = useCallsModal(calls, usersById)
-
-const formatB24Date = (d: Date): string => {
-  const pad = (n: number) => String(n).padStart(2, '0')
-  const yyyy = d.getFullYear()
-  const mm = pad(d.getMonth() + 1)
-  const dd = pad(d.getDate())
-  const hh = pad(d.getHours())
-  const mi = pad(d.getMinutes())
-  const ss = pad(d.getSeconds())
-
-  // Локальный offset (например +03:00), чтобы границы дня не сдвигались как при toISOString()
-  const tzMin = -d.getTimezoneOffset()
-  const sign = tzMin >= 0 ? '+' : '-'
-  const abs = Math.abs(tzMin)
-  const tzh = pad(Math.floor(abs / 60))
-  const tzm = pad(abs % 60)
-  return `${yyyy}-${mm}-${dd}T${hh}:${mi}:${ss}${sign}${tzh}:${tzm}`
-}
-
-const getDateRange = () => {
-  const now = new Date()
-  const startOfDay = (d: Date) => new Date(d.getFullYear(), d.getMonth(), d.getDate(), 0, 0, 0, 0)
-  const endOfDay = (d: Date) => new Date(d.getFullYear(), d.getMonth(), d.getDate(), 23, 59, 59, 999)
-  const startOfWeek = (d: Date) => {
-    const day = d.getDay() || 7
-    const diff = day - 1
-    const out = new Date(d)
-    out.setDate(d.getDate() - diff)
-    return startOfDay(out)
-  }
-  const endOfWeek = (d: Date) => {
-    const start = startOfWeek(d)
-    const out = new Date(start)
-    out.setDate(start.getDate() + 6)
-    return endOfDay(out)
-  }
-
-  switch (dateRange.value) {
-    case 'realtime':
-      // Чтобы не подтягивать историю, в "реальном времени" показываем звонки за текущий день
-      return { start: startOfDay(now), end: endOfDay(now) }
-    case 'today':
-      return { start: startOfDay(now), end: endOfDay(now) }
-    case 'yesterday': {
-      const d = new Date(now)
-      d.setDate(d.getDate() - 1)
-      return { start: startOfDay(d), end: endOfDay(d) }
-    }
-    case 'this_week':
-      return { start: startOfWeek(now), end: endOfWeek(now) }
-    case 'last_week': {
-      const d = new Date(now)
-      d.setDate(d.getDate() - 7)
-      return { start: startOfWeek(d), end: endOfWeek(d) }
-    }
-    case 'this_month': {
-      const start = new Date(now.getFullYear(), now.getMonth(), 1, 0, 0, 0, 0)
-      const end = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59, 999)
-      return { start, end }
-    }
-    case 'last_month': {
-      const start = new Date(now.getFullYear(), now.getMonth() - 1, 1, 0, 0, 0, 0)
-      const end = new Date(now.getFullYear(), now.getMonth(), 0, 23, 59, 59, 999)
-      return { start, end }
-    }
-    case 'custom': {
-      const range = dateValue.value
-      if (range?.start && range?.end) {
-        const start = new Date(range.start.year, range.start.month - 1, range.start.day, 0, 0, 0, 0)
-        const end = new Date(range.end.year, range.end.month - 1, range.end.day, 23, 59, 59, 999)
-        return { start, end }
-      }
-      return null
-    }
-    default:
-      return null
-  }
-}
 
 const fetchCalls = async () => {
   isLoading.value = true
