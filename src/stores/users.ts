@@ -54,7 +54,6 @@ export const useUsersStore = defineStore('users', () => {
     error.value = null
     try {
       const raw = await getUsers()
-      console.log('raw', raw)
       const rawArr = Array.isArray(raw) ? raw as BitrixUser[] : []
       users.value = rawArr
         .map((u) => {
@@ -72,7 +71,6 @@ export const useUsersStore = defineStore('users', () => {
         .filter(Boolean) as AppUser[]
       loadedAt.value = Date.now()
 
-      console.log('users', users.value)
       return users.value
     } catch (e) {
       console.error('fetchUsers:', e)
