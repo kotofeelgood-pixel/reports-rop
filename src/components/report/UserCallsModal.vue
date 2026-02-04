@@ -223,7 +223,12 @@ const exportToExcel = () => {
               <tr
                 v-for="call in calls"
                 :key="call.id"
-                class="border-t border-gray-100 hover:bg-gray-50/80 dark:border-gray-700 dark:hover:bg-gray-800/50"
+                :class="[
+                  'border-t border-gray-100 hover:bg-gray-50/80 dark:border-gray-700 dark:hover:bg-gray-800/50',
+                  isPlaying && currentPlayingCall?.id === call.id
+                    ? 'bg-gray-50/80 dark:bg-gray-800/50'
+                    : '',
+                ]"
               >
                 <td class="px-4 py-4 text-gray-700 dark:text-gray-300">{{ call.time }}</td>
                 <td class="px-4 py-4 text-gray-700 dark:text-gray-300">{{ call.number }}</td>
@@ -233,8 +238,14 @@ const exportToExcel = () => {
                   <span class="text-blue-600 hover:underline dark:text-blue-400">{{ call.crm }}</span>
                 </td>
                 <td class="px-4 py-4 text-center">
+                  <span
+                    v-if="call.hasRecording && isPlaying && currentPlayingCall?.id === call.id"
+                    class="font-medium text-gray-700 dark:text-gray-200"
+                  >
+                    Проигрывается
+                  </span>
                   <button
-                    v-if="call.hasRecording"
+                    v-else-if="call.hasRecording"
                     class="text-blue-600 hover:underline dark:text-blue-400"
                     @click="playRecording(call)"
                   >
