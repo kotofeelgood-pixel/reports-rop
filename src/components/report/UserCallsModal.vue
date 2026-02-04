@@ -8,16 +8,19 @@ type Props = {
   userName: string
   callType: string
   calls: Call[]
-  /** Карта имён CRM (ключ "ENTITYTYPE_ID"), подгружаемых из Битрикс при открытии модалки */
-  crmNames?: Map<string, string>
+  /** Карта имён CRM (ключ "ENTITYTYPE_ID"), подгружаемых из Битрикс при открытии модалки. Может быть Ref. */
+  crmNames?: Map<string, string> | { value: Map<string, string> }
 }
 
 const props = defineProps<Props>()
 
 function getCrmDisplayName(call: Call): string {
-  if (!props.crmNames || !call.crmEntityType || !call.crmEntityId) return call.crm
-  const key = `${call.crmEntityType}_${call.crmEntityId}`
-  return props.crmNames.get(key) ?? call.crm
+  if (!call.crmEntityType || !call.crmEntityId) return call.crm
+  const map = props.crmNames && 'value' in props.crmNames ? props.crmNames.value : props.crmNames
+  if (!map || typeof map.get !== 'function') return call.crm
+  const type = String(call.crmEntityType).toUpperCase()
+  const key = `${type}_${call.crmEntityId}`
+  return map.get(key) ?? call.crm
 }
 const model = defineModel<boolean>('open', { default: false })
 

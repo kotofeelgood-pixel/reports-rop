@@ -32,7 +32,8 @@ export function useCallsModal(
       const keys = new Set<string>()
       for (const c of calls) {
         if (c.crmEntityType && c.crmEntityId) {
-          keys.add(`${c.crmEntityType}_${c.crmEntityId}`)
+          const type = String(c.crmEntityType).toUpperCase()
+          keys.add(`${type}_${c.crmEntityId}`)
         }
       }
       if (keys.size === 0) {

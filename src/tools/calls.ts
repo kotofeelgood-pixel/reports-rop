@@ -186,7 +186,8 @@ export function telephonyRecordToCall(
   const recordingUrl = typeof recordingUrlRaw === 'string' ? recordingUrlRaw : undefined
   const hasRecording = Boolean(recordingUrl && recordingUrl.trim())
   const id = String(record.CALL_ID ?? record.ID ?? record.id ?? `call-${index}`)
-  const crmEntityType = String(record.CRM_ENTITY_TYPE ?? record.crm_entity_type ?? '').trim() || undefined
+  const crmEntityTypeRaw = String(record.CRM_ENTITY_TYPE ?? record.crm_entity_type ?? '').trim() || undefined
+  const crmEntityType = crmEntityTypeRaw ? crmEntityTypeRaw.toUpperCase() : undefined
   const crmEntityId = String(record.CRM_ENTITY_ID ?? record.crm_entity_id ?? '').trim() || undefined
   const crmFallback =
     String(record.CRM_ENTITY_TITLE ?? record.crm_entity_title ?? record.CONTACT_NAME ?? '').trim() ||
