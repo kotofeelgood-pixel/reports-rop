@@ -150,8 +150,6 @@ const formatDateMedium = (value: { day: number; month: number; year: number } | 
   return dateFormatter.format(date)
 }
 
-const startDateDisplay = computed(() => formatDate(dateValue.value.start))
-const endDateDisplay = computed(() => formatDate(dateValue.value.end))
 const dateRangeDisplay = computed(
   () => `${formatDateMedium(dateValue.value.start)} — ${formatDateMedium(dateValue.value.end)}`
 )
@@ -198,7 +196,7 @@ const userOptions = computed(() => {
   ]
 })
 
-const { isCallsModalOpen, selectedUserName, selectedCallType, selectedCalls, openCallsModal, openTotalsCallsModal } = useCallsModal(computedRows)
+const { isCallsModalOpen, selectedUserName, selectedCallType, selectedCalls, openCallsModal, openTotalsCallsModal } = useCallsModal(calls, usersById)
 
 const formatB24Date = (d: Date): string => d.toISOString()
 

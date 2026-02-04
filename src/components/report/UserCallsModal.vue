@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, watch, ref } from 'vue'
+import { computed, watch, ref, nextTick } from 'vue'
 import ModalComponent from '@/components/modal/ModalComponent.vue'
 import ButtonComponent from '@/components/buttons/ButtonComponent.vue'
 import type { Call } from '@/tools/calls'
@@ -16,25 +16,82 @@ const model = defineModel<boolean>('open', { default: false })
 const modalTitle = computed(() => `${props.userName} — ${props.callType}`)
 
 const currentPlayingCall = ref<Call | null>(null)
+const audioRef = ref<HTMLAudioElement | null>(null)
+const isPlaying = ref(false)
+const audioCurrentTime = ref(0)
+const audioDuration = ref(0)
+const audioError = ref<string | null>(null)
 
 const modalBodyClass = computed(() => ({
   body: currentPlayingCall.value ? 'pb-40' : ''
 }))
 
+function formatTime(seconds: number): string {
+  const s = Math.max(0, Math.floor(seconds))
+  const m = Math.floor(s / 60)
+  const h = Math.floor(m / 60)
+  if (h > 0) return `${h}:${String(m % 60).padStart(2, '0')}:${String(s % 60).padStart(2, '0')}`
+  return `${m}:${String(s % 60).padStart(2, '0')}`
+}
+
+const progressPercent = computed(() =>
+  audioDuration.value > 0 ? (audioCurrentTime.value / audioDuration.value) * 100 : 0
+)
+
 watch(model, (newVal) => {
-  // Сбросить плеер при закрытии модалки
   if (!newVal) {
     currentPlayingCall.value = null
+    audioError.value = null
   }
 })
 
+watch(currentPlayingCall, (call) => {
+  audioError.value = null
+  audioCurrentTime.value = 0
+  audioDuration.value = 0
+  if (!call?.recordingUrl || !audioRef.value) return
+  nextTick(() => {
+    const audio = audioRef.value
+    if (!audio) return
+    audio.src = call.recordingUrl!
+    audio.load()
+    audio.play().catch((e) => {
+      audioError.value = e?.message ?? 'Не удалось воспроизвести'
+    })
+  })
+})
+
 const playRecording = (call: Call) => {
+  if (!call.hasRecording || !call.recordingUrl) return
   currentPlayingCall.value = call
 }
 
 const closePlayer = () => {
-  console.log('Closing player')
+  if (audioRef.value) {
+    audioRef.value.pause()
+    audioRef.value.src = ''
+  }
   currentPlayingCall.value = null
+  isPlaying.value = false
+  audioCurrentTime.value = 0
+  audioDuration.value = 0
+  audioError.value = null
+}
+
+const togglePlayPause = () => {
+  const audio = audioRef.value
+  if (!audio) return
+  if (isPlaying.value) audio.pause()
+  else audio.play().catch(() => {})
+}
+
+const onSeek = (e: Event) => {
+  const audio = audioRef.value
+  const input = e.target as HTMLInputElement
+  if (!audio || !audioDuration.value) return
+  const pct = Number(input.value) / 100
+  audio.currentTime = pct * audioDuration.value
+  audioCurrentTime.value = audio.currentTime
 }
 
 const exportToExcel = () => {
@@ -108,76 +165,113 @@ const exportToExcel = () => {
       </div>
     </template>
 
-    <!-- Аудио-плеер внутри модалки, но с position: fixed -->
+    <!-- Скрытый аудио-элемент для воспроизведения записи -->
+    <audio
+      v-if="currentPlayingCall"
+      ref="audioRef"
+      class="hidden"
+      @play="isPlaying = true"
+      @pause="isPlaying = false"
+      @ended="isPlaying = false"
+      @timeupdate="audioRef && (audioCurrentTime = audioRef.currentTime)"
+      @loadedmetadata="audioRef && (audioDuration = audioRef.duration)"
+      @error="audioError = 'Ошибка загрузки записи'"
+    />
+
+    <!-- Аудио-плеер внутри модалки -->
     <template v-if="currentPlayingCall" #footer>
       <div
         class="audio-player-fixed fixed bottom-0 left-0 right-0 border-t border-gray-300 bg-white shadow-2xl dark:border-gray-700 dark:bg-[#2a2a2a]"
         style="z-index: 999999 !important; position: fixed !important;"
       >
-      <div class="flex w-full items-center gap-4 px-6 py-4">
-        <!-- Информация о звонке -->
-        <div class="flex w-48 shrink-0 items-center gap-3">
-          <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-gray-800 dark:bg-gray-700">
-            <svg class="h-5 w-5 text-white" fill="currentColor" viewBox="0 0 20 20">
-              <path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z" />
-            </svg>
-          </div>
-          <div class="min-w-0 flex-1">
-            <div class="truncate text-sm font-medium text-gray-900 dark:text-white">
-              {{ currentPlayingCall.crm }}
+        <div class="flex w-full items-center gap-4 px-6 py-4">
+          <!-- Информация о звонке -->
+          <div class="flex w-48 shrink-0 items-center gap-3">
+            <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-gray-800 dark:bg-gray-700">
+              <svg class="h-5 w-5 text-white" fill="currentColor" viewBox="0 0 20 20">
+                <path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z" />
+              </svg>
             </div>
-            <div class="truncate text-xs text-gray-500 dark:text-gray-400">
-              {{ currentPlayingCall.number }}
+            <div class="min-w-0 flex-1">
+              <div class="truncate text-sm font-medium text-gray-900 dark:text-white">
+                {{ currentPlayingCall.crm }}
+              </div>
+              <div class="truncate text-xs text-gray-500 dark:text-gray-400">
+                {{ currentPlayingCall.number }}
+              </div>
             </div>
           </div>
-        </div>
 
-        <!-- Управление -->
-        <div class="flex shrink-0 items-center gap-2">
-          <button class="rounded-full p-2 text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-700">
-            <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
-              <path d="M8.445 14.832A1 1 0 0010 14v-2.798l5.445 3.63A1 1 0 0017 14V6a1 1 0 00-1.555-.832L10 8.798V6a1 1 0 00-1.555-.832l-6 4a1 1 0 000 1.664l6 4z" />
-            </svg>
-          </button>
+          <!-- Управление воспроизведением -->
+          <div class="flex shrink-0 items-center gap-2">
+            <button
+              type="button"
+              class="rounded-full p-2 text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-700"
+              :disabled="!currentPlayingCall?.recordingUrl"
+              aria-label="Назад"
+            >
+              <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
+                <path d="M8.445 14.832A1 1 0 0010 14v-2.798l5.445 3.63A1 1 0 0017 14V6a1 1 0 00-1.555-.832L10 8.798V6a1 1 0 00-1.555-.832l-6 4a1 1 0 000 1.664l6 4z" />
+              </svg>
+            </button>
 
-          <button class="flex h-10 w-10 items-center justify-center rounded-full bg-gray-900 text-white hover:bg-gray-800 dark:bg-white dark:text-gray-900 dark:hover:bg-gray-200">
-            <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
-              <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd" />
-            </svg>
-          </button>
+            <button
+              type="button"
+              class="flex h-10 w-10 items-center justify-center rounded-full bg-gray-900 text-white hover:bg-gray-800 dark:bg-white dark:text-gray-900 dark:hover:bg-gray-200 disabled:opacity-50"
+              :disabled="!currentPlayingCall?.recordingUrl || !!audioError"
+              aria-label="Воспроизвести / пауза"
+              @click="togglePlayPause"
+            >
+              <svg v-if="!isPlaying" class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd" />
+              </svg>
+              <svg v-else class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zM7 8a1 1 0 012 0v4a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v4a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" />
+              </svg>
+            </button>
 
-          <button class="rounded-full p-2 text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-700">
-            <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
-              <path d="M4.555 5.168A1 1 0 003 6v8a1 1 0 001.555.832L10 11.202V14a1 1 0 001.555.832l6-4a1 1 0 000-1.664l-6-4A1 1 0 0010 6v2.798l-5.445-3.63z" />
-            </svg>
-          </button>
-        </div>
-
-        <!-- Прогресс бар -->
-        <div class="flex min-w-0 flex-1 items-center gap-3">
-          <span class="shrink-0 text-xs text-gray-500 dark:text-gray-400">0:00</span>
-          <div class="min-w-0 flex-1">
-            <input
-              type="range"
-              min="0"
-              max="100"
-              value="0"
-              class="h-1 w-full cursor-pointer appearance-none rounded-full bg-gray-300 accent-gray-900 dark:bg-gray-600 dark:accent-white"
-            />
+            <button
+              type="button"
+              class="rounded-full p-2 text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-700"
+              :disabled="!currentPlayingCall?.recordingUrl"
+              aria-label="Вперёд"
+            >
+              <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
+                <path d="M4.555 5.168A1 1 0 003 6v8a1 1 0 001.555.832L10 11.202V14a1 1 0 001.555.832l6-4a1 1 0 000-1.664l-6-4A1 1 0 0010 6v2.798l-5.445-3.63z" />
+              </svg>
+            </button>
           </div>
-          <span class="shrink-0 text-xs text-gray-500 dark:text-gray-400">{{ currentPlayingCall.duration }}</span>
-        </div>
 
-        <!-- Кнопка закрыть -->
-        <button
-          type="button"
-          class="shrink-0 rounded-full p-2 text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-700"
-          @click.stop="closePlayer"
-        >
-          <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
-            <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
-          </svg>
-        </button>
+          <!-- Прогресс и время -->
+          <div class="flex min-w-0 flex-1 flex-col gap-1">
+            <div v-if="audioError" class="text-xs text-red-600 dark:text-red-400">
+              {{ audioError }}
+            </div>
+            <div class="flex items-center gap-3">
+              <span class="shrink-0 text-xs text-gray-500 dark:text-gray-400">{{ formatTime(audioCurrentTime) }}</span>
+              <input
+                type="range"
+                min="0"
+                max="100"
+                :value="progressPercent"
+                class="h-1 min-w-0 flex-1 cursor-pointer appearance-none rounded-full bg-gray-300 accent-gray-900 dark:bg-gray-600 dark:accent-white"
+                @input="onSeek"
+              />
+              <span class="shrink-0 text-xs text-gray-500 dark:text-gray-400">{{ formatTime(audioDuration) || currentPlayingCall.duration }}</span>
+            </div>
+          </div>
+
+          <!-- Кнопка закрыть -->
+          <button
+            type="button"
+            class="shrink-0 rounded-full p-2 text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-700"
+            aria-label="Закрыть плеер"
+            @click.stop="closePlayer"
+          >
+            <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
+            </svg>
+          </button>
         </div>
       </div>
     </template>
