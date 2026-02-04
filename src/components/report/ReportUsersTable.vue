@@ -124,13 +124,7 @@ const tableTotals = computed(() => (rowsFromCalls.value.length ? totalsFromCalls
 
 const { sortBy, sortDir, setSort, sortedRows } = useTableSort(computedRows)
 
-const {
-  dateRange,
-  dateValue,
-  isDatePickerOpen,
-  showDatePicker,
-  dateRangeOptions,
-} = useDateRange()
+const { dateValue, isDatePickerOpen } = useDateRange()
 
 const selectedUser = ref<string | null>(null)
 
@@ -170,60 +164,11 @@ const { isCallsModalOpen, selectedUserName, selectedCallType, selectedCalls, ope
 const formatB24Date = (d: Date): string => d.toISOString()
 
 const getDateRange = () => {
-  const now = new Date()
-  const startOfDay = (d: Date) => new Date(d.getFullYear(), d.getMonth(), d.getDate(), 0, 0, 0, 0)
-  const endOfDay = (d: Date) => new Date(d.getFullYear(), d.getMonth(), d.getDate(), 23, 59, 59, 999)
-  const startOfWeek = (d: Date) => {
-    const day = d.getDay() || 7
-    const diff = day - 1
-    const out = new Date(d)
-    out.setDate(d.getDate() - diff)
-    return startOfDay(out)
-  }
-  const endOfWeek = (d: Date) => {
-    const start = startOfWeek(d)
-    const out = new Date(start)
-    out.setDate(start.getDate() + 6)
-    return endOfDay(out)
-  }
-
-  switch (dateRange.value) {
-    case 'today':
-      return { start: startOfDay(now), end: endOfDay(now) }
-    case 'yesterday': {
-      const d = new Date(now)
-      d.setDate(d.getDate() - 1)
-      return { start: startOfDay(d), end: endOfDay(d) }
-    }
-    case 'this_week':
-      return { start: startOfWeek(now), end: endOfWeek(now) }
-    case 'last_week': {
-      const d = new Date(now)
-      d.setDate(d.getDate() - 7)
-      return { start: startOfWeek(d), end: endOfWeek(d) }
-    }
-    case 'this_month': {
-      const start = new Date(now.getFullYear(), now.getMonth(), 1, 0, 0, 0, 0)
-      const end = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59, 999)
-      return { start, end }
-    }
-    case 'last_month': {
-      const start = new Date(now.getFullYear(), now.getMonth() - 1, 1, 0, 0, 0, 0)
-      const end = new Date(now.getFullYear(), now.getMonth(), 0, 23, 59, 59, 999)
-      return { start, end }
-    }
-    case 'custom': {
-      const range = dateValue.value
-      if (range?.start && range?.end) {
-        const start = new Date(range.start.year, range.start.month - 1, range.start.day, 0, 0, 0, 0)
-        const end = new Date(range.end.year, range.end.month - 1, range.end.day, 23, 59, 59, 999)
-        return { start, end }
-      }
-      return null
-    }
-    default:
-      return null
-  }
+  const range = dateValue.value
+  if (!range?.start || !range?.end) return null
+  const start = new Date(range.start.year, range.start.month - 1, range.start.day, 0, 0, 0, 0)
+  const end = new Date(range.end.year, range.end.month - 1, range.end.day, 23, 59, 59, 999)
+  return { start, end }
 }
 
 const fetchCalls = async () => {
@@ -254,7 +199,7 @@ onMounted(() => {
   void fetchCalls()
 })
 
-watch([dateRange, dateValue, selectedUser], () => {
+watch([dateValue, selectedUser], () => {
   void fetchCalls()
 }, { deep: true })
 </script>
@@ -266,38 +211,29 @@ watch([dateRange, dateValue, selectedUser], () => {
     <!-- Фильтры -->
     <div class="border-b border-gray-200 px-4 py-4 dark:border-gray-700">
       <div class="flex gap-2">
-        <!-- Фильтр по дате: одно поле — пресет или «Произвольный период» с календарём по клику -->
+        <!-- Фильтр по дате: одно поле — выбор диапазона по календарю -->
         <div class="space-y-2">
           <label class="block text-sm font-medium text-gray-800 dark:text-gray-200">Дата</label>
-          <div class="flex gap-2 flex-wrap">
-            <SelectComponent
-              v-model="dateRange"
-              :items="dateRangeOptions"
-              :class="dateRange === 'custom' ? '!w-auto min-w-[200px]' : '!w-full'"
-              :style="dateRange === 'custom' ? 'width: auto !important; min-width: 200px;' : 'width: 100% !important;'"
-            />
-            <PopoverComponent
-              v-if="showDatePicker"
-              v-model:open="isDatePickerOpen"
-              side="bottom"
-              align="start"
+          <PopoverComponent
+            v-model:open="isDatePickerOpen"
+            side="bottom"
+            align="start"
+          >
+            <button
+              type="button"
+              class="flex min-w-[220px] items-center justify-between gap-2 rounded-xl border-2 border-[#2fc6f6] bg-white px-3 py-2.5 text-left text-sm text-gray-700 shadow-sm transition-colors hover:border-[#2eb5e0] focus:outline-none focus:ring-2 focus:ring-[#2fc6f6]/30 dark:border-[#2fc6f6] dark:bg-gray-800 dark:text-gray-200"
             >
-              <button
-                type="button"
-                class="flex min-w-[220px] items-center justify-between gap-2 rounded-xl border-2 border-[#2fc6f6] bg-white px-3 py-2.5 text-left text-sm text-gray-700 shadow-sm transition-colors hover:border-[#2eb5e0] focus:outline-none focus:ring-2 focus:ring-[#2fc6f6]/30 dark:border-[#2fc6f6] dark:bg-gray-800 dark:text-gray-200"
-              >
-                <span class="min-w-0 truncate">{{ arbitraryPeriodLabel }}</span>
-                <svg class="size-4 shrink-0 text-gray-500 dark:text-gray-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
-                  <path d="M8 10l4 4 4-4" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
-              </button>
-              <template #content>
-                <div class="p-4">
-                  <CustomDateRangeCalendar v-model="dateValue" />
-                </div>
-              </template>
-            </PopoverComponent>
-          </div>
+              <span class="min-w-0 truncate">{{ arbitraryPeriodLabel }}</span>
+              <svg class="size-4 shrink-0 text-gray-500 dark:text-gray-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                <path d="M8 10l4 4 4-4" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </button>
+            <template #content>
+              <div class="p-4">
+                <CustomDateRangeCalendar v-model="dateValue" />
+              </div>
+            </template>
+          </PopoverComponent>
         </div>
 
         <!-- Фильтр по пользователям -->
