@@ -1,7 +1,9 @@
 <script setup lang="ts">
 import { computed, watch, ref } from 'vue'
+import * as XLSX from 'xlsx'
 import ModalComponent from '@/components/modal/ModalComponent.vue'
 import ButtonComponent from '@/components/buttons/ButtonComponent.vue'
+import { useNotify } from '@/composables/useNotify'
 import type { Call } from '@/tools/calls'
 
 type Props = {
@@ -233,8 +235,56 @@ const onSeek = (e: Event) => {
   audioCurrentTime.value = audio.currentTime
 }
 
-const exportToExcel = () => {
-  console.log('Экспорт в Excel')
+const notify = useNotify()
+
+const exportToExcel = async () => {
+  const list = (props.calls || []) as Call[]
+  const toast = notify.progress({
+    title: 'Экспорт отчёта',
+    description: 'Подготовка...',
+    percent: 0,
+  })
+  try {
+    notify.update(toast.id, { description: 'Формирование данных...', progress: 20 })
+    await new Promise((r) => setTimeout(r, 50))
+    const headers = ['ВРЕМЯ', 'НОМЕР', 'ТИП', 'ДЛИТЕЛЬНОСТЬ', 'CRM', 'Запись']
+    const rows = list.map((c) => [
+      c.time,
+      c.number,
+      c.type,
+      c.duration,
+      getCrmDisplayName(c),
+      c.hasRecording ? 'Да' : '—',
+    ])
+    const data = [headers, ...rows]
+
+    notify.update(toast.id, { description: 'Создание файла...', progress: 60 })
+    await new Promise((r) => setTimeout(r, 50))
+    const ws = XLSX.utils.aoa_to_sheet(data)
+    const wb = XLSX.utils.book_new()
+    XLSX.utils.book_append_sheet(wb, ws, 'Звонки')
+
+    notify.update(toast.id, { description: 'Скачивание...', progress: 90 })
+    await new Promise((r) => setTimeout(r, 50))
+    const date = new Date().toISOString().slice(0, 10)
+    const fileName = `report-calls-${date}.xlsx`
+    XLSX.writeFile(wb, fileName)
+
+    notify.update(toast.id, { description: 'Готово', progress: 100 })
+    notify.remove(toast.id)
+    notify.add({
+      title: 'Экспорт завершён',
+      description: `Файл ${fileName} сохранён`,
+      type: 'success',
+    })
+  } catch (e) {
+    notify.remove(toast.id)
+    notify.add({
+      title: 'Ошибка экспорта',
+      description: e instanceof Error ? e.message : String(e),
+      type: 'error',
+    })
+  }
 }
 </script>
 
