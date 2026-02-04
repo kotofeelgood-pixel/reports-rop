@@ -1,0 +1,44 @@
+import { onMounted, ref, watch } from 'vue'
+import { useDateRange } from '@/composables/useDateRange'
+import { telephonyCallList, type TelephonyCallRecord } from '@/api/calls'
+
+/**
+ * Загрузка звонков за выбранный период для экрана аналитики.
+ * Использует тот же диапазон дат, что и отчёт (reportSettings).
+ */
+export function useAnalyticsCalls() {
+  const { getDateRange, formatB24Date, dateRange, dateValue } = useDateRange()
+  const calls = ref<TelephonyCallRecord[]>([])
+  const loading = ref(false)
+  const error = ref<string | null>(null)
+
+  const fetchCalls = async () => {
+    loading.value = true
+    error.value = null
+    try {
+      const range = getDateRange()
+      const filter: Record<string, unknown> = {}
+      if (range?.start && range?.end) {
+        filter['>=CALL_START_DATE'] = formatB24Date(range.start)
+        filter['<=CALL_START_DATE'] = formatB24Date(range.end)
+      }
+      const data = await telephonyCallList({ filter, sort: 'CALL_START_DATE', order: 'DESC' })
+      calls.value = Array.isArray(data) ? data : []
+    } catch (e) {
+      error.value = e instanceof Error ? e.message : String(e)
+      calls.value = []
+    } finally {
+      loading.value = false
+    }
+  }
+
+  onMounted(() => {
+    void fetchCalls()
+  })
+
+  watch([dateRange, dateValue], () => {
+    void fetchCalls()
+  }, { deep: true })
+
+  return { calls, loading, error, fetchCalls }
+}

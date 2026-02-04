@@ -214,8 +214,9 @@ const downloadRecording = (call: Call) => {
       return
     }
     const blob = xhr.response as Blob
+    const baseUrl = call.recordingUrl!.split(/[#?]/)[0] ?? ''
     const ext =
-      (call.recordingUrl!.split(/[#?]/)[0].match(/\.(mp3|wav|ogg|m4a|webm|opus)$/i)?.[1]?.toLowerCase()) ?? 'mp3'
+      (baseUrl.match(/\.(mp3|wav|ogg|m4a|webm|opus)$/i)?.[1]?.toLowerCase()) ?? 'mp3'
     const safeTime = call.time.replace(/[^\d-]/g, '-').replace(/-+/g, '-').slice(0, 8)
     const safeNumber = (call.number || 'unknown').replace(/\D/g, '').slice(-10) || 'call'
     const filename = `zapis_${safeTime}_${safeNumber}.${ext}`
