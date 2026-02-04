@@ -29,6 +29,7 @@ export function useDateRange() {
 
   // Отслеживаем изменения dateValue для автоматического закрытия popover
   watch(dateValue, (newValue) => {
+    console.log('Date value changed:', newValue)
     if (newValue && typeof newValue === 'object' && 'start' in newValue && 'end' in newValue) {
       const range = newValue as CalendarDateRange
       // Проверяем, что обе даты выбраны и валидны
