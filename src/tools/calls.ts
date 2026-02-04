@@ -165,7 +165,7 @@ function parseTimeFromApi(raw: unknown): string {
 /**
  * Преобразует запись из API телефонии в тип Call.
  * Поддерживает поля: CALL_ID, CALL_START_DATE, PHONE_NUMBER, CALL_TYPE, CALL_DURATION,
- * CALL_FAILED_CODE, PORTAL_USER_ID, RECORDING_URL, RECORD_FILE_ID, CRM_ENTITY_TYPE, CRM_ENTITY_ID и др.
+ * CALL_FAILED_CODE, PORTAL_USER_ID, CALL_RECORD_URL, RECORD_FILE_ID, CRM_ENTITY_TYPE, CRM_ENTITY_ID и др.
  */
 export function telephonyRecordToCall(
   record: TelephonyRecord,
@@ -173,13 +173,14 @@ export function telephonyRecordToCall(
   usersById: Map<string, { name: string }>
 ): Call {
   const userId = String(record.PORTAL_USER_ID ?? record.USER_ID ?? record.RESPONSIBLE_ID ?? record.ASSIGNED_BY_ID ?? '').trim()
-  const user = usersById.get(userId)
   const callTypeNum = Number(record.CALL_TYPE ?? record.callType ?? record.TYPE ?? record.type)
   const durationSec = Number(record.CALL_DURATION ?? record.DURATION ?? record.duration ?? 0)
-  const isMissed = durationSec <= 0 || Boolean(record.CALL_FAILED_CODE ?? record.call_failed_code)
+  const failedCode = String(record.CALL_FAILED_CODE ?? record.call_failed_code ?? '').trim()
+  const isMissed = durationSec <= 0 || (failedCode !== '' && failedCode !== '200')
   const typeLabel = callTypeNum === 1 ? 'Исходящий' : isMissed ? 'Пропущенный' : 'Входящий'
-  const recordingUrl = (record.RECORDING_URL ?? record.RECORDING_LINK ?? record.record_url ?? record.recording_url) as string | undefined
-  const hasRecording = Boolean(recordingUrl && String(recordingUrl).trim())
+  const recordingUrlRaw = record.CALL_RECORD_URL ?? record.RECORDING_URL ?? record.RECORDING_LINK ?? record.record_url ?? record.recording_url
+  const recordingUrl = typeof recordingUrlRaw === 'string' ? recordingUrlRaw : undefined
+  const hasRecording = Boolean(recordingUrl && recordingUrl.trim())
   const id = String(record.CALL_ID ?? record.ID ?? record.id ?? `call-${index}`)
   return {
     id,
@@ -191,7 +192,7 @@ export function telephonyRecordToCall(
     status: isMissed ? 'Не отвечен' : 'Завершен',
     crm: String(record.CRM_ENTITY_TITLE ?? record.crm_entity_title ?? record.CONTACT_NAME ?? '—').trim() || '—',
     hasRecording,
-    recordingUrl: hasRecording ? String(recordingUrl).trim() : undefined,
+    recordingUrl: hasRecording && recordingUrl ? recordingUrl.trim() : undefined,
   }
 }
 
