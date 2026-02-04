@@ -10,25 +10,32 @@ const typeClasses: Record<NotifyType, string> = {
   warning: 'bg-amber-50 border-amber-200 dark:bg-amber-900/20 dark:border-amber-800',
   error: 'bg-red-50 border-red-200 dark:bg-red-900/20 dark:border-red-800',
 }
+
+function safeText(value: unknown): string {
+  if (value == null) return ''
+  if (typeof value === 'string') return value
+  return String(value)
+}
 </script>
 
 <template>
-  <div
-    class="pointer-events-none fixed top-4 right-4 z-[99999] flex max-w-sm flex-col gap-3"
-    aria-live="polite"
-  >
-    <TransitionGroup name="notify">
-      <div
-        v-for="toast of toasts"
-        :key="toast.id"
-        class="pointer-events-auto relative flex flex-col overflow-hidden rounded-lg border shadow-lg"
-        :class="typeClasses[toast.type ?? 'info']"
-      >
-        <div class="px-4 py-3 pr-10">
-          <p class="font-medium text-gray-900 dark:text-white">{{ toast.title }}</p>
-          <p v-if="toast.description" class="mt-0.5 text-sm text-gray-600 dark:text-gray-300">
-            {{ toast.description }}
-          </p>
+  <Teleport to="body">
+    <div
+      class="pointer-events-none fixed top-4 right-4 z-[99999] flex max-w-sm flex-col gap-3"
+      aria-live="polite"
+    >
+      <TransitionGroup name="notify">
+        <div
+          v-for="toast of toasts"
+          :key="toast.id"
+          class="pointer-events-auto relative flex flex-col overflow-hidden rounded-xl shadow-xl"
+          :class="typeClasses[toast.type ?? 'info']"
+        >
+          <div class="px-4 py-3 pr-10">
+            <p class="font-medium text-gray-900 dark:text-white">{{ safeText(toast.title) || 'Уведомление' }}</p>
+            <p v-if="safeText(toast.description)" class="mt-0.5 text-sm text-gray-600 dark:text-gray-300">
+              {{ safeText(toast.description) }}
+            </p>
           <div
             v-if="toast.progress !== undefined"
             class="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-gray-200 dark:bg-gray-700"
@@ -55,7 +62,8 @@ const typeClasses: Record<NotifyType, string> = {
         </button>
       </div>
     </TransitionGroup>
-  </div>
+    </div>
+  </Teleport>
 </template>
 
 <style scoped>
