@@ -29,6 +29,19 @@ const modalBodyClass = computed(() => ({
   body: currentPlayingCall.value ? 'pb-40' : ''
 }))
 
+const playableCalls = computed(() =>
+  (props.calls || []).filter(c => c.hasRecording && Boolean(c.recordingUrl && c.recordingUrl.trim()))
+)
+
+const currentPlayableIndex = computed(() => {
+  const id = currentPlayingCall.value?.id
+  if (!id) return -1
+  return playableCalls.value.findIndex(c => c.id === id)
+})
+
+const hasPrev = computed(() => currentPlayableIndex.value > 0)
+const hasNext = computed(() => currentPlayableIndex.value >= 0 && currentPlayableIndex.value < playableCalls.value.length - 1)
+
 function formatTime(seconds: number): string {
   const s = Math.max(0, Math.floor(seconds))
   const m = Math.floor(s / 60)
@@ -106,7 +119,7 @@ const onAudioError = () => {
   stopRafSync()
 }
 
-const playRecording = (call: Call) => {
+const startPlayback = (call: Call) => {
   if (!call.hasRecording || !call.recordingUrl) return
   currentPlayingCall.value = call
   audioError.value = null
@@ -130,6 +143,10 @@ const playRecording = (call: Call) => {
   })
 }
 
+const playRecording = (call: Call) => {
+  startPlayback(call)
+}
+
 const closePlayer = () => {
   if (audioRef.value) {
     audioRef.value.pause()
@@ -149,6 +166,18 @@ const togglePlayPause = () => {
   if (!audio) return
   if (isPlaying.value) audio.pause()
   else audio.play().catch(() => {})
+}
+
+const playPrev = () => {
+  if (!hasPrev.value) return
+  const prevCall = playableCalls.value[currentPlayableIndex.value - 1]
+  if (prevCall) startPlayback(prevCall)
+}
+
+const playNext = () => {
+  if (!hasNext.value) return
+  const nextCall = playableCalls.value[currentPlayableIndex.value + 1]
+  if (nextCall) startPlayback(nextCall)
 }
 
 const onSeek = (e: Event) => {
@@ -273,8 +302,9 @@ const exportToExcel = () => {
             <button
               type="button"
               class="rounded-full p-2 text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-700"
-              :disabled="!currentPlayingCall?.recordingUrl"
-              aria-label="Назад"
+              :disabled="!hasPrev"
+              aria-label="Предыдущая запись"
+              @click="playPrev"
             >
               <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
                 <path d="M8.445 14.832A1 1 0 0010 14v-2.798l5.445 3.63A1 1 0 0017 14V6a1 1 0 00-1.555-.832L10 8.798V6a1 1 0 00-1.555-.832l-6 4a1 1 0 000 1.664l6 4z" />
@@ -299,8 +329,9 @@ const exportToExcel = () => {
             <button
               type="button"
               class="rounded-full p-2 text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-700"
-              :disabled="!currentPlayingCall?.recordingUrl"
-              aria-label="Вперёд"
+              :disabled="!hasNext"
+              aria-label="Следующая запись"
+              @click="playNext"
             >
               <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
                 <path d="M4.555 5.168A1 1 0 003 6v8a1 1 0 001.555.832L10 11.202V14a1 1 0 001.555.832l6-4a1 1 0 000-1.664l-6-4A1 1 0 0010 6v2.798l-5.445-3.63z" />
