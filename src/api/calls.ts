@@ -38,13 +38,15 @@ export const telephonyCallList = async ({
 }: CallListParams = {}): Promise<TelephonyCallRecord[]> => {
   const b24 = await useB24()
   try {
+    // REST API ожидает параметры в нижнем регистре: filter, sort, order, select
+    // (см. пример URL с filter[>=CALL_START_DATE], filter[<=CALL_START_DATE])
     const params: Record<string, unknown> = {
-      FILTER: filter,
-      SORT: sort,
-      ORDER: order,
+      filter,
+      sort,
+      order,
     }
     if (select.length) {
-      params.SELECT = select.reduce<Record<string, string>>((acc, field, i) => {
+      params.select = select.reduce<Record<string, string>>((acc, field, i) => {
         acc[String(i)] = field
         return acc
       }, {})
