@@ -300,13 +300,13 @@ watch([dateRange, dateValue, selectedUser], () => {
     <div class="border-b border-gray-200 px-4 py-4 dark:border-gray-700">
       <div class="flex gap-2">
         <!-- Фильтр по дате -->
-        <div class="space-y-2">
-          <label class="block text-sm font-medium text-gray-800 dark:text-gray-200">Дата</label>
+        <div class="space-y-1.5">
+          <label class="block text-xs font-medium text-gray-800 dark:text-gray-200">Дата</label>
           <div class="flex gap-2">
             <SelectComponent
               v-model="dateRange"
               :items="dateRangeOptions"
-              :class="dateRange === 'custom' ? '!w-auto min-w-[200px]' : '!w-full'"
+              :class="[dateRange === 'custom' ? '!w-auto min-w-[200px]' : '!w-full', 'text-xs']"
               :style="dateRange === 'custom' ? 'width: auto !important; min-width: 200px;' : 'width: 100% !important;'"
             />
             <PopoverComponent
@@ -320,7 +320,7 @@ watch([dateRange, dateValue, selectedUser], () => {
                 icon="calendar"
                 color="light-border"
                 size="md"
-                class="w-full"
+                class="w-full text-xs"
               >
                 {{ dateRangeDisplay }}
               </ButtonComponent>
@@ -366,13 +366,13 @@ watch([dateRange, dateValue, selectedUser], () => {
         </div>
 
         <!-- Фильтр по пользователям -->
-        <div class="space-y-2">
-          <label class="block text-sm font-medium text-gray-800 dark:text-gray-200">Пользователи</label>
+        <div class="space-y-1.5">
+          <label class="block text-xs font-medium text-gray-800 dark:text-gray-200">Пользователи</label>
           <SelectComponent
             v-model="selectedUser"
             :items="userOptions"
             placeholder="ОТВЕТСТВЕННЫЙ"
-            class="!w-full"
+            class="!w-full text-xs"
             style="width: 100% !important;"
           />
         </div>
