@@ -7,6 +7,10 @@ export type Call = {
   duration: string
   status: string
   crm: string
+  /** Тип сущности CRM (CONTACT, LEAD, COMPANY) для подгрузки имени из Битрикс */
+  crmEntityType?: string
+  /** ID сущности CRM для подгрузки имени из Битрикс */
+  crmEntityId?: string
   hasRecording: boolean
   /** URL записи разговора для воспроизведения */
   recordingUrl?: string | null
@@ -182,6 +186,12 @@ export function telephonyRecordToCall(
   const recordingUrl = typeof recordingUrlRaw === 'string' ? recordingUrlRaw : undefined
   const hasRecording = Boolean(recordingUrl && recordingUrl.trim())
   const id = String(record.CALL_ID ?? record.ID ?? record.id ?? `call-${index}`)
+  const crmEntityType = String(record.CRM_ENTITY_TYPE ?? record.crm_entity_type ?? '').trim() || undefined
+  const crmEntityId = String(record.CRM_ENTITY_ID ?? record.crm_entity_id ?? '').trim() || undefined
+  const crmFallback =
+    String(record.CRM_ENTITY_TITLE ?? record.crm_entity_title ?? record.CONTACT_NAME ?? '').trim() ||
+    (crmEntityType === 'CONTACT' ? 'Контакт' : crmEntityType === 'LEAD' ? 'Лид' : crmEntityType === 'COMPANY' ? 'Компания' : '—') ||
+    '—'
   return {
     id,
     userId,
@@ -190,7 +200,9 @@ export function telephonyRecordToCall(
     type: typeLabel,
     duration: formatDuration(durationSec),
     status: isMissed ? 'Не отвечен' : 'Завершен',
-    crm: String(record.CRM_ENTITY_TITLE ?? record.crm_entity_title ?? record.CONTACT_NAME ?? '—').trim() || '—',
+    crm: crmFallback,
+    crmEntityType,
+    crmEntityId,
     hasRecording,
     recordingUrl: hasRecording && recordingUrl ? recordingUrl.trim() : undefined,
   }

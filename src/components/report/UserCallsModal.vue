@@ -8,9 +8,17 @@ type Props = {
   userName: string
   callType: string
   calls: Call[]
+  /** Карта имён CRM (ключ "ENTITYTYPE_ID"), подгружаемых из Битрикс при открытии модалки */
+  crmNames?: Map<string, string>
 }
 
 const props = defineProps<Props>()
+
+function getCrmDisplayName(call: Call): string {
+  if (!props.crmNames || !call.crmEntityType || !call.crmEntityId) return call.crm
+  const key = `${call.crmEntityType}_${call.crmEntityId}`
+  return props.crmNames.get(key) ?? call.crm
+}
 const model = defineModel<boolean>('open', { default: false })
 
 const modalTitle = computed(() => `${props.userName} — ${props.callType}`)
@@ -203,6 +211,16 @@ const playNext = () => {
   if (nextCall) startPlayback(nextCall)
 }
 
+/** Эта строка — текущий трек в плеере (идёт или на паузе) */
+const isCurrentTrack = (call: Call) =>
+  currentPlayingCall.value != null && String(currentPlayingCall.value.id) === String(call.id)
+
+const recordingStatus = (call: Call): string => {
+  if (!call.hasRecording) return '—'
+  if (!isCurrentTrack(call)) return 'Прослушать'
+  return isPlaying.value ? 'Проигрывается' : 'На паузе'
+}
+
 const onSeek = (e: Event) => {
   const audio = audioRef.value
   const input = e.target as HTMLInputElement
@@ -248,9 +266,7 @@ const exportToExcel = () => {
                 :key="call.id"
                 :class="[
                   'border-t border-gray-100 hover:bg-gray-50/80 dark:border-gray-700 dark:hover:bg-gray-800/50',
-                  isPlaying && currentPlayingCall?.id === call.id
-                    ? 'bg-gray-50/80 dark:bg-gray-800/50'
-                    : '',
+                  isCurrentTrack(call) ? 'bg-blue-50/60 dark:bg-blue-900/20' : '',
                 ]"
               >
                 <td class="px-4 py-4 text-gray-700 dark:text-gray-300">{{ call.time }}</td>
@@ -258,14 +274,20 @@ const exportToExcel = () => {
                 <td class="px-4 py-4 text-gray-700 dark:text-gray-300">{{ call.type }}</td>
                 <td class="px-4 py-4 text-gray-700 dark:text-gray-300">{{ call.duration }}</td>
                 <td class="px-4 py-4">
-                  <span class="text-blue-600 hover:underline dark:text-blue-400">{{ call.crm }}</span>
+                  <span class="text-blue-600 hover:underline dark:text-blue-400">{{ getCrmDisplayName(call) }}</span>
                 </td>
                 <td class="px-4 py-4 text-center">
                   <span
-                    v-if="call.hasRecording && isPlaying && currentPlayingCall?.id === call.id"
-                    class="font-medium text-gray-700 dark:text-gray-200"
+                    v-if="recordingStatus(call) === 'Проигрывается'"
+                    class="font-medium text-green-600 dark:text-green-400"
                   >
                     Проигрывается
+                  </span>
+                  <span
+                    v-else-if="recordingStatus(call) === 'На паузе'"
+                    class="font-medium text-gray-600 dark:text-gray-400"
+                  >
+                    На паузе
                   </span>
                   <button
                     v-else-if="call.hasRecording"
@@ -323,7 +345,7 @@ const exportToExcel = () => {
             </div>
             <div class="min-w-0 flex-1">
               <div class="truncate text-sm font-medium text-gray-900 dark:text-white">
-                {{ currentPlayingCall.crm }}
+                {{ currentPlayingCall ? getCrmDisplayName(currentPlayingCall) : '' }}
               </div>
               <div class="truncate text-xs text-gray-500 dark:text-gray-400">
                 {{ currentPlayingCall.number }}

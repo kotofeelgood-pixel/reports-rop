@@ -193,7 +193,7 @@ const userOptions = computed(() => {
   ]
 })
 
-const { isCallsModalOpen, selectedUserName, selectedCallType, selectedCalls, openCallsModal, openTotalsCallsModal } = useCallsModal(calls, usersById)
+const { isCallsModalOpen, selectedUserName, selectedCallType, selectedCalls, crmNames, openCallsModal, openTotalsCallsModal } = useCallsModal(calls, usersById)
 
 const fetchCalls = async () => {
   isLoading.value = true
@@ -475,6 +475,7 @@ watch([dateRange, dateValue, selectedUser], () => {
       :user-name="selectedUserName"
       :call-type="selectedCallType"
       :calls="selectedCalls"
+      :crm-names="crmNames"
     />
   </section>
 </template>
