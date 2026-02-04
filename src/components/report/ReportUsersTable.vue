@@ -146,6 +146,32 @@ const startDateDisplay = computed(() => formatDate(dateValue.value.start))
 const endDateDisplay = computed(() => formatDate(dateValue.value.end))
 const dateRangeDisplay = computed(() => `${startDateDisplay.value} — ${endDateDisplay.value}`)
 
+type DayCallStats = { outgoing: number; incoming: number; missed: number }
+const callsByDate = computed(() => {
+  const map = new Map<string, DayCallStats>()
+  for (const call of calls.value) {
+    const raw = call.CALL_START_DATE ?? call.call_start_date ?? ''
+    const dateStr = String(raw).slice(0, 10)
+    if (!dateStr || dateStr.length < 10) continue
+    if (!map.has(dateStr)) {
+      map.set(dateStr, { outgoing: 0, incoming: 0, missed: 0 })
+    }
+    const stat = map.get(dateStr)!
+    const callTypeNum = Number(call.CALL_TYPE ?? call.callType ?? call.TYPE ?? call.type)
+    const duration = Number(call.CALL_DURATION ?? call.DURATION ?? call.duration ?? 0)
+    const isMissed = duration <= 0 || Boolean(call.CALL_FAILED_CODE ?? call.call_failed_code)
+    if (callTypeNum === 1) stat.outgoing += 1
+    else stat.incoming += 1
+    if (isMissed) stat.missed += 1
+  }
+  return map
+})
+
+const getCallsForDay = (day: { day: number; month: number; year: number }): DayCallStats | null => {
+  const key = `${day.year}-${String(day.month).padStart(2, '0')}-${String(day.day).padStart(2, '0')}`
+  return callsByDate.value.get(key) ?? null
+}
+
 const userOptions = computed(() => {
   const fromStore = (allUsers.value || []).map(u => ({ label: u.name, value: u.id }))
   const fromRows = computedRows.value.map(row => ({ label: row.name, value: row.id }))
@@ -295,7 +321,33 @@ watch([dateRange, dateValue, selectedUser], () => {
                     range
                     locale="ru-RU"
                     year-controls
-                  />
+                  >
+                    <template #day="{ day }">
+                      <div class="flex flex-col items-center gap-0.5">
+                        <span>{{ day?.day ?? '' }}</span>
+                        <div
+                          v-if="day && getCallsForDay(day)"
+                          class="flex items-center justify-center gap-0.5"
+                        >
+                          <span
+                            v-if="getCallsForDay(day)!.outgoing > 0"
+                            class="size-1.5 rounded-full bg-green-500"
+                            :title="`Исходящие: ${getCallsForDay(day)!.outgoing}`"
+                          />
+                          <span
+                            v-if="getCallsForDay(day)!.incoming > 0"
+                            class="size-1.5 rounded-full bg-[#2fc6f6]"
+                            :title="`Входящие: ${getCallsForDay(day)!.incoming}`"
+                          />
+                          <span
+                            v-if="getCallsForDay(day)!.missed > 0"
+                            class="size-1.5 rounded-full bg-red-500"
+                            :title="`Пропущенные: ${getCallsForDay(day)!.missed}`"
+                          />
+                        </div>
+                      </div>
+                    </template>
+                  </CalendarComponent>
                 </div>
               </template>
             </PopoverComponent>
