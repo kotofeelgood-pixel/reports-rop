@@ -1,15 +1,16 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
 import { useColorMode } from '@vueuse/core'
-import VueApexCharts from 'vue3-apexcharts'
-import ReportHeader from '@/components/report/ReportHeader.vue'
-import ReportSettingsModal from '@/components/report/ReportSettingsModal.vue'
-import CardComponent from '@/components/element/card/CardComponent.vue'
 import { useAnalyticsCalls } from '@/composables/useAnalyticsCalls'
 import { useDateRange } from '@/composables/useDateRange'
 import { useReportSettingsStoreRefs } from '@/stores/reportSettings'
 import { useUsersStore, useUsersStoreRefs } from '@/stores/users'
 import type { TelephonyCallRecord } from '@/api/calls'
+
+import VueApexCharts from 'vue3-apexcharts'
+import ReportHeader from '@/components/report/ReportHeader.vue'
+import ReportSettingsModal from '@/components/report/ReportSettingsModal.vue'
+import CardComponent from '@/components/element/card/CardComponent.vue'
 
 const { calls, loading, error } = useAnalyticsCalls()
 const { chartStartHour, chartEndHour, chartType } = useReportSettingsStoreRefs()
