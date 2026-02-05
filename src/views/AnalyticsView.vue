@@ -8,7 +8,10 @@ import { useUsersStore, useUsersStoreRefs } from '@/stores/users'
 import type { TelephonyCallRecord } from '@/api/calls'
 
 import VueApexCharts from 'vue3-apexcharts'
-import * as chartConfig from '@/config/charts'
+import { getDayChartOptions } from '@/config/charts/dayChart'
+import { getHourChartOptions } from '@/config/charts/hourChart'
+import { getTopUsersChartOptions } from '@/config/charts/topUsersChart'
+import { getTypeChartOptions } from '@/config/charts/typeChart'
 import ReportHeader from '@/components/report/ReportHeader.vue'
 import ReportSettingsModal from '@/components/report/ReportSettingsModal.vue'
 import CardComponent from '@/components/element/card/CardComponent.vue'
@@ -167,7 +170,7 @@ const chartTheme = computed(() => {
 })
 
 const hourChartOptions = computed(() =>
-  chartConfig.getHourChartOptions({
+  getHourChartOptions({
     chartTheme: chartTheme.value,
     chartType: chartType.value === 'bar' ? 'bar' : 'line',
     categories: byHourData.value.map(d => d.hour),
@@ -175,7 +178,7 @@ const hourChartOptions = computed(() =>
 )
 
 const typeChartOptions = computed(() =>
-  chartConfig.getTypeChartOptions({
+  getTypeChartOptions({
     chartTheme: chartTheme.value,
     labels: typeLabels.value,
     colors: typeColors.value,
@@ -183,14 +186,14 @@ const typeChartOptions = computed(() =>
 )
 
 const dayChartOptions = computed(() =>
-  chartConfig.getDayChartOptions({
+  getDayChartOptions({
     chartTheme: chartTheme.value,
     categories: dayCategories.value,
   }),
 )
 
 const topUsersChartOptions = computed(() =>
-  chartConfig.getTopUsersChartOptions({
+  getTopUsersChartOptions({
     chartTheme: chartTheme.value,
     categories: topUsersCategories.value,
   }),
