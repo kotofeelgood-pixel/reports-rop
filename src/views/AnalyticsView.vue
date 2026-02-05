@@ -8,6 +8,7 @@ import { useUsersStore, useUsersStoreRefs } from '@/stores/users'
 import type { TelephonyCallRecord } from '@/api/calls'
 
 import VueApexCharts from 'vue3-apexcharts'
+import * as chartConfig from '@/config/charts'
 import ReportHeader from '@/components/report/ReportHeader.vue'
 import ReportSettingsModal from '@/components/report/ReportSettingsModal.vue'
 import CardComponent from '@/components/element/card/CardComponent.vue'
@@ -162,89 +163,38 @@ const chartTheme = computed(() => {
   const textColor = isDark ? '#9ca3af' : '#6b7280'
   const gridColor = isDark ? '#374151' : '#e5e7eb'
   const themeMode: 'light' | 'dark' = isDark ? 'dark' : 'light'
-  return { isDark, textColor, gridColor, themeMode }
+  return { textColor, gridColor, themeMode }
 })
 
-const hourChartOptions = computed(() => ({
-  chart: {
-    type: (chartType.value === 'bar' ? 'bar' : 'line') as 'bar' | 'line',
-    height: 280,
-    toolbar: { show: false },
-    background: 'transparent',
-  },
-  colors: ['#4ade80', '#2fc6f6', '#ef4444'],
-  plotOptions: {
-    bar: { columnWidth: '70%', borderRadius: 2, borderRadiusApplication: 'end' as const },
-  },
-  stroke: {
-    show: true,
-    width: chartType.value === 'line' ? 2 : 3,
-    curve: 'smooth' as const,
-  },
-  dataLabels: { enabled: false },
-  xaxis: {
+const hourChartOptions = computed(() =>
+  chartConfig.getHourChartOptions({
+    chartTheme: chartTheme.value,
+    chartType: chartType.value === 'bar' ? 'bar' : 'line',
     categories: byHourData.value.map(d => d.hour),
-    title: { text: 'Часы', style: { fontSize: '12px', color: chartTheme.value.textColor } },
-    labels: { style: { colors: chartTheme.value.textColor, fontSize: '10px' } },
-  },
-  yaxis: {
-    title: { text: 'Кол-во звонков', style: { fontSize: '12px', color: chartTheme.value.textColor } },
-    labels: { style: { colors: chartTheme.value.textColor } },
-  },
-  legend: { show: true, position: 'top' as const },
-  grid: { borderColor: chartTheme.value.gridColor, strokeDashArray: 0 },
-  theme: { mode: chartTheme.value.themeMode },
-}))
+  }),
+)
 
-const typeChartOptions = computed(() => ({
-  chart: { type: 'donut' as const, height: 280 },
-  colors: typeColors.value.length ? typeColors.value : ['#4ade80', '#2fc6f6', '#ef4444'],
-  labels: typeLabels.value,
-  legend: { position: 'bottom' as const },
-  dataLabels: { enabled: true },
-  plotOptions: { pie: { donut: { size: '65%' } } },
-  theme: { mode: chartTheme.value.themeMode },
-}))
+const typeChartOptions = computed(() =>
+  chartConfig.getTypeChartOptions({
+    chartTheme: chartTheme.value,
+    labels: typeLabels.value,
+    colors: typeColors.value,
+  }),
+)
 
-const dayChartOptions = computed(() => ({
-  chart: { type: 'bar' as const, height: 280, toolbar: { show: false } },
-  colors: ['#2fc6f6'],
-  plotOptions: { bar: { columnWidth: '60%', borderRadius: 2, borderRadiusApplication: 'end' as const } },
-  dataLabels: { enabled: false },
-  xaxis: {
+const dayChartOptions = computed(() =>
+  chartConfig.getDayChartOptions({
+    chartTheme: chartTheme.value,
     categories: dayCategories.value,
-    labels: { style: { colors: chartTheme.value.textColor, fontSize: '10px' } },
-  },
-  yaxis: {
-    title: { text: 'Звонков', style: { color: chartTheme.value.textColor } },
-    labels: { style: { colors: chartTheme.value.textColor } },
-  },
-  grid: { borderColor: chartTheme.value.gridColor },
-  theme: { mode: chartTheme.value.themeMode },
-}))
+  }),
+)
 
-const topUsersChartOptions = computed(() => ({
-  chart: { type: 'bar' as const, height: 320, toolbar: { show: false } },
-  plotOptions: {
-    bar: {
-      horizontal: true,
-      columnWidth: '70%',
-      borderRadius: 2,
-      borderRadiusApplication: 'end' as const,
-    },
-  },
-  colors: ['#4ade80'],
-  dataLabels: { enabled: true },
-  xaxis: {
+const topUsersChartOptions = computed(() =>
+  chartConfig.getTopUsersChartOptions({
+    chartTheme: chartTheme.value,
     categories: topUsersCategories.value,
-    labels: { style: { colors: chartTheme.value.textColor, fontSize: '11px' } },
-  },
-  yaxis: {
-    labels: { style: { colors: chartTheme.value.textColor } },
-  },
-  grid: { borderColor: chartTheme.value.gridColor },
-  theme: { mode: chartTheme.value.themeMode },
-}))
+  }),
+)
 </script>
 
 <template>
