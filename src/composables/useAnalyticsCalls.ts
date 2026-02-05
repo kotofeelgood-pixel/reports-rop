@@ -13,14 +13,17 @@ export function useAnalyticsCalls() {
   const error = ref<string | null>(null)
 
   const fetchCalls = async () => {
+    const range = getDateRange()
+    if (!range?.start || !range?.end) {
+      calls.value = []
+      return
+    }
     loading.value = true
     error.value = null
     try {
-      const range = getDateRange()
-      const filter: Record<string, unknown> = {}
-      if (range?.start && range?.end) {
-        filter['>=CALL_START_DATE'] = formatB24Date(range.start)
-        filter['<=CALL_START_DATE'] = formatB24Date(range.end)
+      const filter: Record<string, unknown> = {
+        '>=CALL_START_DATE': formatB24Date(range.start),
+        '<=CALL_START_DATE': formatB24Date(range.end),
       }
       const data = await telephonyCallList({ filter, sort: 'CALL_START_DATE', order: 'DESC' })
       calls.value = Array.isArray(data) ? data : []

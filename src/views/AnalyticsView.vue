@@ -129,6 +129,9 @@ const byDayData = computed(() => {
 
 const daySeries = computed(() => [{ name: 'Звонков', data: byDayData.value.map(d => d.count) }])
 const dayCategories = computed(() => byDayData.value.map(d => d.label))
+const hasDayChartData = computed(() => byDayData.value.some(d => d.count > 0))
+/** Минимальная ширина графика по дням: ~32px на день, чтобы подписи не слеплялись; при длинном периоде — прокрутка */
+const dayChartMinWidth = computed(() => `${Math.max(dayCategories.value.length * 32, 400)}px`)
 
 // --- Топ сотрудников по звонкам ---
 const topUsersData = computed(() => {
@@ -279,16 +282,22 @@ const topUsersChartOptions = computed(() => ({
         </CardComponent>
 
         <!-- По дням -->
-        <CardComponent class="rounded-lg border border-gray-200 bg-white p-4 dark:border-gray-700 dark:bg-[#252525] lg:col-span-2">
+        <CardComponent
+          v-if="dayCategories.length > 0"
+          class="rounded-lg border border-gray-200 bg-white p-4 dark:border-gray-700 dark:bg-[#252525] lg:col-span-2"
+        >
           <h2 class="mb-3 text-base font-semibold text-gray-800 dark:text-white">Звонки по дням</h2>
-          <VueApexCharts
-            v-if="dayCategories.length > 0"
-            :options="dayChartOptions"
-            :series="daySeries"
-            height="280"
-          />
+          <div v-if="hasDayChartData" class="overflow-x-auto overflow-y-hidden">
+            <div :style="{ minWidth: dayChartMinWidth }">
+              <VueApexCharts
+                :options="dayChartOptions"
+                :series="daySeries"
+                height="280"
+              />
+            </div>
+          </div>
           <p v-else class="flex h-[200px] items-center justify-center text-sm text-gray-500 dark:text-gray-400">
-            Выберите период в настройках
+            Нет данных за период
           </p>
         </CardComponent>
 
