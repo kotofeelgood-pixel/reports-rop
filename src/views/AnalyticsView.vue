@@ -287,20 +287,23 @@ const topUsersChartOptions = computed(() => ({
           class="rounded-lg border border-gray-200 bg-white p-4 dark:border-gray-700 dark:bg-[#252525] lg:col-span-2"
         >
           <h2 class="mb-3 text-base font-semibold text-gray-800 dark:text-white">Звонки по дням</h2>
-          <div v-if="hasDayChartData" class="overflow-x-auto overflow-y-hidden">
-            <div :style="{ minWidth: dayChartMinWidth }">
-              <VueApexCharts
-                :options="dayChartOptions"
-                :series="daySeries"
-                height="280"
-              />
+          <template v-if="hasDayChartData">
+            <div class="overflow-x-auto overflow-y-hidden">
+              <div :style="{ minWidth: dayChartMinWidth }">
+                <VueApexCharts
+                  :options="dayChartOptions"
+                  :series="daySeries"
+                  height="280"
+                />
+              </div>
             </div>
-          </div>
-          <p v-else class="flex h-[200px] items-center justify-center text-sm text-gray-500 dark:text-gray-400">
-            Нет данных за период
-          </p>
+          </template>
+          <template v-else>
+            <p class="flex h-[200px] items-center justify-center text-sm text-gray-500 dark:text-gray-400">
+              Нет данных за период
+            </p>
+          </template>
         </CardComponent>
-
         <!-- Топ сотрудников -->
         <CardComponent class="rounded-lg border border-gray-200 bg-white p-4 dark:border-gray-700 dark:bg-[#252525] lg:col-span-2">
           <h2 class="mb-3 text-base font-semibold text-gray-800 dark:text-white">Топ сотрудников по количеству звонков</h2>
