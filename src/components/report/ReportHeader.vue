@@ -5,6 +5,7 @@ import ButtonComponent from '@/components/buttons/ButtonComponent.vue'
 const route = useRoute()
 const emit = defineEmits<{
   openSettings: []
+  openDocumentation: []
 }>()
 
 const isReport = () => route.name === 'home'
@@ -32,17 +33,28 @@ const isAnalytics = () => route.name === 'analytics'
       </nav>
       <h1 class="text-lg font-bold text-gray-900 dark:text-white">Отчет по звонкам</h1>
     </div>
-    <ButtonComponent
-      variant="ghost"
-      size="icon"
-      class="rounded-lg border-none"
-      aria-label="Настройки"
-      @click="emit('openSettings')"
-    >
-      <svg xmlns="http://www.w3.org/2000/svg" class="size-7" viewBox="0 0 24 24">
-        <path fill="currentColor" d="m12 1l9.5 5.5v11L12 23l-9.5-5.5v-11zm0 14a3 3 0 1 0 0-6a3 3 0 0 0 0 6" />
-      </svg>
-    </ButtonComponent>
+    <div class="flex items-center gap-2">
+      <ButtonComponent
+        variant="ghost"
+        size="icon"
+        class="rounded-lg border-none"
+        aria-label="Настройки"
+        @click="emit('openSettings')"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" class="size-7" viewBox="0 0 24 24">
+          <path fill="currentColor" d="m12 1l9.5 5.5v11L12 23l-9.5-5.5v-11zm0 14a3 3 0 1 0 0-6a3 3 0 0 0 0 6" />
+        </svg>
+      </ButtonComponent>
+      <ButtonComponent
+        variant="ghost"
+        size="md"
+        class="rounded-lg border-none text-sm"
+        aria-label="Документация"
+        @click="emit('openDocumentation')"
+      >
+        Документация
+      </ButtonComponent>
+    </div>
   </header>
 </template>
 

@@ -5,6 +5,7 @@ import ReportUsersTable from '@/components/report/ReportUsersTable.vue'
 import ReportChart from '@/components/report/ReportChart.vue'
 import ReportRating from '@/components/report/ReportRating.vue'
 import ReportSettingsModal from '@/components/report/ReportSettingsModal.vue'
+import DocumentationModal from '@/components/report/DocumentationModal.vue'
 import { useReportSettingsStoreRefs } from '@/stores/reportSettings'
 import { useUsersStore } from '@/stores/users'
 
@@ -16,11 +17,15 @@ onMounted(() => {
 })
 
 const isSettingsOpen = ref(false)
+const isDocumentationOpen = ref(false)
 </script>
 
 <template>
   <div class="flex min-h-screen flex-col bg-gray-50 dark:bg-[#1a1a1a]">
-    <ReportHeader @openSettings="isSettingsOpen = true" />
+    <ReportHeader 
+      @openSettings="isSettingsOpen = true"
+      @openDocumentation="isDocumentationOpen = true"
+    />
 
     <!-- Расположение столбцами (таблица слева, график+рейтинг справа) -->
     <main
@@ -52,6 +57,9 @@ const isSettingsOpen = ref(false)
 
     <ReportSettingsModal
       v-model:open="isSettingsOpen"
+    />
+    <DocumentationModal
+      v-model:open="isDocumentationOpen"
     />
   </div>
 </template>
