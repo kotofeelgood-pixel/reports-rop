@@ -7,6 +7,7 @@ export type SortDir = 'asc' | 'desc'
 type Row = {
   id: string
   name: string
+  photo?: string | null
   outgoing: number
   incoming: number
   missed: number

@@ -17,6 +17,7 @@ import { getUserProfileUrl } from '@/tools'
 type Row = {
   id: string
   name: string
+  photo?: string | null
   outgoing: number
   incoming: number
   missed: number
@@ -68,11 +69,13 @@ const rowsFromCalls = computed<Row[]>(() => {
 
     const user = usersById.value.get(userId)
     const name = user?.name ?? `#${userId}`
+    const photo = user?.photo ?? null
 
     if (!map.has(userId)) {
       map.set(userId, {
         id: userId,
         name,
+        photo,
         outgoing: 0,
         incoming: 0,
         missed: 0,
@@ -411,7 +414,11 @@ watch([dateRange, dateValue, selectedUsers], () => {
           >
             <td class="px-4 py-2">
               <div class="flex items-center gap-2">
-                <AvatarComponent :name="row.name" size="sm" />
+                <AvatarComponent
+                  :name="row.name"
+                  :src="row.photo ?? undefined"
+                  size="sm"
+                />
                 <a
                   :href="getUserProfileUrl(row.id)"
                   target="_blank"

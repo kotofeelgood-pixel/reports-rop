@@ -59,7 +59,24 @@ export const useUsersStore = defineStore('users', () => {
         .map((u) => {
           const id = String(u.ID ?? '').trim()
           if (!id) return null
-          const photo = u.PERSONAL_PHOTO ? String(u.PERSONAL_PHOTO) : null
+          // PERSONAL_PHOTO может быть ID файла или URL
+          let photo: string | null = null
+          if (u.PERSONAL_PHOTO) {
+            const photoValue = String(u.PERSONAL_PHOTO).trim()
+            // Если это числовой ID файла, преобразуем в URL
+            if (/^\d+$/.test(photoValue)) {
+              photo = `/bitrix/tools/get_file.php?fid=${photoValue}`
+            } else if (photoValue.startsWith('http://') || photoValue.startsWith('https://')) {
+              // Если это полный URL, используем как есть
+              photo = photoValue
+            } else if (photoValue.startsWith('/')) {
+              // Если это относительный путь, используем как есть
+              photo = photoValue
+            } else {
+              // Иначе считаем ID файла
+              photo = `/bitrix/tools/get_file.php?fid=${photoValue}`
+            }
+          }
           return {
             id,
             name: buildUserName(u),
