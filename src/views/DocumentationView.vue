@@ -19,7 +19,7 @@ const tabs = [
     <ReportHeader />
 
     <main class="flex-1 overflow-auto p-4">
-      <div class="mx-auto max-w-4xl rounded-lg border border-gray-200 bg-white dark:border-gray-700 dark:bg-[#252525]">
+      <div class=" rounded-lg border border-gray-200 bg-white dark:border-gray-700 dark:bg-[#252525]">
         <!-- Табы -->
         <div class="border-b border-gray-200 dark:border-gray-700">
           <nav class="flex gap-0.5 overflow-x-auto px-4 py-3">
@@ -43,7 +43,7 @@ const tabs = [
           <div v-if="activeTab === 'introduction'" class="space-y-4 text-left">
             <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Введение</h2>
             <p class="text-sm leading-relaxed text-gray-700 dark:text-gray-300">
-              Приложение для анализа звонков позволяет отслеживать статистику звонков сотрудников, анализировать их активность и эффективность работы. 
+              Приложение для анализа звонков позволяет отслеживать статистику звонков сотрудников, анализировать их активность и эффективность работы.
               Система интегрирована с Bitrix24 и автоматически получает данные о звонках из телефонии.
             </p>
           </div>
@@ -51,7 +51,7 @@ const tabs = [
           <!-- Раздел "Отчет" -->
           <div v-if="activeTab === 'report'" class="space-y-6 text-left">
             <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Раздел "Отчет"</h2>
-            
+
             <section>
               <h3 class="mb-2 text-base font-medium text-gray-800 dark:text-gray-200">Таблица пользователей</h3>
               <p class="mb-3 text-sm leading-relaxed text-gray-700 dark:text-gray-300">
@@ -65,7 +65,7 @@ const tabs = [
                 <li><strong>ДЛИТЕЛЬНОСТЬ</strong> — общая длительность всех звонков сотрудника</li>
               </ul>
             </section>
-            
+
             <section>
               <h3 class="mb-2 text-base font-medium text-gray-800 dark:text-gray-200">Фильтры</h3>
               <ul class="mb-4 ml-6 list-disc space-y-1 text-sm text-gray-700 dark:text-gray-300">
@@ -73,7 +73,7 @@ const tabs = [
                 <li><strong>Пользователи</strong> — фильтрация по конкретным сотрудникам. Можно выбрать несколько пользователей или оставить "Все пользователи"</li>
               </ul>
             </section>
-            
+
             <section>
               <h3 class="mb-2 text-base font-medium text-gray-800 dark:text-gray-200">Взаимодействие с таблицей</h3>
               <ul class="mb-4 ml-6 list-disc space-y-1 text-sm text-gray-700 dark:text-gray-300">
@@ -115,7 +115,7 @@ const tabs = [
           <!-- Раздел "Аналитика" -->
           <div v-if="activeTab === 'analytics'" class="space-y-6 text-left">
             <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Раздел "Аналитика"</h2>
-            
+
             <section>
               <h3 class="mb-2 text-base font-medium text-gray-800 dark:text-gray-200">Звонки по часам</h3>
               <p class="mb-3 text-sm leading-relaxed text-gray-700 dark:text-gray-300">
@@ -160,7 +160,7 @@ const tabs = [
               <li><strong>CRM</strong> — связанная сущность из CRM (сделка, контакт, компания и т.д.)</li>
               <li><strong>Запись</strong> — кнопка воспроизведения аудиозаписи звонка (если доступна)</li>
             </ul>
-            
+
             <section>
               <h3 class="mb-2 text-base font-medium text-gray-800 dark:text-gray-200">Воспроизведение записей</h3>
               <ul class="mb-4 ml-6 list-disc space-y-1 text-sm text-gray-700 dark:text-gray-300">
@@ -179,11 +179,11 @@ const tabs = [
             <p class="mb-3 text-sm leading-relaxed text-gray-700 dark:text-gray-300">
               Откройте настройки, нажав на иконку шестерёнки в правом верхнем углу. Доступны следующие параметры:
             </p>
-            
+
             <section>
               <h3 class="mb-2 text-base font-medium text-gray-800 dark:text-gray-200">Диапазон графика</h3>
               <p class="mb-3 text-sm leading-relaxed text-gray-700 dark:text-gray-300">
-                Установите начальный и конечный час для отображения графика "Звонки по часам" в разделе "Аналитика". 
+                Установите начальный и конечный час для отображения графика "Звонки по часам" в разделе "Аналитика".
                 По умолчанию отображаются все 24 часа.
               </p>
             </section>
@@ -223,7 +223,7 @@ const tabs = [
             <section>
               <h3 class="mb-2 text-base font-medium text-gray-800 dark:text-gray-200">Минимальная длительность звонка</h3>
               <p class="mb-3 text-sm leading-relaxed text-gray-700 dark:text-gray-300">
-                Установите минимальную длительность звонка в секундах. Звонки короче этого значения не будут учитываться в статистике. 
+                Установите минимальную длительность звонка в секундах. Звонки короче этого значения не будут учитываться в статистике.
                 Это помогает исключить случайные или неудачные соединения. Диапазон: 0-600 секунд.
               </p>
             </section>
