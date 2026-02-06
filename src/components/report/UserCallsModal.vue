@@ -298,6 +298,20 @@ const exportToExcel = async () => {
   >
     <template #body>
       <div class="space-y-4">
+        <!-- Кнопка назад -->
+        <div class="flex items-center">
+          <ButtonComponent
+            variant="ghost"
+            size="md"
+            class="flex items-center gap-2 text-gray-700 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white"
+            @click="model = false"
+          >
+            <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+            </svg>
+            Назад
+          </ButtonComponent>
+        </div>
         <!-- Таблица звонков -->
         <div>
           <table class="w-full text-left text-base">
