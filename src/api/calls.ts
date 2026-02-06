@@ -20,6 +20,8 @@ export const DEFAULT_CALL_SELECT_FIELDS = [
   'CRM_ENTITY_ID',
   'CRM_ENTITY_TYPE',
   'CALL_RECORD_URL',
+  'TRANSCRIPT_ID',
+  'TRANSCRIPT_PENDING',
 ] as const
 
 /**
@@ -98,5 +100,100 @@ export const telephonyCallList = async ({
   } catch (error) {
     console.error('voximplant.statistic.get error:', error)
     return []
+  }
+}
+
+/** Сообщение расшифровки звонка для telephony.call.attachTranscription */
+export type TranscriptMessage = {
+  /** Участник: "User" — пользователь портала, "Client" — внешний участник */
+  SIDE: 'User' | 'Client'
+  /** Время начала фразы в секундах от начала разговора */
+  START_TIME: number
+  /** Время окончания фразы в секундах от начала разговора */
+  STOP_TIME: number
+  /** Текст фразы */
+  MESSAGE: string
+}
+
+export type AttachTranscriptionParams = {
+  /** Идентификатор звонка (CALL_ID) */
+  callId: string
+  /** Массив реплик расшифровки */
+  messages: TranscriptMessage[]
+  /** Стоимость расшифровки (опционально) */
+  cost?: number
+  /** Валюта стоимости (опционально) */
+  costCurrency?: string
+}
+
+/**
+ * Добавить расшифровку записи к звонку.
+ * Документация: https://apidocs.bitrix24.ru/api-reference/telephony/telephony-call-attach-transcription.html
+ */
+export const telephonyCallAttachTranscription = async (
+  params: AttachTranscriptionParams
+): Promise<boolean> => {
+  const b24 = await useB24()
+  try {
+    const body: Record<string, unknown> = {
+      CALL_ID: params.callId,
+      MESSAGES: params.messages.map((m) => ({
+        SIDE: m.SIDE,
+        START_TIME: Number(m.START_TIME),
+        STOP_TIME: Number(m.STOP_TIME),
+        MESSAGE: String(m.MESSAGE ?? '').trim() || '',
+      })),
+    }
+    if (params.cost != null) body.COST = params.cost
+    if (params.costCurrency != null) body.COST_CURRENCY = params.costCurrency
+    const response: unknown = await callMethodPromise(b24, 'telephony.call.attachTranscription', body)
+    const answer = response as { result?: unknown; error?: string }
+    if (answer?.error) {
+      console.error('telephony.call.attachTranscription error:', answer.error)
+      return false
+    }
+    return true
+  } catch (error) {
+    console.error('telephony.call.attachTranscription error:', error)
+    return false
+  }
+}
+
+/** Один элемент расшифровки (реплика) из ответа API */
+export type TranscriptMessageItem = {
+  SIDE?: string
+  START_TIME?: number
+  STOP_TIME?: number
+  MESSAGE?: string
+}
+
+/** Результат получения расшифровки звонка */
+export type CallTranscriptionResult = {
+  messages: TranscriptMessageItem[]
+  pending?: boolean
+}
+
+/**
+ * Получить расшифровку звонка по CALL_ID или TRANSCRIPT_ID.
+ * Пробует voximplant.transcript.get (TRANSCRIPT_ID) и при отсутствии метода возвращает пустой результат.
+ */
+export const telephonyCallGetTranscription = async (
+  callId: string,
+  transcriptId?: string | null
+): Promise<CallTranscriptionResult> => {
+  if (!transcriptId || String(transcriptId).trim() === '') {
+    return { messages: [] }
+  }
+  const b24 = await useB24()
+  try {
+    const response: unknown = await callMethodPromise(b24, 'voximplant.transcript.get', {
+      id: String(transcriptId).trim(),
+    })
+    const data = response as { result?: { MESSAGES?: TranscriptMessageItem[] }; error?: string }
+    if (data?.error) return { messages: [] }
+    const messages = Array.isArray(data?.result?.MESSAGES) ? data.result.MESSAGES : []
+    return { messages }
+  } catch {
+    return { messages: [] }
   }
 }

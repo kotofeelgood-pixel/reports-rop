@@ -14,6 +14,10 @@ export type Call = {
   hasRecording: boolean
   /** URL записи разговора для воспроизведения */
   recordingUrl?: string | null
+  /** Идентификатор расшифровки звонка (Bitrix TRANSCRIPT_ID) */
+  transcriptId?: string | null
+  /** Расшифровка в обработке: Y/N */
+  transcriptPending?: string | null
 }
 
 /**
@@ -77,6 +81,10 @@ export function telephonyRecordToCall(
     String(record.CRM_ENTITY_TITLE ?? record.crm_entity_title ?? record.CONTACT_NAME ?? '').trim() ||
     (crmEntityType === 'CONTACT' ? 'Контакт' : crmEntityType === 'LEAD' ? 'Лид' : crmEntityType === 'COMPANY' ? 'Компания' : '—') ||
     '—'
+  const transcriptIdRaw = record.TRANSCRIPT_ID ?? record.transcript_id
+  const transcriptId = typeof transcriptIdRaw === 'string' ? transcriptIdRaw.trim() || undefined : undefined
+  const transcriptPendingRaw = record.TRANSCRIPT_PENDING ?? record.transcript_pending
+  const transcriptPending = typeof transcriptPendingRaw === 'string' ? transcriptPendingRaw : undefined
   return {
     id,
     userId,
@@ -90,6 +98,8 @@ export function telephonyRecordToCall(
     crmEntityId,
     hasRecording,
     recordingUrl: hasRecording && recordingUrl ? recordingUrl.trim() : undefined,
+    transcriptId: transcriptId ?? null,
+    transcriptPending: transcriptPending ?? null,
   }
 }
 

@@ -3,6 +3,7 @@ import { computed, watch, ref } from 'vue'
 import * as XLSX from 'xlsx'
 import ModalComponent from '@/components/modal/ModalComponent.vue'
 import ButtonComponent from '@/components/buttons/ButtonComponent.vue'
+import AttachTranscriptionModal from '@/components/report/AttachTranscriptionModal.vue'
 import type { Call } from '@/tools/calls'
 
 type Props = {
@@ -36,6 +37,8 @@ const audioError = ref<string | null>(null)
 const playbackRate = ref(1)
 const playbackRates = [1, 1.25, 1.5, 2] as const
 const autoAdvance = ref(false)
+const transcriptionModalOpen = ref(false)
+const transcriptionCall = ref<Call | null>(null)
 let rafId: number | null = null
 const PROGRESS_UPDATE_INTERVAL_MS = 100
 let lastProgressUpdate = 0
@@ -260,6 +263,11 @@ const onSeek = (e: Event) => {
   audioCurrentTime.value = audio.currentTime
 }
 
+const openTranscriptionModal = (call: Call) => {
+  transcriptionCall.value = call
+  transcriptionModalOpen.value = true
+}
+
 const exportToExcel = async () => {
   const list = (props.calls || []) as Call[]
   try {
@@ -308,6 +316,7 @@ const exportToExcel = async () => {
                 <th class="px-4 py-4 font-semibold">ДЛИТ.</th>
                 <th class="px-4 py-4 font-semibold">CRM</th>
                 <th class="px-4 py-4 text-center font-semibold">Запись</th>
+                <th class="px-4 py-4 text-center font-semibold">Расшифровка</th>
               </tr>
             </thead>
             <tbody>
@@ -370,6 +379,15 @@ const exportToExcel = async () => {
                   </span>
                   <span v-else class="text-gray-400">—</span>
                 </td>
+                <td class="px-4 py-4 text-center">
+                  <button
+                    type="button"
+                    class="text-blue-600 hover:underline dark:text-blue-400"
+                    @click="openTranscriptionModal(call)"
+                  >
+                    Добавить расшифровку
+                  </button>
+                </td>
               </tr>
             </tbody>
           </table>
@@ -387,6 +405,11 @@ const exportToExcel = async () => {
         </div>
       </div>
     </template>
+
+    <AttachTranscriptionModal
+      v-model:open="transcriptionModalOpen"
+      :call="transcriptionCall"
+    />
 
     <!-- Скрытый аудио-элемент для воспроизведения записи -->
     <audio
