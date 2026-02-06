@@ -73,29 +73,41 @@ export const getReportDateRange = (period: ReportPeriod): DateRange => {
 }
 
 export const getTaskUrl = (taskId: number | string): string => {
-  return `/company/personal/user/0/tasks/task/view/${taskId}/`
+  const w = globalThis as any
+  const domain = w?.BX24?.getDomain?.()
+  const path = `/company/personal/user/0/tasks/task/view/${taskId}/`
+  return domain ? `https://${domain}${path}` : path
 }
 
 /** URL карточки сотрудника в Bitrix24 (профиль пользователя). */
 export const getUserProfileUrl = (userId: string | number): string => {
-  return `/company/personal/user/${userId}/`
+  const w = globalThis as any
+  const domain = w?.BX24?.getDomain?.()
+  const path = `/company/personal/user/${userId}/`
+  return domain ? `https://${domain}${path}` : path
 }
 
 /** URL карточки сущности CRM (лид, контакт, компания) в Bitrix24. */
 export const getCrmEntityUrl = (entityType: string, entityId: string | number): string | null => {
   if (!entityType || !entityId) return null
+  const w = globalThis as any
+  const domain = w?.BX24?.getDomain?.()
+  if (!domain) return null
   
   const type = String(entityType).toUpperCase()
   const id = String(entityId)
   
+  let path = ''
   if (type === 'LEAD') {
-    return `/crm/lead/details/${id}/`
+    path = `/crm/lead/details/${id}/`
   } else if (type === 'CONTACT') {
-    return `/crm/contact/details/${id}/`
+    path = `/crm/contact/details/${id}/`
   } else if (type === 'COMPANY') {
-    return `/crm/company/details/${id}/`
+    path = `/crm/company/details/${id}/`
+  } else {
+    return null
   }
   
-  return null
+  return `https://${domain}${path}`
 }
 
