@@ -15,7 +15,6 @@ import { getTopUsersChartOptions } from '@/config/charts/topUsersChart'
 import { getTypeChartOptions } from '@/config/charts/typeChart'
 import ReportHeader from '@/components/report/ReportHeader.vue'
 import ReportSettingsModal from '@/components/report/ReportSettingsModal.vue'
-import DocumentationModal from '@/components/report/DocumentationModal.vue'
 import CardComponent from '@/components/element/card/CardComponent.vue'
 
 const { calls, loading, error } = useAnalyticsCalls()
@@ -26,7 +25,6 @@ const usersStore = useUsersStore()
 const { usersById } = useUsersStoreRefs()
 
 const isSettingsOpen = ref(false)
-const isDocumentationOpen = ref(false)
 
 onMounted(() => {
   void usersStore.fetchUsers()
@@ -212,7 +210,6 @@ const topUsersChartOptions = computed(() =>
   <div class="flex min-h-screen flex-col bg-gray-50 dark:bg-[#1a1a1a]">
     <ReportHeader 
       @openSettings="isSettingsOpen = true"
-      @openDocumentation="isDocumentationOpen = true"
     />
 
     <main class="flex-1 overflow-auto p-4">
@@ -287,6 +284,5 @@ const topUsersChartOptions = computed(() =>
     </main>
 
     <ReportSettingsModal v-model:open="isSettingsOpen" />
-    <DocumentationModal v-model:open="isDocumentationOpen" />
   </div>
 </template>

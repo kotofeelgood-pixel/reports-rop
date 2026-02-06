@@ -5,11 +5,11 @@ import ButtonComponent from '@/components/buttons/ButtonComponent.vue'
 const route = useRoute()
 const emit = defineEmits<{
   openSettings: []
-  openDocumentation: []
 }>()
 
 const isReport = () => route.name === 'home'
 const isAnalytics = () => route.name === 'analytics'
+const isDocumentation = () => route.name === 'documentation'
 </script>
 
 <template>
@@ -30,6 +30,13 @@ const isAnalytics = () => route.name === 'analytics'
         >
           Аналитика
         </RouterLink>
+        <RouterLink
+          :to="{ name: 'documentation' }"
+          class="rounded px-2 py-1 text-xs font-medium transition-colors"
+          :class="isDocumentation() ? 'bg-white text-gray-900 shadow dark:bg-gray-700 dark:text-white' : 'text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white'"
+        >
+          Документация
+        </RouterLink>
       </nav>
       <h1 class="text-lg font-bold text-gray-900 dark:text-white">Отчет по звонкам</h1>
     </div>
@@ -44,15 +51,6 @@ const isAnalytics = () => route.name === 'analytics'
         <svg xmlns="http://www.w3.org/2000/svg" class="size-7" viewBox="0 0 24 24">
           <path fill="currentColor" d="m12 1l9.5 5.5v11L12 23l-9.5-5.5v-11zm0 14a3 3 0 1 0 0-6a3 3 0 0 0 0 6" />
         </svg>
-      </ButtonComponent>
-      <ButtonComponent
-        variant="ghost"
-        size="md"
-        class="rounded-lg border-none text-sm"
-        aria-label="Документация"
-        @click="emit('openDocumentation')"
-      >
-        Документация
       </ButtonComponent>
     </div>
   </header>
