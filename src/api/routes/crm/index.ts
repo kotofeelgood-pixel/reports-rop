@@ -1,8 +1,10 @@
 import { crmContactList } from '~/api/crm'
+import { useB24 } from '~/composables/useB24'
 import { callMethodPromise } from '~/api/core'
 
 export const getDealCategories = async () => {
-  return callMethodPromise('crm.category.list', { entityTypeId: 2 })
+  const b24 = await useB24()
+  return callMethodPromise(b24, 'crm.category.list', { entityTypeId: 2 })
 }
 
 // Используем crmContactList для получения списка контактов

@@ -1,3 +1,4 @@
+import { useB24 } from '../composables/useB24'
 import { callMethodPromise } from './core'
 
 export type TelephonyCallRecord = Record<string, unknown>
@@ -85,6 +86,7 @@ export const telephonyCallList = async ({
   sort = 'CALL_START_DATE',
   order = 'DESC',
 }: CallListParams = {}): Promise<TelephonyCallRecord[]> => {
+  const b24 = await useB24()
   try {
     const params: Record<string, unknown> = {
       FILTER: filter,
@@ -92,7 +94,7 @@ export const telephonyCallList = async ({
       SORT: sort,
       ORDER: order,
     }
-    const response: unknown = await callMethodPromise('voximplant.statistic.get', params)
+    const response: unknown = await callMethodPromise(b24, 'voximplant.statistic.get', params)
     const answer = response as { result?: TelephonyCallRecord[] }
     return Array.isArray(answer?.result) ? answer.result : []
   } catch (error) {
@@ -131,6 +133,7 @@ export type AttachTranscriptionParams = {
 export const telephonyCallAttachTranscription = async (
   params: AttachTranscriptionParams
 ): Promise<boolean> => {
+  const b24 = await useB24()
   try {
     const body: Record<string, unknown> = {
       CALL_ID: params.callId,
@@ -143,7 +146,7 @@ export const telephonyCallAttachTranscription = async (
     }
     if (params.cost != null) body.COST = params.cost
     if (params.costCurrency != null) body.COST_CURRENCY = params.costCurrency
-    const response: unknown = await callMethodPromise('telephony.call.attachTranscription', body)
+    const response: unknown = await callMethodPromise(b24, 'telephony.call.attachTranscription', body)
     const answer = response as { result?: unknown; error?: string }
     if (answer?.error) {
       console.error('telephony.call.attachTranscription error:', answer.error)
@@ -181,8 +184,9 @@ export const telephonyCallGetTranscription = async (
   if (!transcriptId || String(transcriptId).trim() === '') {
     return { messages: [] }
   }
+  const b24 = await useB24()
   try {
-    const response: unknown = await callMethodPromise('voximplant.transcript.get', {
+    const response: unknown = await callMethodPromise(b24, 'voximplant.transcript.get', {
       id: String(transcriptId).trim(),
     })
     const data = response as { result?: { MESSAGES?: TranscriptMessageItem[] }; error?: string }
