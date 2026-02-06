@@ -4,6 +4,7 @@ import * as XLSX from 'xlsx'
 import ModalComponent from '@/components/modal/ModalComponent.vue'
 import ButtonComponent from '@/components/buttons/ButtonComponent.vue'
 import AttachTranscriptionModal from '@/components/report/AttachTranscriptionModal.vue'
+import TranscriptionViewModal from '@/components/report/TranscriptionViewModal.vue'
 import type { Call } from '@/tools/calls'
 
 type Props = {
@@ -39,6 +40,8 @@ const playbackRates = [1, 1.25, 1.5, 2] as const
 const autoAdvance = ref(false)
 const transcriptionModalOpen = ref(false)
 const transcriptionCall = ref<Call | null>(null)
+const transcriptionViewModalOpen = ref(false)
+const transcriptionViewCall = ref<Call | null>(null)
 let rafId: number | null = null
 const PROGRESS_UPDATE_INTERVAL_MS = 100
 let lastProgressUpdate = 0
@@ -268,6 +271,19 @@ const openTranscriptionModal = (call: Call) => {
   transcriptionModalOpen.value = true
 }
 
+const openTranscriptionViewModal = (call: Call) => {
+  transcriptionViewCall.value = call
+  transcriptionViewModalOpen.value = true
+}
+
+const onAddTranscriptionFromView = () => {
+  if (transcriptionViewCall.value) {
+    transcriptionCall.value = transcriptionViewCall.value
+    transcriptionViewModalOpen.value = false
+    transcriptionModalOpen.value = true
+  }
+}
+
 const exportToExcel = async () => {
   const list = (props.calls || []) as Call[]
   try {
@@ -344,6 +360,13 @@ const exportToExcel = async () => {
                     <span class="text-gray-300 dark:text-gray-600">|</span>
                     <button
                       class="text-blue-600 hover:underline dark:text-blue-400"
+                      @click="openTranscriptionViewModal(call)"
+                    >
+                      Расшифровать
+                    </button>
+                    <span class="text-gray-300 dark:text-gray-600">|</span>
+                    <button
+                      class="text-blue-600 hover:underline dark:text-blue-400"
                       @click="downloadRecording(call)"
                     >
                       Скачать
@@ -354,6 +377,13 @@ const exportToExcel = async () => {
                     class="inline-flex items-center gap-2"
                   >
                     <span class="font-medium text-gray-600 dark:text-gray-400">На паузе</span>
+                    <span class="text-gray-300 dark:text-gray-600">|</span>
+                    <button
+                      class="text-blue-600 hover:underline dark:text-blue-400"
+                      @click="openTranscriptionViewModal(call)"
+                    >
+                      Расшифровать
+                    </button>
                     <span class="text-gray-300 dark:text-gray-600">|</span>
                     <button
                       class="text-blue-600 hover:underline dark:text-blue-400"
@@ -372,12 +402,28 @@ const exportToExcel = async () => {
                     <span class="text-gray-300 dark:text-gray-600">|</span>
                     <button
                       class="text-blue-600 hover:underline dark:text-blue-400"
+                      @click="openTranscriptionViewModal(call)"
+                    >
+                      Расшифровать
+                    </button>
+                    <span class="text-gray-300 dark:text-gray-600">|</span>
+                    <button
+                      class="text-blue-600 hover:underline dark:text-blue-400"
                       @click="downloadRecording(call)"
                     >
                       Скачать
                     </button>
                   </span>
-                  <span v-else class="text-gray-400">—</span>
+                  <span v-else class="inline-flex items-center gap-2">
+                    <span class="text-gray-400">—</span>
+                    <span class="text-gray-300 dark:text-gray-600">|</span>
+                    <button
+                      class="text-blue-600 hover:underline dark:text-blue-400"
+                      @click="openTranscriptionViewModal(call)"
+                    >
+                      Расшифровать
+                    </button>
+                  </span>
                 </td>
                 <td class="px-4 py-4 text-center">
                   <button
@@ -406,6 +452,11 @@ const exportToExcel = async () => {
       </div>
     </template>
 
+    <TranscriptionViewModal
+      v-model:open="transcriptionViewModalOpen"
+      :call="transcriptionViewCall"
+      @add-transcription="onAddTranscriptionFromView"
+    />
     <AttachTranscriptionModal
       v-model:open="transcriptionModalOpen"
       :call="transcriptionCall"
