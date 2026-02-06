@@ -15,16 +15,18 @@ const { usersById } = useUsersStoreRefs()
 const { dateRange, dateValue, getDateRange, formatB24DateFilter } = useDateRange()
 
 const calls = ref<TelephonyCallRecord[]>([])
-const { isCallsModalOpen, selectedUserName, selectedCallType, selectedCalls, crmNames, openCallsModal, openTotalsCallsModal } = useCallsModal(calls, usersById)
+const { isCallsModalOpen, selectedUserName, selectedCallType, selectedCalls, selectedDateRange, crmNames, openCallsModal, openTotalsCallsModal } = useCallsModal(calls, usersById)
+
+const currentDateRange = computed(() => getDateRange())
 
 function openRatingCallsModal(userId: string, userName: string, callTypeLabel: string) {
   const callType = callTypeLabel === 'совершенные звонки' ? 'исходящие' : 'пропущенные'
-  openCallsModal(userId, userName, callType)
+  openCallsModal(userId, userName, callType, currentDateRange.value)
 }
 
 function openRatingTotalsModal(callTypeLabel: string) {
   const callType = callTypeLabel === 'совершенные звонки' ? 'исходящие' : 'пропущенные'
-  openTotalsCallsModal(callType)
+  openTotalsCallsModal(callType, currentDateRange.value)
 }
 
 const isLoading = ref(false)
@@ -205,6 +207,7 @@ watch([dateRange, dateValue], () => {
       :call-type="selectedCallType"
       :calls="selectedCalls"
       :crm-names="crmNames"
+      :date-range="selectedDateRange"
     />
   </div>
 </template>

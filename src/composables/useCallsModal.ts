@@ -22,6 +22,7 @@ export function useCallsModal(
   const selectedUserName = ref('')
   const selectedCallType = ref('')
   const selectedCalls = ref<Call[]>([])
+  const selectedDateRange = ref<{ start: Date; end: Date } | null>(null)
   /** Кэш имён CRM: ключ "ENTITYTYPE_ID" (например CONTACT_1042), значение — отображаемое имя */
   const crmNames = ref<Map<string, string>>(new Map())
 
@@ -67,9 +68,10 @@ export function useCallsModal(
     { immediate: true }
   )
 
-  const openCallsModal = (userId: string, userName: string, callType: string) => {
+  const openCallsModal = (userId: string, userName: string, callType: string, dateRange?: { start: Date; end: Date } | null) => {
     selectedUserName.value = userName
     selectedCallType.value = callType
+    selectedDateRange.value = dateRange || null
     selectedCalls.value = getCallsFromTelephonyRecords(
       callsFilteredByMinDuration(),
       usersById.value,
@@ -79,9 +81,10 @@ export function useCallsModal(
     isCallsModalOpen.value = true
   }
 
-  const openTotalsCallsModal = (callType: string) => {
+  const openTotalsCallsModal = (callType: string, dateRange?: { start: Date; end: Date } | null) => {
     selectedUserName.value = 'Все сотрудники'
     selectedCallType.value = callType
+    selectedDateRange.value = dateRange || null
     selectedCalls.value = getCallsFromTelephonyRecords(
       callsFilteredByMinDuration(),
       usersById.value,
@@ -96,6 +99,7 @@ export function useCallsModal(
     selectedUserName,
     selectedCallType,
     selectedCalls,
+    selectedDateRange,
     crmNames,
     openCallsModal,
     openTotalsCallsModal,

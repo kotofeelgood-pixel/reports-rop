@@ -5,6 +5,7 @@ import ModalComponent from '@/components/modal/ModalComponent.vue'
 import ButtonComponent from '@/components/buttons/ButtonComponent.vue'
 import type { Call } from '@/tools/calls'
 import { getCrmEntityUrl } from '@/tools'
+import { formatDateRangeFromDates } from '@/tools/date'
 
 type Props = {
   userName: string
@@ -12,6 +13,8 @@ type Props = {
   calls: Call[]
   /** Карта имён CRM (ключ "ENTITYTYPE_ID"), подгружаемых из Битрикс при открытии модалки. Может быть Ref. */
   crmNames?: Map<string, string> | { value: Map<string, string> }
+  /** Диапазон дат для отображения периода звонков */
+  dateRange?: { start: Date; end: Date } | null
 }
 
 const props = defineProps<Props>()
@@ -36,6 +39,11 @@ function getCrmEntityLink(call: Call): string | null {
   return getCrmEntityUrl(call.crmEntityType, call.crmEntityId)
 }
 const model = defineModel<boolean>('open', { default: false })
+
+const dateRangeDisplay = computed(() => {
+  if (!props.dateRange) return ''
+  return formatDateRangeFromDates(props.dateRange.start, props.dateRange.end)
+})
 
 const modalTitle = computed(() => `${props.userName} — ${props.callType}`)
 
@@ -310,8 +318,8 @@ const exportToExcel = async () => {
     >
     <template #body>
       <div class="space-y-4">
-        <!-- Кнопка назад -->
-        <div class="flex items-center">
+        <!-- Кнопка назад и дата -->
+        <div class="flex items-center justify-between">
           <ButtonComponent
             variant="ghost"
             size="md"
@@ -323,6 +331,9 @@ const exportToExcel = async () => {
             </svg>
             Назад
           </ButtonComponent>
+          <div v-if="dateRangeDisplay" class="text-sm font-medium text-gray-600 dark:text-gray-400">
+            Период: {{ dateRangeDisplay }}
+          </div>
         </div>
         <!-- Таблица звонков -->
         <div>

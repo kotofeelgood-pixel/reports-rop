@@ -206,7 +206,9 @@ const userOptions = computed(() => {
   return filteredItems
 })
 
-const { isCallsModalOpen, selectedUserName, selectedCallType, selectedCalls, crmNames, openCallsModal, openTotalsCallsModal } = useCallsModal(calls, usersById)
+const { isCallsModalOpen, selectedUserName, selectedCallType, selectedCalls, selectedDateRange, crmNames, openCallsModal, openTotalsCallsModal } = useCallsModal(calls, usersById)
+
+const currentDateRange = computed(() => getDateRange())
 
 const fetchCalls = async () => {
   const range = getDateRange()
@@ -432,19 +434,19 @@ watch([dateRange, dateValue, selectedUsers], () => {
             </td>
             <td
               class="cursor-pointer px-4 py-2 font-medium text-green-600 transition-all hover:underline hover:opacity-80 dark:text-green-400"
-              @click="openCallsModal(row.id, row.name, 'исходящие')"
+              @click="openCallsModal(row.id, row.name, 'исходящие', currentDateRange)"
             >
               {{ row.outgoing }}
             </td>
             <td
               class="cursor-pointer px-4 py-2 font-medium text-[#2563eb] transition-all hover:underline hover:opacity-80 dark:text-blue-400"
-              @click="openCallsModal(row.id, row.name, 'входящие')"
+              @click="openCallsModal(row.id, row.name, 'входящие', currentDateRange)"
             >
               {{ row.incoming }}
             </td>
             <td
               class="cursor-pointer px-4 py-2 font-medium text-red-600 transition-all hover:underline hover:opacity-80 dark:text-red-400"
-              @click="openCallsModal(row.id, row.name, 'пропущенные')"
+              @click="openCallsModal(row.id, row.name, 'пропущенные', currentDateRange)"
             >
               {{ row.missed }}
             </td>
@@ -456,19 +458,19 @@ watch([dateRange, dateValue, selectedUsers], () => {
             <td class="px-4 py-2 dark:text-gray-300">ИТОГИ:</td>
             <td
               class="cursor-pointer px-4 py-2 text-green-600 transition-all hover:underline hover:opacity-80 dark:text-green-400"
-              @click="openTotalsCallsModal('исходящие')"
+              @click="openTotalsCallsModal('исходящие', currentDateRange)"
             >
               {{ tableTotals.outgoing }}
             </td>
             <td
               class="cursor-pointer px-4 py-2 text-[#2563eb] transition-all hover:underline hover:opacity-80 dark:text-blue-400"
-              @click="openTotalsCallsModal('входящие')"
+              @click="openTotalsCallsModal('входящие', currentDateRange)"
             >
               {{ tableTotals.incoming }}
             </td>
             <td
               class="cursor-pointer px-4 py-2 text-red-600 transition-all hover:underline hover:opacity-80 dark:text-red-400"
-              @click="openTotalsCallsModal('пропущенные')"
+              @click="openTotalsCallsModal('пропущенные', currentDateRange)"
             >
               {{ tableTotals.missed }}
             </td>
@@ -485,6 +487,7 @@ watch([dateRange, dateValue, selectedUsers], () => {
       :call-type="selectedCallType"
       :calls="selectedCalls"
       :crm-names="crmNames"
+      :date-range="selectedDateRange"
     />
   </section>
 </template>

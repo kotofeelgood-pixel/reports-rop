@@ -45,3 +45,20 @@ export function formatDateRange(
 
   return defaultText
 }
+
+/**
+ * Форматирует диапазон дат из Date объектов в строку формата "DD.MM.YYYY - DD.MM.YYYY"
+ * @param start - начальная дата
+ * @param end - конечная дата
+ * @returns отформатированная строка с диапазоном дат
+ */
+export function formatDateRangeFromDates(start: Date | null, end: Date | null): string {
+  if (!start || !end) {
+    return '—'
+  }
+
+  const pad = (n: number) => String(n).padStart(2, '0')
+  const startStr = `${pad(start.getDate())}.${pad(start.getMonth() + 1)}.${start.getFullYear()}`
+  const endStr = `${pad(end.getDate())}.${pad(end.getMonth() + 1)}.${end.getFullYear()}`
+  return `${startStr} - ${endStr}`
+}
