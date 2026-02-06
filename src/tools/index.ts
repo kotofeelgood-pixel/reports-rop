@@ -87,3 +87,27 @@ export const getUserProfileUrl = (userId: string | number): string => {
   return domain ? `https://${domain}${path}` : path
 }
 
+/** URL карточки сущности CRM (лид, контакт, компания) в Bitrix24. */
+export const getCrmEntityUrl = (entityType: string, entityId: string | number): string | null => {
+  if (!entityType || !entityId) return null
+  const w = globalThis as any
+  const domain = w?.BX24?.getDomain?.()
+  if (!domain) return null
+  
+  const type = String(entityType).toUpperCase()
+  const id = String(entityId)
+  
+  let path = ''
+  if (type === 'LEAD') {
+    path = `/crm/lead/details/${id}/`
+  } else if (type === 'CONTACT') {
+    path = `/crm/contact/details/${id}/`
+  } else if (type === 'COMPANY') {
+    path = `/crm/company/details/${id}/`
+  } else {
+    return null
+  }
+  
+  return `https://${domain}${path}`
+}
+

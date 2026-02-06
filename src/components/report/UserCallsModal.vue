@@ -4,6 +4,7 @@ import * as XLSX from 'xlsx'
 import ModalComponent from '@/components/modal/ModalComponent.vue'
 import ButtonComponent from '@/components/buttons/ButtonComponent.vue'
 import type { Call } from '@/tools/calls'
+import { getCrmEntityUrl } from '@/tools'
 
 type Props = {
   userName: string
@@ -21,7 +22,18 @@ function getCrmDisplayName(call: Call): string {
   if (!map || typeof map.get !== 'function') return call.crm
   const type = String(call.crmEntityType).toUpperCase()
   const key = `${type}_${call.crmEntityId}`
-  return map.get(key) ?? call.crm
+  const name = map.get(key)
+  if (name) return name
+  // Если имени нет в карте, возвращаем тип сущности
+  if (type === 'LEAD') return 'Лид'
+  if (type === 'CONTACT') return 'Контакт'
+  if (type === 'COMPANY') return 'Компания'
+  return call.crm
+}
+
+function getCrmEntityLink(call: Call): string | null {
+  if (!call.crmEntityType || !call.crmEntityId) return null
+  return getCrmEntityUrl(call.crmEntityType, call.crmEntityId)
 }
 const model = defineModel<boolean>('open', { default: false })
 
@@ -339,7 +351,16 @@ const exportToExcel = async () => {
                 <td class="px-4 py-4 text-gray-700 dark:text-gray-300">{{ call.type }}</td>
                 <td class="px-4 py-4 text-gray-700 dark:text-gray-300">{{ call.duration }}</td>
                 <td class="px-4 py-4">
-                  <span class="text-blue-600 hover:underline dark:text-blue-400">{{ getCrmDisplayName(call) }}</span>
+                  <a
+                    v-if="getCrmEntityLink(call)"
+                    :href="getCrmEntityLink(call)"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="text-blue-600 hover:underline dark:text-blue-400"
+                  >
+                    {{ getCrmDisplayName(call) }}
+                  </a>
+                  <span v-else class="text-gray-600 dark:text-gray-400">{{ getCrmDisplayName(call) }}</span>
                 </td>
                 <td class="px-4 py-4 text-center">
                   <span
