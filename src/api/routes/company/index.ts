@@ -2,7 +2,6 @@ import { departmentGet, sonetGroupGet } from '~/api/company'
 import { userGet, userCurrent } from '~/api/user'
 import { taskElapseditemGetlist, tasksTaskList, taskChecklistitemGetlist } from '~/api/task'
 import { callBatchPromise } from '~/api/core'
-import { useB24 } from '~/composables/useB24'
 import { getMonthDateRange, getTaskUrl, getReportDateRange, type ReportPeriod } from '~/tools'
 
 // Список подразделений c учётом постранички (start/next) и батчами
@@ -130,8 +129,7 @@ export const getProjectsWithTime = async (params: TaskElapsedItemParams) => {
     ])
 
       try {
-        const b24 = await useB24()
-        const tasks = await callBatchPromise(b24, batchParams) as any[]
+        const tasks = await callBatchPromise(batchParams) as any[]
       for (const task of tasks) {
         if (task && typeof task === 'object') {
           // Проверяем наличие ошибки
@@ -187,8 +185,7 @@ export const getProjectsWithTime = async (params: TaskElapsedItemParams) => {
       ])
 
       try {
-        const b24 = await useB24()
-        const batchProjects = await callBatchPromise(b24, batchParams) as any[]
+        const batchProjects = await callBatchPromise(batchParams) as any[]
         if (Array.isArray(batchProjects)) {
           for (const project of batchProjects) {
             if (project && typeof project === 'object') {
@@ -344,8 +341,7 @@ export const getTasksWithTime = async (params: TaskElapsedItemParams) => {
       ])
 
       try {
-        const b24 = await useB24()
-        const tasks = await callBatchPromise(b24, batchParams) as any[]
+        const tasks = await callBatchPromise(batchParams) as any[]
       for (const task of tasks) {
         if (task && typeof task === 'object') {
           // Проверяем наличие ошибки

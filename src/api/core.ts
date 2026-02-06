@@ -1,78 +1,39 @@
-// Базовые вспомогательные функции для работы с Bitrix24 API
+// Базовые вспомогательные функции для работы с Bitrix24 API через bx24-api
+
+import BX24 from 'bx24-api'
 
 /**
- * Извлекает только чистые данные из ответа Bitrix24, исключая функции и методы.
- * Эта функция гарантирует, что данные могут быть безопасно клонированы через structuredClone.
+ * Тип результата из bx24-api callMethod
  */
-export const extractPlainData = (data: unknown): unknown => {
-  if (data === null || data === undefined) {
-    return data
-  }
-
-  // Если есть метод getData, используем его (для объектов Result из B24Frame)
-  if (typeof data === 'object' && data !== null && 'getData' in data && typeof (data as any).getData === 'function') {
-    try {
-      const extracted = (data as any).getData()
-      return extractPlainData(extracted)
-    } catch (error) {
-      // Если getData() не работает, продолжаем обычную обработку
-      console.warn('getData() failed, using fallback extraction:', error)
-    }
-  }
-
-  // Если это массив, обрабатываем каждый элемент
-  if (Array.isArray(data)) {
-    return data.map(item => extractPlainData(item))
-  }
-
-  // Если это объект, создаем новый объект только с данными
-  if (typeof data === 'object' && data !== null) {
-    const plain: Record<string, unknown> = {}
-    for (const key in data) {
-      // Пропускаем функции и методы
-      const value = (data as any)[key]
-      if (typeof value === 'function') {
-        continue
-      }
-      // Пропускаем символы и другие несериализуемые типы
-      if (typeof key === 'symbol') {
-        continue
-      }
-      plain[key] = extractPlainData(value)
-    }
-    return plain
-  }
-
-  // Примитивные типы возвращаем как есть
-  return data
+type BX24Result = {
+  data: () => unknown
+  more: () => boolean
+  next: () => Promise<BX24Result>
+  answer?: unknown
 }
 
 /**
- * Вспомогательная функция для вызова метода Bitrix24 API через B24Frame.
+ * Вспомогательная функция для вызова метода Bitrix24 API через bx24-api.
  *
- * @param b24 - экземпляр B24Frame
  * @param method - имя метода API
  * @param params - параметры метода (может быть объектом или массивом, в зависимости от метода)
  */
 export const callMethodPromise = async (
-  b24: any,
   method: string,
   params: Record<string, unknown> | unknown[]
 ): Promise<unknown> => {
   try {
-    const response = await b24.callMethod(method, params)
-
-    // Проверяем, что response имеет метод getData()
-    if (!response || typeof response.getData !== 'function') {
-      throw new Error(`Invalid response from callMethod: ${method}`)
+    const response = await BX24.callMethod(method, params) as BX24Result
+    
+    // Получаем данные из ответа
+    const data = response.data()
+    
+    // Если есть answer, используем его (для совместимости со старым кодом)
+    if (response.answer) {
+      return response.answer
     }
-
-    // Используем getData() для получения чистых данных без функций
-    // Это предотвращает ошибку DataCloneError при попытке клонировать функции
-    const data = response.getData()
-
-    // Дополнительно очищаем данные от любых оставшихся функций
-    return extractPlainData(data)
+    
+    return data
   } catch (error) {
     console.error(`Error in callMethodPromise for ${method}:`, error)
     throw error
@@ -80,9 +41,9 @@ export const callMethodPromise = async (
 }
 
 /**
- * Вспомогательная функция для пакетного вызова методов Bitrix24 API через B24Frame.
+ * Вспомогательная функция для пакетного вызова методов Bitrix24 API через bx24-api.
  */
-export const callBatchPromise = async (b24: any, params: unknown[]): Promise<unknown> => {
+export const callBatchPromise = async (params: unknown[]): Promise<unknown> => {
   try {
     const batchParams: Record<string, { method: string; params: Record<string, unknown> | unknown[] }> = {}
 
@@ -97,13 +58,8 @@ export const callBatchPromise = async (b24: any, params: unknown[]): Promise<unk
       }
     })
 
-    const response = await b24.callBatch(batchParams, true)
-
-    if (!response || typeof response.getData !== 'function') {
-      throw new Error('Invalid response from callBatch')
-    }
-
-    const data = response.getData()
+    const response = await BX24.callBatch(batchParams, true) as BX24Result
+    const data = response.data() as Record<string, unknown>
 
     let resultArray: unknown[] = []
     for (const key in data) {
@@ -115,60 +71,27 @@ export const callBatchPromise = async (b24: any, params: unknown[]): Promise<unk
 
       // Проверяем наличие ошибки в конкретном результате
       if (batchResult && typeof batchResult === 'object' && 'error' in (batchResult as any)) {
-        const errorValue = typeof (batchResult as any).error === 'function'
-          ? (() => {
-            try {
-              return (batchResult as any).error()
-            } catch {
-              return (batchResult as any).error
-            }
-          })()
-          : (batchResult as any).error
+        const errorValue = (batchResult as any).error
         if (errorValue) {
-          const errorDescription = typeof (batchResult as any).error_description === 'function'
-            ? (() => {
-              try {
-                return (batchResult as any).error_description()
-              } catch {
-                return (batchResult as any).error_description
-              }
-            })()
-            : (batchResult as any).error_description
+          const errorDescription = (batchResult as any).error_description
           console.warn(`Error in batch result ${key}:`, errorValue)
-          // Добавляем объект с ошибкой, чтобы вызывающий код мог его обработать
           resultArray.push({ error: errorValue, error_description: errorDescription })
           continue
         }
       }
 
       // Извлекаем данные из результата batch запроса
-      const batchData = typeof (batchResult as any)?.data === 'function'
-        ? (() => {
-          try {
-            return (batchResult as any).data()
-          } catch {
-            return batchResult
-          }
-        })()
-        : batchResult
-
-      let result = (batchData as any)?.items ?? (batchData as any)?.result ?? batchData
-      if (typeof result === 'function') {
-        try {
-          result = result()
-        } catch {
-          result = batchData
-        }
-      }
+      const batchData = batchResult as any
+      let result = batchData?.items ?? batchData?.result ?? batchData
 
       if (Array.isArray(result)) {
         resultArray = [...resultArray, ...result]
       } else if (result && typeof result === 'object') {
         // user.get возвращает объект вида { result: [...], total, next, time }
-        if (Array.isArray((result as any).result)) {
-          resultArray = [...resultArray, ...(result as any).result]
-        } else if ((result as any).tasks && Array.isArray((result as any).tasks)) {
-          resultArray = [...resultArray, ...(result as any).tasks]
+        if (Array.isArray(result.result)) {
+          resultArray = [...resultArray, ...result.result]
+        } else if (result.tasks && Array.isArray(result.tasks)) {
+          resultArray = [...resultArray, ...result.tasks]
         } else {
           resultArray.push(result)
         }
@@ -177,10 +100,27 @@ export const callBatchPromise = async (b24: any, params: unknown[]): Promise<unk
       }
     }
 
-    return extractPlainData(resultArray)
+    return resultArray
   } catch (error) {
     console.error('Error in callBatchPromise:', error)
     throw error
+  }
+}
+
+/**
+ * Вспомогательная функция для автоматической загрузки всех данных через callMethodAll.
+ * Поддерживает только методы с ID, filter, order, select.
+ */
+export const callMethodAll = async (
+  method: string,
+  params: Record<string, unknown> = {}
+): Promise<unknown[]> => {
+  try {
+    const result = await BX24.callMethodAll(method, params) as unknown[]
+    return Array.isArray(result) ? result : []
+  } catch (error) {
+    console.error(`Error in callMethodAll for ${method}:`, error)
+    return []
   }
 }
 

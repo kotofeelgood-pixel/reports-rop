@@ -1,4 +1,3 @@
-import { useB24 } from '../composables/useB24'
 import { callMethodPromise, callBatchPromise } from './core'
 
 /**
@@ -7,7 +6,6 @@ import { callMethodPromise, callBatchPromise } from './core'
  * https://dev.1c-bitrix.ru/rest_help/sonet_group/sonet_group_user_get.php
  */
 export const sonetGroupUserList = async (arId: unknown[] = []): Promise<unknown[]> => {
-  const b24 = await useB24()
   try {
     const params: unknown[] = []
     for (const id of arId) {
@@ -23,14 +21,14 @@ export const sonetGroupUserList = async (arId: unknown[] = []): Promise<unknown[
     const chunkSize = 50
     for (let i = 0; i < params.length; i += chunkSize) {
       const chunk = params.slice(i, i + chunkSize)
-      const resCallBatch = await callBatchPromise(b24, chunk) as unknown[]
+      const resCallBatch = await callBatchPromise(chunk) as unknown[]
       const mergedArray = [...data, ...resCallBatch]
       data = [...new Set(mergedArray)]
     }
 
     return data
   } catch (error) {
-    console.error(error)
+    console.error('sonet_group.user.get (list) error:', error)
     return []
   }
 }
@@ -41,16 +39,15 @@ export const sonetGroupUserList = async (arId: unknown[] = []): Promise<unknown[
  * https://dev.1c-bitrix.ru/rest_help/sonet_group/sonet_group_user_get.php
  */
 export const sonetGroupUserGet = async (id: unknown): Promise<unknown[]> => {
-  const b24 = await useB24()
   try {
-    const response: any = await callMethodPromise(b24, 'sonet_group.user.get', {
+    const response: any = await callMethodPromise('sonet_group.user.get', {
       ID: id,
     })
 
     const answer = response
     return answer?.result ?? []
   } catch (error) {
-    console.error(error)
+    console.error('sonet_group.user.get error:', error)
     return []
   }
 }
@@ -64,9 +61,8 @@ export const sonetGroupGet = async (
   filter: Record<string, unknown> = {},
   order: Record<string, string> = { 'NAME': 'ASC' }
 ): Promise<unknown[]> => {
-  const b24 = await useB24()
   try {
-    const response: any = await callMethodPromise(b24, 'sonet_group.get', {
+    const response: any = await callMethodPromise('sonet_group.get', {
       ORDER: order,
       FILTER: filter,
     })
@@ -105,13 +101,13 @@ export const sonetGroupGet = async (
     const chunkSize = 50
     for (let i = 0; i < params.length; i += chunkSize) {
       const chunk = params.slice(i, i + chunkSize)
-      const batchResult = await callBatchPromise(b24, chunk) as unknown[]
+      const batchResult = await callBatchPromise(chunk) as unknown[]
       data.push(...batchResult)
     }
 
     return data
   } catch (error) {
-    console.error(error)
+    console.error('sonet_group.get error:', error)
     return []
   }
 }
@@ -129,7 +125,6 @@ export const departmentGet = async (
   sort: string = 'ID',
   order: string = 'ASC'
 ): Promise<unknown[]> => {
-  const b24 = await useB24()
   try {
     const params: Record<string, unknown> = {
       sort,
@@ -149,7 +144,7 @@ export const departmentGet = async (
       params.UF_HEAD = uf_head
     }
 
-    const response: any = await callMethodPromise(b24, 'department.get', params)
+    const response: any = await callMethodPromise('department.get', params)
 
     const answer = response
     let allResults = Array.isArray(answer?.result) ? answer.result : []
@@ -160,7 +155,7 @@ export const departmentGet = async (
 
       while (next < total) {
         const nextParams = { ...params, start: next }
-        const nextResponse: any = await callMethodPromise(b24, 'department.get', nextParams)
+        const nextResponse: any = await callMethodPromise('department.get', nextParams)
         const nextAnswer = nextResponse
         if (Array.isArray(nextAnswer?.result)) {
           allResults = [...allResults, ...nextAnswer.result]
@@ -171,7 +166,7 @@ export const departmentGet = async (
 
     return allResults
   } catch (error) {
-    console.error(error)
+    console.error('department.get error:', error)
     return []
   }
 }

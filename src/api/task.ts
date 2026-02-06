@@ -1,4 +1,3 @@
-import { useB24 } from '../composables/useB24'
 import { callMethodPromise, callBatchPromise } from './core'
 
 /**
@@ -12,7 +11,6 @@ export const taskElapseditemGetlist = async (
   select: string[] = ['*'],
   order: Record<string, string> = { 'ID': 'desc' }
 ): Promise<unknown[]> => {
-  const b24 = await useB24()
   try {
     const requestParams: Record<string, unknown> = {
       ORDER: order,
@@ -25,7 +23,7 @@ export const taskElapseditemGetlist = async (
       requestParams.SELECT = ['*']
     }
 
-    const response: any = await callMethodPromise(b24, 'task.elapseditem.getlist', requestParams)
+    const response: any = await callMethodPromise('task.elapseditem.getlist', requestParams)
     const answer = response
 
     if (answer?.next === undefined || answer?.next === null) {
@@ -64,7 +62,7 @@ export const taskElapseditemGetlist = async (
       const chunkSize = 50
       for (let i = 0; i < params.length; i += chunkSize) {
         const chunk = params.slice(i, i + chunkSize)
-        const batchResults = await callBatchPromise(b24, chunk)
+        const batchResults = await callBatchPromise(chunk)
         if (Array.isArray(batchResults)) {
           allResults.push(...batchResults)
         }
@@ -73,7 +71,7 @@ export const taskElapseditemGetlist = async (
 
     return allResults
   } catch (error) {
-    console.error(error)
+    console.error('task.elapseditem.getlist error:', error)
     return []
   }
 }
@@ -89,7 +87,6 @@ export const taskElapseditemAdd = async (
   comment: string = '',
   date?: string
 ): Promise<{ id?: number; error?: string }> => {
-  const b24 = await useB24()
   try {
     const params: Record<string, unknown> = {
       TASKID: taskId,
@@ -98,7 +95,7 @@ export const taskElapseditemAdd = async (
     }
     if (comment) params.TEXT = comment
     if (date) params.SETUPDATE = date
-    const response: any = await callMethodPromise(b24, 'task.elapseditem.add', params)
+    const response: any = await callMethodPromise('task.elapseditem.add', params)
     const result = response?.result
     if (result && typeof result === 'object' && result.id !== undefined) {
       return { id: result.id }
@@ -106,7 +103,7 @@ export const taskElapseditemAdd = async (
     if (response?.error) return { error: response.error }
     return {}
   } catch (error) {
-    console.error(error)
+    console.error('task.elapseditem.add error:', error)
     return { error: String(error) }
   }
 }
@@ -121,9 +118,8 @@ export const taskElapseditemAdd = async (
  * https://dev.1c-bitrix.ru/rest_help/tasks/task/checklistitem/getlist.php
  */
 export const taskChecklistitemGetlist = async (taskId: number): Promise<unknown[]> => {
-  const b24 = await useB24()
   try {
-    const response: any = await callMethodPromise(b24, 'task.checklistitem.getlist', {
+    const response: any = await callMethodPromise('task.checklistitem.getlist', {
       TASKID: taskId
     })
     const result = response?.result ?? response
@@ -138,9 +134,8 @@ export const tasksTaskGet = async (
   taskId: number,
   select: string[] = ['ID', 'TITLE', 'GROUP_ID']
 ): Promise<unknown> => {
-  const b24 = await useB24()
   try {
-    const response: any = await callMethodPromise(b24, 'tasks.task.get', {
+    const response: any = await callMethodPromise('tasks.task.get', {
       taskId,
       select
     })
@@ -148,7 +143,7 @@ export const tasksTaskGet = async (
     const answer = response
     return answer?.result?.task ?? answer?.task ?? null
   } catch (error) {
-    console.error(error)
+    console.error('tasks.task.get error:', error)
     return null
   }
 }
@@ -163,9 +158,8 @@ export const tasksTaskList = async (
   select: string[] = ['*'],
   order: Record<string, string> = { 'ID': 'ASC' }
 ): Promise<unknown[]> => {
-  const b24 = await useB24()
   try {
-    const response: any = await callMethodPromise(b24, 'tasks.task.list', {
+    const response: any = await callMethodPromise('tasks.task.list', {
       filter,
       select,
       order,
@@ -207,13 +201,13 @@ export const tasksTaskList = async (
     const chunkSize = 50
     for (let i = 0; i < params.length; i += chunkSize) {
       const chunk = params.slice(i, i + chunkSize)
-      const batchResult = await callBatchPromise(b24, chunk) as unknown[]
+      const batchResult = await callBatchPromise(chunk) as unknown[]
       data.push(...batchResult)
     }
 
     return data
   } catch (error) {
-    console.error(error)
+    console.error('tasks.task.list error:', error)
     return []
   }
 }

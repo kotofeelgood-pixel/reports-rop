@@ -1,5 +1,4 @@
-import { useB24 } from '../composables/useB24'
-import { callMethodPromise, callBatchPromise } from './core'
+import { callMethodPromise, callMethodAll, callBatchPromise } from './core'
 
 type CrmContact = { NAME?: string; LAST_NAME?: string; [key: string]: unknown }
 type CrmLead = { TITLE?: string; NAME?: string; LAST_NAME?: string; [key: string]: unknown }
@@ -10,9 +9,8 @@ type CrmCompany = { TITLE?: string; [key: string]: unknown }
  * https://dev.1c-bitrix.ru/rest_help/crm/contacts/crm_contact_get.php
  */
 export const crmContactGet = async (id: string): Promise<CrmContact | null> => {
-  const b24 = await useB24()
   try {
-    const response: any = await callMethodPromise(b24, 'crm.contact.get', { id })
+    const response: any = await callMethodPromise('crm.contact.get', { id })
     const result = response?.result
     return result && typeof result === 'object' ? result as CrmContact : null
   } catch {
@@ -25,9 +23,8 @@ export const crmContactGet = async (id: string): Promise<CrmContact | null> => {
  * https://dev.1c-bitrix.ru/rest_help/crm/leads/crm_lead_get.php
  */
 export const crmLeadGet = async (id: string): Promise<CrmLead | null> => {
-  const b24 = await useB24()
   try {
-    const response: any = await callMethodPromise(b24, 'crm.lead.get', { id })
+    const response: any = await callMethodPromise('crm.lead.get', { id })
     const result = response?.result
     return result && typeof result === 'object' ? result as CrmLead : null
   } catch {
@@ -40,9 +37,8 @@ export const crmLeadGet = async (id: string): Promise<CrmLead | null> => {
  * https://dev.1c-bitrix.ru/rest_help/crm/companies/crm_company_get.php
  */
 export const crmCompanyGet = async (id: string): Promise<CrmCompany | null> => {
-  const b24 = await useB24()
   try {
-    const response: any = await callMethodPromise(b24, 'crm.company.get', { id })
+    const response: any = await callMethodPromise('crm.company.get', { id })
     const result = response?.result
     return result && typeof result === 'object' ? result as CrmCompany : null
   } catch {
@@ -90,57 +86,17 @@ export const crmContactList = async (
   select: string[] = ['*'],
   order: Record<string, string> = { 'ID': 'desc' }
 ): Promise<unknown[]> => {
-  const b24 = await useB24()
   try {
-    const response: any = await callMethodPromise(b24, 'crm.contact.list', {
+    // Используем callMethodAll для автоматической загрузки всех данных
+    const data = await callMethodAll('crm.contact.list', {
       filter,
       order,
       select,
     })
 
-    const answer = response
-    if (answer?.next === undefined) {
-      return answer?.result ?? []
-    }
-
-    const total = answer.total
-    let next = answer.next
-    const params: unknown[] = [
-      [
-        'crm.contact.list',
-        {
-          filter,
-          order,
-          select,
-          start: 0,
-        },
-      ]
-    ]
-
-    while (next <= total) {
-      params.push([
-        'crm.contact.list',
-        {
-          filter,
-          order,
-          select,
-          start: next,
-        },
-      ])
-      next += answer.next
-    }
-
-    const data: unknown[] = []
-    const chunkSize = 50
-    for (let i = 0; i < params.length; i += chunkSize) {
-      const chunk = params.slice(i, i + chunkSize)
-      const batchResult = await callBatchPromise(b24, chunk) as unknown[]
-      data.push(...batchResult)
-    }
-
-    return data
+    return Array.isArray(data) ? data : []
   } catch (error) {
-    console.error(error)
+    console.error('crm.contact.list error:', error)
     return []
   }
 }
@@ -155,57 +111,17 @@ export const crmActivityList = async (
   select: string[] = ['*'],
   order: Record<string, string> = { 'ID': 'desc' }
 ): Promise<unknown[]> => {
-  const b24 = await useB24()
   try {
-    const response: any = await callMethodPromise(b24, 'crm.activity.list', {
+    // Используем callMethodAll для автоматической загрузки всех данных
+    const data = await callMethodAll('crm.activity.list', {
       filter,
       order,
       select,
     })
 
-    const answer = response
-    if (answer?.next === undefined) {
-      return answer?.result ?? []
-    }
-
-    const total = answer.total
-    let next = answer.next
-    const params: unknown[] = [
-      [
-        'crm.activity.list',
-        {
-          filter,
-          order,
-          select,
-          start: 0,
-        },
-      ]
-    ]
-
-    while (next <= total) {
-      params.push([
-        'crm.activity.list',
-        {
-          filter,
-          order,
-          select,
-          start: next,
-        },
-      ])
-      next += answer.next
-    }
-
-    const data: unknown[] = []
-    const chunkSize = 50
-    for (let i = 0; i < params.length; i += chunkSize) {
-      const chunk = params.slice(i, i + chunkSize)
-      const batchResult = await callBatchPromise(b24, chunk) as unknown[]
-      data.push(...batchResult)
-    }
-
-    return data
+    return Array.isArray(data) ? data : []
   } catch (error) {
-    console.error(error)
+    console.error('crm.activity.list error:', error)
     return []
   }
 }
@@ -220,57 +136,17 @@ export const crmDealList = async (
   select: string[] = ['*', 'UF_*'],
   order: Record<string, string> = { 'ID': 'ASC' }
 ): Promise<unknown[]> => {
-  const b24 = await useB24()
   try {
-    const response: any = await callMethodPromise(b24, 'crm.deal.list', {
+    // Используем callMethodAll для автоматической загрузки всех данных
+    const data = await callMethodAll('crm.deal.list', {
       filter,
       order,
       select,
     })
 
-    const answer = response
-    if (answer?.next === undefined) {
-      return answer?.result ?? []
-    }
-
-    const total = answer.total
-    let next = answer.next
-    const params: unknown[] = [
-      [
-        'crm.deal.list',
-        {
-          filter,
-          order,
-          select,
-          start: 0,
-        },
-      ]
-    ]
-
-    while (next <= total) {
-      params.push([
-        'crm.deal.list',
-        {
-          filter,
-          order,
-          select,
-          start: next,
-        },
-      ])
-      next += answer.next
-    }
-
-    const data: unknown[] = []
-    const chunkSize = 50
-    for (let i = 0; i < params.length; i += chunkSize) {
-      const chunk = params.slice(i, i + chunkSize)
-      const batchResult = await callBatchPromise(b24, chunk) as unknown[]
-      data.push(...batchResult)
-    }
-
-    return data
+    return Array.isArray(data) ? data : []
   } catch (error) {
-    console.error(error)
+    console.error('crm.deal.list error:', error)
     return []
   }
 }
