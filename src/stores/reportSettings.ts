@@ -14,8 +14,6 @@ type StoredSettings = {
   excludedDepartment?: string | null
   excludedEmployeeIds?: string[]
   minCallDurationSeconds?: number
-  dateRange?: string
-  dateValue?: CalendarDateRange
 }
 
 function loadStored(): StoredSettings | null {
@@ -48,12 +46,9 @@ export const useReportSettingsStore = defineStore('reportSettings', () => {
   const excludedDepartment = ref<string | null>(stored?.excludedDepartment ?? null)
   const excludedEmployeeIds = ref<string[]>(Array.isArray(stored?.excludedEmployeeIds) ? stored.excludedEmployeeIds : [])
   const minCallDurationSeconds = ref(stored?.minCallDurationSeconds ?? 0)
-  const dateRange = ref<string>(stored?.dateRange ?? 'realtime')
-  const dateValue = ref<CalendarDateRange>(
-    stored?.dateValue && typeof stored.dateValue === 'object'
-      ? { start: stored.dateValue.start ?? null, end: stored.dateValue.end ?? null }
-      : { start: null, end: null }
-  )
+  // Фильтры даты и пользователей не сохраняются при перезагрузке
+  const dateRange = ref<string>('realtime')
+  const dateValue = ref<CalendarDateRange>({ start: null, end: null })
 
   watch(
     [
@@ -64,8 +59,6 @@ export const useReportSettingsStore = defineStore('reportSettings', () => {
       excludedDepartment,
       excludedEmployeeIds,
       minCallDurationSeconds,
-      dateRange,
-      dateValue,
     ],
     () => {
       saveStored({
@@ -76,8 +69,6 @@ export const useReportSettingsStore = defineStore('reportSettings', () => {
         excludedDepartment: excludedDepartment.value,
         excludedEmployeeIds: excludedEmployeeIds.value,
         minCallDurationSeconds: minCallDurationSeconds.value,
-        dateRange: dateRange.value,
-        dateValue: dateValue.value,
       })
     },
     { deep: true }
