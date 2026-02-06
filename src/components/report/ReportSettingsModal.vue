@@ -19,8 +19,6 @@ const {
   excludedDepartment,
   excludedEmployeeIds,
   minCallDurationSeconds,
-  embedAnalytics,
-  embedStatsMenu,
 } = useReportSettingsStoreRefs()
 
 const usersStore = useUsersStore()
@@ -168,29 +166,6 @@ const hours = Array.from({ length: 25 }, (_, i) => ({
               <span class="min-w-[72px] rounded bg-white px-2 py-1 text-xs text-center shadow dark:bg-gray-700 dark:text-gray-200">
                 {{ minCallDurationSeconds }} сек.
               </span>
-            </div>
-          </div>
-
-          <!-- Места встраивания -->
-          <div class="space-y-2">
-            <label class="block text-sm font-medium text-gray-800 dark:text-gray-200">Места встраивания</label>
-            <div class="flex gap-2">
-              <button
-                type="button"
-                class="flex-1 rounded border px-3 py-2 text-sm"
-                :class="embedAnalytics ? 'border-[#2fc6f6] bg-white text-gray-900 dark:bg-gray-700 dark:text-white' : 'border-gray-300 bg-gray-50 text-gray-700 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300'"
-                @click="embedAnalytics = !embedAnalytics"
-              >
-                Аналитика
-              </button>
-              <button
-                type="button"
-                class="flex-1 rounded border px-3 py-2 text-sm"
-                :class="embedStatsMenu ? 'border-[#2fc6f6] bg-white text-gray-900 dark:bg-gray-700 dark:text-white' : 'border-gray-300 bg-gray-50 text-gray-700 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300'"
-                @click="embedStatsMenu = !embedStatsMenu"
-              >
-                Меню статистики звонков
-              </button>
             </div>
           </div>
 
