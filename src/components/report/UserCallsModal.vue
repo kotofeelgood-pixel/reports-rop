@@ -310,6 +310,7 @@ const exportToExcel = async () => {
 </script>
 
 <template>
+  <div>
   <ModalComponent
     v-model:open="model"
     :title="modalTitle"
@@ -452,16 +453,6 @@ const exportToExcel = async () => {
       </div>
     </template>
 
-    <TranscriptionViewModal
-      v-model:open="transcriptionViewModalOpen"
-      :call="transcriptionViewCall"
-      @add-transcription="onAddTranscriptionFromView"
-    />
-    <AttachTranscriptionModal
-      v-model:open="transcriptionModalOpen"
-      :call="transcriptionCall"
-    />
-
     <!-- Скрытый аудио-элемент для воспроизведения записи -->
     <audio
       ref="audioRef"
@@ -603,6 +594,18 @@ const exportToExcel = async () => {
       </div>
     </template>
   </ModalComponent>
+
+  <!-- Модалки расшифровки рендерятся рядом с основной модалкой, иначе не отображаются (B24Modal не рендерит default slot) -->
+  <TranscriptionViewModal
+    v-model:open="transcriptionViewModalOpen"
+    :call="transcriptionViewCall"
+    @add-transcription="onAddTranscriptionFromView"
+  />
+  <AttachTranscriptionModal
+    v-model:open="transcriptionModalOpen"
+    :call="transcriptionCall"
+  />
+  </div>
 </template>
 
 <style scoped>
