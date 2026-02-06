@@ -25,7 +25,7 @@ export const sonetGroupUserList = async (arId: unknown[] = []): Promise<unknown[
       const chunk = params.slice(i, i + chunkSize)
       const resCallBatch = await callBatchPromise(b24, chunk) as unknown[]
       const mergedArray = [...data, ...resCallBatch]
-      data = [...new Set(mergedArray)]
+      data = Array.from(new Set(mergedArray))
     }
 
     return data
@@ -95,12 +95,13 @@ export const sonetGroupGet = async (
         {
           ORDER: order,
           FILTER: filter,
-const data: unknown[] = []       },
+          start: next,
+        },
       ])
       next += answer.next
     }
 
-    let data: unknown[] = []
+    const data: unknown[] = []
     const chunkSize = 50
     for (let i = 0; i < params.length; i += chunkSize) {
       const chunk = params.slice(i, i + chunkSize)
