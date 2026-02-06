@@ -199,6 +199,7 @@ watch([dateRange, dateValue], () => {
     </div>
 
     <UserCallsModal
+      v-if="isCallsModalOpen"
       v-model:open="isCallsModalOpen"
       :user-name="selectedUserName"
       :call-type="selectedCallType"

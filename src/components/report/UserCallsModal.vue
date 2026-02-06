@@ -298,16 +298,16 @@ const exportToExcel = async () => {
 </script>
 
 <template>
-  <div>
-  <ModalComponent
-    v-model:open="model"
-    :title="modalTitle"
-    fullscreen
-    overlay
-    modal
-    :close="true"
-    :b24ui="modalBodyClass"
-  >
+  <Teleport to="body">
+    <ModalComponent
+      v-model:open="model"
+      :title="modalTitle"
+      fullscreen
+      overlay
+      modal
+      :close="true"
+      :b24ui="modalBodyClass"
+    >
     <template #body>
       <div class="space-y-4">
         <!-- Кнопка назад -->
@@ -565,7 +565,7 @@ const exportToExcel = async () => {
       </div>
     </template>
   </ModalComponent>
-  </div>
+  </Teleport>
 </template>
 
 <style scoped>
