@@ -83,15 +83,17 @@ const rowsFromCalls = computed<Row[]>(() => {
     }
     const row = map.get(userId)!
     if (callTypeNum === 1) row.outgoing += 1
-    else row.incoming += 1
-    if (isMissed) row.missed += 1
+    else {
+      row.incoming += 1
+      if (isMissed) row.missed += 1
+    }
 
     if (Number.isFinite(duration) && duration > 0) {
       row._seconds += duration
     }
   }
 
-  for (const row of map.values()) {
+  for (const row of Array.from(map.values())) {
     const total = Math.max(0, row._seconds)
     const h = Math.floor(total / 3600)
     const m = Math.floor((total % 3600) / 60)
@@ -138,7 +140,7 @@ const {
   isDatePickerOpen,
   showDatePicker,
   dateRangeOptions,
-  formatB24Date,
+  formatB24DateFilter,
   getDateRange,
 } = useDateRange()
 
@@ -173,8 +175,10 @@ const callsByDate = computed(() => {
     const callTypeNum = Number(call.CALL_TYPE ?? call.callType ?? call.TYPE ?? call.type)
     const isMissed = duration <= 0 || Boolean(call.CALL_FAILED_CODE ?? call.call_failed_code)
     if (callTypeNum === 1) stat.outgoing += 1
-    else stat.incoming += 1
-    if (isMissed) stat.missed += 1
+    else {
+      stat.incoming += 1
+      if (isMissed) stat.missed += 1
+    }
   }
   return map
 })
@@ -212,8 +216,8 @@ const fetchCalls = async () => {
   error.value = null
   try {
     const filter: Record<string, unknown> = {
-      '>=CALL_START_DATE': formatB24Date(range.start),
-      '<=CALL_START_DATE': formatB24Date(range.end),
+      '>=CALL_START_DATE': formatB24DateFilter(range.start, 'start'),
+      '<=CALL_START_DATE': formatB24DateFilter(range.end, 'end'),
     }
     if (selectedUser.value) {
       filter.PORTAL_USER_ID = selectedUser.value

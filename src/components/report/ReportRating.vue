@@ -12,7 +12,7 @@ import { telephonyCallList, type TelephonyCallRecord } from '@/api/calls'
 const { layoutType, minCallDurationSeconds } = useReportSettingsStoreRefs()
 const usersStore = useUsersStore()
 const { usersById } = useUsersStoreRefs()
-const { dateRange, dateValue, getDateRange, formatB24Date } = useDateRange()
+const { dateRange, dateValue, getDateRange, formatB24DateFilter } = useDateRange()
 
 const calls = ref<TelephonyCallRecord[]>([])
 const { isCallsModalOpen, selectedUserName, selectedCallType, selectedCalls, crmNames, openCallsModal, openTotalsCallsModal } = useCallsModal(calls, usersById)
@@ -42,6 +42,8 @@ const normalizeDuration = (call: TelephonyCallRecord): number => {
 }
 
 const isMissedCall = (call: TelephonyCallRecord): boolean => {
+  // Пропущенный — только входящий звонок, на который не ответили
+  if (isOutgoingCall(call)) return false
   const duration = normalizeDuration(call)
   if (duration <= 0) return true
   if (call.CALL_FAILED_CODE ?? call.call_failed_code) return true
@@ -101,8 +103,8 @@ const fetchCalls = async () => {
   error.value = null
   try {
     const filter: Record<string, unknown> = {
-      '>=CALL_START_DATE': formatB24Date(range.start),
-      '<=CALL_START_DATE': formatB24Date(range.end),
+      '>=CALL_START_DATE': formatB24DateFilter(range.start, 'start'),
+      '<=CALL_START_DATE': formatB24DateFilter(range.end, 'end'),
     }
     const data = await telephonyCallList({ filter, sort: 'CALL_START_DATE', order: 'DESC' })
     calls.value = Array.isArray(data) ? data : []

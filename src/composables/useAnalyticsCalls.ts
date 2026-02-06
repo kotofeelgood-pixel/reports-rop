@@ -7,7 +7,7 @@ import { telephonyCallList, type TelephonyCallRecord } from '@/api/calls'
  * Использует тот же диапазон дат, что и отчёт (reportSettings).
  */
 export function useAnalyticsCalls() {
-  const { getDateRange, formatB24Date, dateRange, dateValue } = useDateRange()
+  const { getDateRange, formatB24DateFilter, dateRange, dateValue } = useDateRange()
   const calls = ref<TelephonyCallRecord[]>([])
   const loading = ref(false)
   const error = ref<string | null>(null)
@@ -22,8 +22,8 @@ export function useAnalyticsCalls() {
     error.value = null
     try {
       const filter: Record<string, unknown> = {
-        '>=CALL_START_DATE': formatB24Date(range.start),
-        '<=CALL_START_DATE': formatB24Date(range.end),
+        '>=CALL_START_DATE': formatB24DateFilter(range.start, 'start'),
+        '<=CALL_START_DATE': formatB24DateFilter(range.end, 'end'),
       }
       const data = await telephonyCallList({ filter, sort: 'CALL_START_DATE', order: 'DESC' })
       calls.value = Array.isArray(data) ? data : []

@@ -65,8 +65,10 @@ export function useDateRange() {
     { label: 'Прошлый месяц', value: 'last_month' },
   ]
 
+  const pad = (n: number) => String(n).padStart(2, '0')
+
+  /** Формат даты для API (локальная таймзона). */
   const formatB24Date = (d: Date): string => {
-    const pad = (n: number) => String(n).padStart(2, '0')
     const yyyy = d.getFullYear()
     const mm = pad(d.getMonth() + 1)
     const dd = pad(d.getDate())
@@ -79,6 +81,19 @@ export function useDateRange() {
     const tzh = pad(Math.floor(abs / 60))
     const tzm = pad(abs % 60)
     return `${yyyy}-${mm}-${dd}T${hh}:${mi}:${ss}${sign}${tzh}:${tzm}`
+  }
+
+  /**
+   * Формат даты для фильтра звонков (voximplant.statistic.get).
+   * Как в примере: filter[>=CALL_START_DATE]=2026-02-05T00:00:00+03:00, filter[<=CALL_START_DATE]=2026-02-06T23:59:59+03:00
+   * Используется таймзона +03:00 (Москва), чтобы запрос совпадал с ожидаемым форматом Bitrix24.
+   */
+  const formatB24DateFilter = (d: Date, kind: 'start' | 'end'): string => {
+    const yyyy = d.getFullYear()
+    const mm = pad(d.getMonth() + 1)
+    const dd = pad(d.getDate())
+    const time = kind === 'start' ? '00:00:00' : '23:59:59'
+    return `${yyyy}-${mm}-${dd}T${time}+03:00`
   }
 
   const getDateRange = (): { start: Date; end: Date } | null => {
@@ -146,6 +161,7 @@ export function useDateRange() {
     dateDisplayValue,
     dateRangeOptions,
     formatB24Date,
+    formatB24DateFilter,
     getDateRange,
   }
 }

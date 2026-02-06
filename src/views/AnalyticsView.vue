@@ -75,8 +75,10 @@ const byHourData = computed(() => {
     if (hour === null) continue
     const b = byHour.get(hour)!
     if (isOutgoing(call)) b.outgoing += 1
-    else b.incoming += 1
-    if (isMissed(call)) b.missed += 1
+    else {
+      b.incoming += 1
+      if (isMissed(call)) b.missed += 1
+    }
   }
   return Array.from({ length: 24 }, (_, hour) => ({ hour, ...byHour.get(hour)! }))
     .filter(d => d.hour >= chartStartHour.value && d.hour <= chartEndHour.value)
@@ -95,8 +97,10 @@ const byTypeData = computed(() => {
   let missed = 0
   for (const call of calls.value) {
     if (isOutgoing(call)) outgoing += 1
-    else incoming += 1
-    if (isMissed(call)) missed += 1
+    else {
+      incoming += 1
+      if (isMissed(call)) missed += 1
+    }
   }
   return [
     { name: 'Исходящие', value: outgoing, color: '#4ade80' },

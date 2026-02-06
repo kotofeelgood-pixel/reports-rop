@@ -34,8 +34,10 @@ function buildChartDataFromCalls(calls: TelephonyCallRecord[]): ChartDataPoint[]
     const duration = Number(call.CALL_DURATION ?? call.DURATION ?? call.duration ?? 0)
     const isMissed = duration <= 0 || Boolean(call.CALL_FAILED_CODE ?? call.call_failed_code)
     if (callTypeNum === 1) bucket.outgoing += 1
-    else bucket.incoming += 1
-    if (isMissed) bucket.missed += 1
+    else {
+      bucket.incoming += 1
+      if (isMissed) bucket.missed += 1
+    }
   }
   return Array.from({ length: 24 }, (_, hour) => {
     const b = byHour.get(hour)!
@@ -50,7 +52,7 @@ function buildChartDataFromCalls(calls: TelephonyCallRecord[]): ChartDataPoint[]
 export function useChartData() {
   const { chartType, chartStartHour, chartEndHour, minCallDurationSeconds } = useReportSettingsStoreRefs()
   const mode = useColorMode()
-  const { dateRange, dateValue, getDateRange, formatB24Date } = useDateRange()
+  const { dateRange, dateValue, getDateRange, formatB24DateFilter } = useDateRange()
 
   const calls = ref<TelephonyCallRecord[]>([])
   const callsFilteredByMinDuration = computed(() => {
@@ -69,8 +71,8 @@ export function useChartData() {
       const range = getDateRange()
       const filter: Record<string, unknown> = {}
       if (range?.start && range?.end) {
-        filter['>=CALL_START_DATE'] = formatB24Date(range.start)
-        filter['<=CALL_START_DATE'] = formatB24Date(range.end)
+        filter['>=CALL_START_DATE'] = formatB24DateFilter(range.start, 'start')
+        filter['<=CALL_START_DATE'] = formatB24DateFilter(range.end, 'end')
       }
       const data = await telephonyCallList({ filter, sort: 'CALL_START_DATE', order: 'DESC' })
       calls.value = Array.isArray(data) ? data : []
