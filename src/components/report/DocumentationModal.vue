@@ -16,9 +16,9 @@ const model = defineModel<boolean>('open', { default: false })
     class="max-w-4xl"
   >
     <template #body>
-      <div class="max-h-[70vh] space-y-6 overflow-y-auto pr-2">
+      <div class="max-h-[70vh] min-h-[200px] space-y-6 overflow-y-auto bg-white px-4 py-4 pr-2 text-gray-900 dark:bg-[#252525] dark:text-gray-100">
         <!-- Введение -->
-        <section>
+        <section class="text-left">
           <h2 class="mb-3 text-lg font-semibold text-gray-900 dark:text-white">Введение</h2>
           <p class="text-sm leading-relaxed text-gray-700 dark:text-gray-300">
             Приложение для анализа звонков позволяет отслеживать статистику звонков сотрудников, анализировать их активность и эффективность работы. 
