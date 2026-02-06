@@ -7,7 +7,7 @@ import { useReportSettingsStoreRefs } from '@/stores/reportSettings'
 import { useUsersStore, useUsersStoreRefs } from '@/stores/users'
 import { useDateRange } from '@/composables/useDateRange'
 import { useCallsModal } from '@/composables/useCallsModal'
-import { telephonyCallList, type TelephonyCallRecord } from '@/api/calls'
+import { telephonyCallList, type TelephonyCallRecord, isMissedCall as isMissedCallRecord } from '@/api/calls'
 
 const { layoutType, minCallDurationSeconds } = useReportSettingsStoreRefs()
 const usersStore = useUsersStore()
@@ -46,7 +46,7 @@ const isMissedCall = (call: TelephonyCallRecord): boolean => {
   if (isOutgoingCall(call)) return false
   const duration = normalizeDuration(call)
   if (duration <= 0) return true
-  if (call.CALL_FAILED_CODE ?? call.call_failed_code) return true
+  if (isMissedCallRecord(call)) return true
   const statusRaw = String(call.CALL_STATUS ?? call.STATUS ?? call.status ?? '').toLowerCase()
   if (!statusRaw) return false
   return /(missed|no\s*answer|failed|busy|cancel|reject)/i.test(statusRaw)

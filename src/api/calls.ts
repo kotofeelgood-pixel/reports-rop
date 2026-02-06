@@ -51,6 +51,17 @@ export const isIncomingCallType = (callType: number | string | unknown): boolean
   return type === CALL_TYPE.INCOMING || type === CALL_TYPE.INCOMING_REDIRECTED || type === CALL_TYPE.CALLBACK
 }
 
+/**
+ * Проверяет, является ли звонок пропущенным (не отвечен или ошибка).
+ * CALL_FAILED_CODE "200" = успешный звонок (ответили); иные коды или нулевая длительность = пропущен.
+ */
+export const isMissedCall = (record: TelephonyCallRecord): boolean => {
+  const duration = Number(record.CALL_DURATION ?? record.DURATION ?? record.duration ?? 0)
+  if (duration <= 0) return true
+  const failedCode = String(record.CALL_FAILED_CODE ?? record.call_failed_code ?? '').trim()
+  return failedCode !== '' && failedCode !== '200'
+}
+
 type CallListParams = {
   /** FILTER по документации: поля для фильтрации, например { ">=CALL_START_DATE": "2025-01-01T00:00:00+03:00", "<=CALL_START_DATE": "2025-01-31T23:59:59+03:00", "PORTAL_USER_ID": "123" } */
   filter?: Record<string, unknown>

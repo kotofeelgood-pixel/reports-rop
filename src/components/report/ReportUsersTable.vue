@@ -11,7 +11,7 @@ import { useCallsModal } from '@/composables/useCallsModal'
 import { useDateRange } from '@/composables/useDateRange'
 import { useUsersStore, useUsersStoreRefs } from '@/stores/users'
 import { useReportSettingsStoreRefs } from '@/stores/reportSettings'
-import { telephonyCallList, type TelephonyCallRecord, isOutgoingCallType, isIncomingCallType } from '@/api/calls'
+import { telephonyCallList, type TelephonyCallRecord, isOutgoingCallType, isIncomingCallType, isMissedCall } from '@/api/calls'
 import { getUserProfileUrl } from '@/tools'
 
 type Row = {
@@ -64,7 +64,7 @@ const rowsFromCalls = computed<Row[]>(() => {
     if (!userId || excluded.has(userId)) continue
 
     const callTypeRaw = call.CALL_TYPE ?? call.callType ?? call.TYPE ?? call.type
-    const isMissed = duration <= 0 || Boolean(call.CALL_FAILED_CODE ?? call.call_failed_code)
+    const isMissed = isMissedCall(call)
 
     const user = usersById.value.get(userId)
     const name = user?.name ?? `#${userId}`
@@ -174,7 +174,7 @@ const callsByDate = computed(() => {
     }
     const stat = map.get(dateStr)!
     const callTypeRaw = call.CALL_TYPE ?? call.callType ?? call.TYPE ?? call.type
-    const isMissed = duration <= 0 || Boolean(call.CALL_FAILED_CODE ?? call.call_failed_code)
+    const isMissed = isMissedCall(call)
     if (isOutgoingCallType(callTypeRaw)) {
       stat.outgoing += 1
     } else if (isIncomingCallType(callTypeRaw)) {

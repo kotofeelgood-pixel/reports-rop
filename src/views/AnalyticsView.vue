@@ -6,7 +6,7 @@ import { useDateRange } from '@/composables/useDateRange'
 import { useReportSettingsStoreRefs } from '@/stores/reportSettings'
 import { useUsersStore, useUsersStoreRefs } from '@/stores/users'
 import type { TelephonyCallRecord } from '@/api/calls'
-import { isOutgoingCallType, isIncomingCallType } from '@/api/calls'
+import { isOutgoingCallType, isIncomingCallType, isMissedCall } from '@/api/calls'
 
 import VueApexCharts from 'vue3-apexcharts'
 import { getDayChartOptions } from '@/config/charts/dayChart'
@@ -65,9 +65,7 @@ function isOutgoing(call: TelephonyCallRecord): boolean {
 }
 
 function isMissed(call: TelephonyCallRecord): boolean {
-  const duration = Number(call.CALL_DURATION ?? call.DURATION ?? call.duration ?? 0)
-  if (duration <= 0) return true
-  return Boolean(call.CALL_FAILED_CODE ?? call.call_failed_code)
+  return isMissedCall(call)
 }
 
 // --- График по часам ---
