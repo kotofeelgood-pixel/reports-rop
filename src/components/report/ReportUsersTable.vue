@@ -144,7 +144,7 @@ const {
   getDateRange,
 } = useDateRange()
 
-const selectedUser = ref<string | null>(null)
+const selectedUsers = ref<string[]>([])
 
 const dateFormatter = new Intl.DateTimeFormat('ru-RU', { dateStyle: 'medium' })
 
@@ -198,10 +198,7 @@ const userOptions = computed(() => {
   const excluded = new Set((excludedEmployeeIds.value || []).map(String))
   const filteredItems = items.filter(i => !excluded.has(String(i.value)))
 
-  return [
-    { label: 'Все пользователи', value: null },
-    ...filteredItems,
-  ]
+  return filteredItems
 })
 
 const { isCallsModalOpen, selectedUserName, selectedCallType, selectedCalls, crmNames, openCallsModal, openTotalsCallsModal } = useCallsModal(calls, usersById)
@@ -219,8 +216,9 @@ const fetchCalls = async () => {
       '>=CALL_START_DATE': formatB24DateFilter(range.start, 'start'),
       '<=CALL_START_DATE': formatB24DateFilter(range.end, 'end'),
     }
-    if (selectedUser.value) {
-      filter.PORTAL_USER_ID = selectedUser.value
+    if (selectedUsers.value.length > 0) {
+      // Для мультивыбора в Bitrix24 используется оператор @
+      filter['@PORTAL_USER_ID'] = selectedUsers.value
     }
     const data = await telephonyCallList({ filter, sort: 'CALL_START_DATE', order: 'DESC' })
     calls.value = Array.isArray(data) ? data : []
@@ -237,7 +235,7 @@ onMounted(() => {
   void fetchCalls()
 })
 
-watch([dateRange, dateValue, selectedUser], () => {
+watch([dateRange, dateValue, selectedUsers], () => {
   void fetchCalls()
 }, { deep: true })
 </script>
@@ -318,9 +316,10 @@ watch([dateRange, dateValue, selectedUser], () => {
         <div class="space-y-1.5">
           <label class="block text-xs font-medium text-gray-800 dark:text-gray-200">Пользователи</label>
           <SelectComponent
-            v-model="selectedUser"
+            v-model="selectedUsers"
             :items="userOptions"
-            placeholder="ОТВЕТСТВЕННЫЙ"
+            multiple
+            placeholder="Все пользователи"
             class="!w-full text-xs"
             style="width: 100% !important;"
           />
