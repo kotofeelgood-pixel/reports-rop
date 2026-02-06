@@ -275,3 +275,127 @@ export const crmDealList = async (
   }
 }
 
+/**
+ * Найти контакт по номеру телефона.
+ * https://dev.1c-bitrix.ru/rest_help/crm/contacts/crm_contact_list.php
+ */
+export const findContactByPhone = async (phoneNumber: string): Promise<{ id: string } | null> => {
+  const b24 = await useB24()
+  try {
+    // Нормализуем номер телефона для поиска
+    const normalizedPhone = phoneNumber.replace(/\D/g, '')
+    if (!normalizedPhone) return null
+
+    const response: any = await callMethodPromise(b24, 'crm.contact.list', {
+      filter: {
+        'PHONE': `%${normalizedPhone}%`,
+      },
+      select: ['ID', 'PHONE'],
+    })
+
+    const contacts = response?.result || []
+    // Ищем точное совпадение
+    for (const contact of contacts) {
+      const phones = Array.isArray(contact.PHONE) ? contact.PHONE : [contact.PHONE]
+      for (const phone of phones) {
+        if (phone && String(phone.VALUE || phone).replace(/\D/g, '') === normalizedPhone) {
+          return { id: String(contact.ID) }
+        }
+      }
+    }
+    return null
+  } catch (error) {
+    console.error('findContactByPhone error:', error)
+    return null
+  }
+}
+
+/**
+ * Найти лид по номеру телефона.
+ * https://dev.1c-bitrix.ru/rest_help/crm/leads/crm_lead_list.php
+ */
+export const findLeadByPhone = async (phoneNumber: string): Promise<{ id: string } | null> => {
+  const b24 = await useB24()
+  try {
+    const normalizedPhone = phoneNumber.replace(/\D/g, '')
+    if (!normalizedPhone) return null
+
+    const response: any = await callMethodPromise(b24, 'crm.lead.list', {
+      filter: {
+        'PHONE': `%${normalizedPhone}%`,
+      },
+      select: ['ID', 'PHONE'],
+    })
+
+    const leads = response?.result || []
+    for (const lead of leads) {
+      const phones = Array.isArray(lead.PHONE) ? lead.PHONE : [lead.PHONE]
+      for (const phone of phones) {
+        if (phone && String(phone.VALUE || phone).replace(/\D/g, '') === normalizedPhone) {
+          return { id: String(lead.ID) }
+        }
+      }
+    }
+    return null
+  } catch (error) {
+    console.error('findLeadByPhone error:', error)
+    return null
+  }
+}
+
+/**
+ * Создать контакт в Bitrix24 по номеру телефона.
+ * https://dev.1c-bitrix.ru/rest_help/crm/contacts/crm_contact_add.php
+ */
+export const createContactFromPhone = async (phoneNumber: string): Promise<{ id: string } | null> => {
+  const b24 = await useB24()
+  try {
+    // Сначала проверяем, существует ли уже контакт с таким номером
+    const existing = await findContactByPhone(phoneNumber)
+    if (existing) {
+      return existing
+    }
+
+    const response: any = await callMethodPromise(b24, 'crm.contact.add', {
+      fields: {
+        PHONE: [{ VALUE: phoneNumber, VALUE_TYPE: 'WORK' }],
+        NAME: phoneNumber, // Используем номер как имя, если нет другой информации
+      },
+    })
+
+    const id = response?.result
+    return id ? { id: String(id) } : null
+  } catch (error) {
+    console.error('createContactFromPhone error:', error)
+    return null
+  }
+}
+
+/**
+ * Создать лид в Bitrix24 по номеру телефона.
+ * https://dev.1c-bitrix.ru/rest_help/crm/leads/crm_lead_add.php
+ */
+export const createLeadFromPhone = async (phoneNumber: string): Promise<{ id: string } | null> => {
+  const b24 = await useB24()
+  try {
+    // Сначала проверяем, существует ли уже лид с таким номером
+    const existing = await findLeadByPhone(phoneNumber)
+    if (existing) {
+      return existing
+    }
+
+    const response: any = await callMethodPromise(b24, 'crm.lead.add', {
+      fields: {
+        PHONE: [{ VALUE: phoneNumber, VALUE_TYPE: 'WORK' }],
+        TITLE: `Лид: ${phoneNumber}`, // Используем номер в заголовке
+      },
+    })
+
+    const id = response?.result
+    return id ? { id: String(id) } : null
+  } catch (error) {
+    console.error('createLeadFromPhone error:', error)
+    return null
+  }
+}
+

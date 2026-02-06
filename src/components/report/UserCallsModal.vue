@@ -5,6 +5,7 @@ import ModalComponent from '@/components/modal/ModalComponent.vue'
 import ButtonComponent from '@/components/buttons/ButtonComponent.vue'
 import type { Call } from '@/tools/calls'
 import { getCrmEntityUrl } from '@/tools'
+import { createContactFromPhone, createLeadFromPhone } from '@/api/crm'
 
 type Props = {
   userName: string
@@ -15,6 +16,23 @@ type Props = {
 }
 
 const props = defineProps<Props>()
+
+// Состояние для отслеживания процесса создания метки
+const processingCallId = ref<string | null>(null)
+const callsWithLabels = ref<Map<string, { type: 'CONTACT' | 'LEAD' | null; id: string | null }>>(new Map())
+
+// Инициализируем метки на основе существующих CRM связей
+watch(() => props.calls, (newCalls) => {
+  if (!newCalls) return
+  newCalls.forEach(call => {
+    if (call.crmEntityType && call.crmEntityId) {
+      const type = call.crmEntityType.toUpperCase() as 'CONTACT' | 'LEAD'
+      if (type === 'CONTACT' || type === 'LEAD') {
+        callsWithLabels.value.set(call.id, { type, id: call.crmEntityId })
+      }
+    }
+  })
+}, { immediate: true })
 
 function getCrmDisplayName(call: Call): string {
   if (!call.crmEntityType || !call.crmEntityId) return call.crm
@@ -272,16 +290,105 @@ const onSeek = (e: Event) => {
   audioCurrentTime.value = audio.currentTime
 }
 
+const handleLabelChange = async (call: Call, labelType: 'CONTACT' | 'LEAD' | null) => {
+  if (!call.number || processingCallId.value === call.id) return
+
+  // Если метка уже установлена и совпадает, ничего не делаем
+  const currentLabel = getCurrentLabel(call)
+  if (currentLabel === labelType) return
+
+  // Если пытаемся удалить метку, но у звонка уже есть CRM связь из исходных данных, не удаляем
+  if (!labelType && call.crmEntityType) {
+    return
+  }
+
+  processingCallId.value = call.id
+
+  try {
+    if (labelType === 'CONTACT') {
+      const result = await createContactFromPhone(call.number)
+      if (result) {
+        callsWithLabels.value.set(call.id, { type: 'CONTACT', id: result.id })
+      }
+    } else if (labelType === 'LEAD') {
+      const result = await createLeadFromPhone(call.number)
+      if (result) {
+        callsWithLabels.value.set(call.id, { type: 'LEAD', id: result.id })
+      }
+    } else {
+      // Удаляем метку (только если она была установлена вручную)
+      callsWithLabels.value.delete(call.id)
+    }
+  } catch (error) {
+    console.error('Ошибка при создании метки:', error)
+  } finally {
+    processingCallId.value = null
+  }
+}
+
+const getCurrentLabel = (call: Call): 'CONTACT' | 'LEAD' | null => {
+  // Сначала проверяем существующую CRM связь из исходных данных
+  if (call.crmEntityType) {
+    const type = call.crmEntityType.toUpperCase()
+    if (type === 'CONTACT' || type === 'LEAD') {
+      return type as 'CONTACT' | 'LEAD'
+    }
+  }
+  // Затем проверяем локальные метки (созданные вручную)
+  return callsWithLabels.value.get(call.id)?.type || null
+}
+
+const getCrmDisplayNameWithLabel = (call: Call): string => {
+  const label = getCurrentLabel(call)
+  if (label === 'CONTACT') {
+    const map = props.crmNames && 'value' in props.crmNames ? props.crmNames.value : props.crmNames
+    if (map && typeof map.get === 'function') {
+      const labelData = callsWithLabels.value.get(call.id)
+      if (labelData?.id) {
+        const key = `CONTACT_${labelData.id}`
+        const name = map.get(key)
+        if (name) return name
+      }
+    }
+    return 'Контакт'
+  }
+  if (label === 'LEAD') {
+    const map = props.crmNames && 'value' in props.crmNames ? props.crmNames.value : props.crmNames
+    if (map && typeof map.get === 'function') {
+      const labelData = callsWithLabels.value.get(call.id)
+      if (labelData?.id) {
+        const key = `LEAD_${labelData.id}`
+        const name = map.get(key)
+        if (name) return name
+      }
+    }
+    return 'Лид'
+  }
+  return getCrmDisplayName(call)
+}
+
+const getCrmEntityLinkWithLabel = (call: Call): string | null => {
+  const label = getCurrentLabel(call)
+  if (label) {
+    const labelData = callsWithLabels.value.get(call.id)
+    if (labelData?.id) {
+      return getCrmEntityUrl(label, labelData.id)
+    }
+  }
+  return getCrmEntityLink(call)
+}
+
 const exportToExcel = async () => {
   const list = (props.calls || []) as Call[]
   try {
-    const headers = ['ВРЕМЯ', 'НОМЕР', 'ТИП', 'ДЛИТЕЛЬНОСТЬ', 'CRM', 'Запись']
+    const headers = ['ВРЕМЯ', 'НОМЕР', 'ТИП', 'ДЛИТЕЛЬНОСТЬ', 'CRM', 'Метка', 'Запись']
     const rows = list.map((c) => [
       c.time,
       c.number,
       c.type,
       c.duration,
-      getCrmDisplayName(c),
+      getCrmDisplayNameWithLabel(c),
+      getCurrentLabel(c) === 'CONTACT' ? 'Контакт' : getCurrentLabel(c) === 'LEAD' ? 'Лид' : '—',
       c.hasRecording ? 'Да' : '—',
     ])
     const data = [headers, ...rows]
@@ -334,6 +441,7 @@ const exportToExcel = async () => {
                 <th class="px-4 py-4 font-semibold">ТИП</th>
                 <th class="px-4 py-4 font-semibold">ДЛИТ.</th>
                 <th class="px-4 py-4 font-semibold">CRM</th>
+                <th class="px-4 py-4 font-semibold">Метка</th>
                 <th class="px-4 py-4 text-center font-semibold">Запись</th>
               </tr>
             </thead>
@@ -352,15 +460,33 @@ const exportToExcel = async () => {
                 <td class="px-4 py-4 text-gray-700 dark:text-gray-300">{{ call.duration }}</td>
                 <td class="px-4 py-4">
                   <a
-                    v-if="getCrmEntityLink(call)"
-                    :href="getCrmEntityLink(call)"
+                    v-if="getCrmEntityLinkWithLabel(call)"
+                    :href="getCrmEntityLinkWithLabel(call)"
                     target="_blank"
                     rel="noopener noreferrer"
                     class="text-blue-600 hover:underline dark:text-blue-400"
                   >
-                    {{ getCrmDisplayName(call) }}
+                    {{ getCrmDisplayNameWithLabel(call) }}
                   </a>
-                  <span v-else class="text-gray-600 dark:text-gray-400">{{ getCrmDisplayName(call) }}</span>
+                  <span v-else class="text-gray-600 dark:text-gray-400">{{ getCrmDisplayNameWithLabel(call) }}</span>
+                </td>
+                <td class="px-4 py-4">
+                  <select
+                    :value="getCurrentLabel(call) || ''"
+                    :disabled="processingCallId === call.id"
+                    class="rounded border border-gray-300 bg-white px-2 py-1 text-sm text-gray-700 transition-colors hover:bg-gray-50 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 disabled:cursor-not-allowed disabled:opacity-50 dark:border-gray-600 dark:bg-[#2a2a2a] dark:text-gray-300 dark:hover:bg-gray-700"
+                    @change="handleLabelChange(call, ($event.target as HTMLSelectElement).value || null)"
+                  >
+                    <option value="">—</option>
+                    <option value="LEAD">Лид</option>
+                    <option value="CONTACT">Контакт</option>
+                  </select>
+                  <span
+                    v-if="processingCallId === call.id"
+                    class="ml-2 text-xs text-gray-500 dark:text-gray-400"
+                  >
+                    Обработка...
+                  </span>
                 </td>
                 <td class="px-4 py-4 text-center">
                   <span
@@ -453,7 +579,7 @@ const exportToExcel = async () => {
             </div>
             <div class="min-w-0 flex-1">
               <div class="truncate text-sm font-medium text-gray-900 dark:text-white">
-                {{ currentPlayingCall ? getCrmDisplayName(currentPlayingCall) : '' }}
+                {{ currentPlayingCall ? getCrmDisplayNameWithLabel(currentPlayingCall) : '' }}
               </div>
               <div class="truncate text-xs text-gray-500 dark:text-gray-400">
                 {{ currentPlayingCall.number }}
