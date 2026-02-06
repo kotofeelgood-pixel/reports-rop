@@ -18,10 +18,26 @@ export const userCurrent = async (): Promise<Record<string, unknown> | null> => 
 }
 
 /**
+ * Получить список доступных полей пользователя.
+ * https://dev.1c-bitrix.ru/rest_help/users/user_fields.php
+ */
+export const userFields = async (): Promise<unknown> => {
+  const b24 = await useB24()
+  try {
+    const response: any = await callMethodPromise(b24, 'user.fields', {})
+    return response?.result ?? {}
+  } catch (error) {
+    console.error('user.fields error:', error)
+    return {}
+  }
+}
+
+/**
  * Получение фильтрованного списка пользователей. Метод вернет всех пользователей за исключением: ботов,
  * пользователей для e-mail, пользователей для Открытых Линий, пользователей Реплики.
  *
  * https://dev.1c-bitrix.ru/rest_help/users/user_get.php
+ * Для получения PERSONAL_PHOTO используем '*' или явно указываем поле в select
  */
 export const userGet = async (
   filter: Record<string, unknown> = {},
@@ -30,11 +46,12 @@ export const userGet = async (
 ): Promise<unknown[]> => {
   const b24 = await useB24()
   try {
+    // Используем '*' для получения всех полей, включая PERSONAL_PHOTO
     const response: any = await callMethodPromise(b24, 'user.get', {
       filter,
       sort,
       order,
-      select: ['ID', 'NAME', 'LAST_NAME', 'LOGIN', 'UF_DEPARTMENT', 'PERSONAL_PHOTO'],
+      select: ['*'], // Получаем все поля, включая PERSONAL_PHOTO
     })
 
     console.log('response', response)
@@ -54,7 +71,7 @@ export const userGet = async (
           sort,
           order,
           start: 0,
-          select: ['ID', 'NAME', 'LAST_NAME', 'LOGIN', 'UF_DEPARTMENT', 'PERSONAL_PHOTO'],
+          select: ['*'], // Получаем все поля, включая PERSONAL_PHOTO
         }
       ]
     ]
@@ -67,7 +84,7 @@ export const userGet = async (
           sort,
           order,
           start: next,
-          select: ['ID', 'NAME', 'LAST_NAME', 'LOGIN', 'UF_DEPARTMENT', 'PERSONAL_PHOTO'],
+          select: ['*'], // Получаем все поля, включая PERSONAL_PHOTO
         }
       ])
       next += answer.next

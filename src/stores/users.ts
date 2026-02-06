@@ -60,6 +60,7 @@ export const useUsersStore = defineStore('users', () => {
           const id = String(u.ID ?? '').trim()
           if (!id) return null
           // PERSONAL_PHOTO может быть ID файла или URL
+          // Если PERSONAL_PHOTO отсутствует, используем стандартный URL для получения фото пользователя по ID
           let photo: string | null = null
           if (u.PERSONAL_PHOTO) {
             const photoValue = String(u.PERSONAL_PHOTO).trim()
@@ -76,6 +77,10 @@ export const useUsersStore = defineStore('users', () => {
               // Иначе считаем ID файла
               photo = `/bitrix/tools/get_file.php?fid=${photoValue}`
             }
+          } else {
+            // Если PERSONAL_PHOTO отсутствует, используем стандартный способ получения фото пользователя
+            // Bitrix24 позволяет получать фото через специальный URL
+            photo = `/bitrix/tools/get_user_photo.php?user_id=${id}`
           }
           return {
             id,

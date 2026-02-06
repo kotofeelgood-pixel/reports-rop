@@ -417,6 +417,7 @@ watch([dateRange, dateValue, selectedUsers], () => {
                 <AvatarComponent
                   :name="row.name"
                   :src="row.photo ?? undefined"
+                  :userId="row.id"
                   size="sm"
                 />
                 <a
