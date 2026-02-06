@@ -17,7 +17,12 @@ export type Call = {
 }
 
 /**
- * Маппинг типов звонков для фильтрации (по API: CALL_TYPE 1 — исходящий, 2/3 — входящий, пропущенный по длительности/коду).
+ * Маппинг типов звонков для фильтрации.
+ * CALL_TYPE согласно документации Bitrix24:
+ * 1 — исходящий
+ * 2 — входящий
+ * 3 — входящий с перенаправлением на мобильный или стационарный телефон
+ * 4 — обратный звонок
  */
 const callTypeMap: Record<string, string[]> = {
   'исходящие': ['Исходящий'],
@@ -54,10 +59,12 @@ export function telephonyRecordToCall(
   usersById: Map<string, { name: string }>
 ): Call {
   const userId = String(record.PORTAL_USER_ID ?? record.USER_ID ?? record.RESPONSIBLE_ID ?? record.ASSIGNED_BY_ID ?? '').trim()
-  const callTypeNum = Number(record.CALL_TYPE ?? record.callType ?? record.TYPE ?? record.type)
+  const callTypeRaw = record.CALL_TYPE ?? record.callType ?? record.TYPE ?? record.type
+  const callTypeNum = Number(callTypeRaw)
   const durationSec = Number(record.CALL_DURATION ?? record.DURATION ?? record.duration ?? 0)
   const failedCode = String(record.CALL_FAILED_CODE ?? record.call_failed_code ?? '').trim()
   const isMissed = durationSec <= 0 || (failedCode !== '' && failedCode !== '200')
+  // CALL_TYPE: 1=исходящий, 2=входящий, 3=входящий с перенаправлением, 4=обратный звонок
   const typeLabel = callTypeNum === 1 ? 'Исходящий' : isMissed ? 'Пропущенный' : 'Входящий'
   const recordingUrlRaw = record.CALL_RECORD_URL ?? record.RECORDING_URL ?? record.RECORDING_LINK ?? record.record_url ?? record.recording_url
   const recordingUrl = typeof recordingUrlRaw === 'string' ? recordingUrlRaw : undefined

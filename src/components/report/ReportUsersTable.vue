@@ -11,7 +11,7 @@ import { useCallsModal } from '@/composables/useCallsModal'
 import { useDateRange } from '@/composables/useDateRange'
 import { useUsersStore, useUsersStoreRefs } from '@/stores/users'
 import { useReportSettingsStoreRefs } from '@/stores/reportSettings'
-import { telephonyCallList, type TelephonyCallRecord } from '@/api/calls'
+import { telephonyCallList, type TelephonyCallRecord, isOutgoingCallType, isIncomingCallType } from '@/api/calls'
 import { getUserProfileUrl } from '@/tools'
 
 type Row = {
@@ -64,7 +64,6 @@ const rowsFromCalls = computed<Row[]>(() => {
     if (!userId || excluded.has(userId)) continue
 
     const callTypeRaw = call.CALL_TYPE ?? call.callType ?? call.TYPE ?? call.type
-    const callTypeNum = Number(callTypeRaw)
     const isMissed = duration <= 0 || Boolean(call.CALL_FAILED_CODE ?? call.call_failed_code)
 
     const user = usersById.value.get(userId)
@@ -82,11 +81,13 @@ const rowsFromCalls = computed<Row[]>(() => {
       })
     }
     const row = map.get(userId)!
-    if (callTypeNum === 1) row.outgoing += 1
-    else {
+    if (isOutgoingCallType(callTypeRaw)) {
+      row.outgoing += 1
+    } else if (isIncomingCallType(callTypeRaw)) {
       row.incoming += 1
       if (isMissed) row.missed += 1
     }
+    // Если CALL_TYPE не распознан (не 1,2,3,4), пропускаем или обрабатываем как входящий
 
     if (Number.isFinite(duration) && duration > 0) {
       row._seconds += duration
@@ -172,10 +173,11 @@ const callsByDate = computed(() => {
       map.set(dateStr, { outgoing: 0, incoming: 0, missed: 0 })
     }
     const stat = map.get(dateStr)!
-    const callTypeNum = Number(call.CALL_TYPE ?? call.callType ?? call.TYPE ?? call.type)
+    const callTypeRaw = call.CALL_TYPE ?? call.callType ?? call.TYPE ?? call.type
     const isMissed = duration <= 0 || Boolean(call.CALL_FAILED_CODE ?? call.call_failed_code)
-    if (callTypeNum === 1) stat.outgoing += 1
-    else {
+    if (isOutgoingCallType(callTypeRaw)) {
+      stat.outgoing += 1
+    } else if (isIncomingCallType(callTypeRaw)) {
       stat.incoming += 1
       if (isMissed) stat.missed += 1
     }
@@ -217,8 +219,13 @@ const fetchCalls = async () => {
       '<=CALL_START_DATE': formatB24DateFilter(range.end, 'end'),
     }
     if (selectedUsers.value.length > 0) {
-      // Для мультивыбора в Bitrix24 используется оператор @
-      filter['@PORTAL_USER_ID'] = selectedUsers.value
+      // Для мультивыбора в Bitrix24 используется оператор @ перед полем
+      // Если выбран один пользователь, используем обычный фильтр, иначе @ для мультивыбора
+      if (selectedUsers.value.length === 1) {
+        filter.PORTAL_USER_ID = selectedUsers.value[0]
+      } else {
+        filter['@PORTAL_USER_ID'] = selectedUsers.value
+      }
     }
     const data = await telephonyCallList({ filter, sort: 'CALL_START_DATE', order: 'DESC' })
     calls.value = Array.isArray(data) ? data : []

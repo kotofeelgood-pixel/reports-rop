@@ -76,9 +76,11 @@ const buildTopList = (predicate: (call: TelephonyCallRecord) => boolean) => {
   return top.map(item => ({ ...item, max }))
 }
 
+import { isOutgoingCallType, isIncomingCallType } from '@/api/calls'
+
 const isOutgoingCall = (call: TelephonyCallRecord): boolean => {
   const callTypeRaw = call.CALL_TYPE ?? call.callType ?? call.TYPE ?? call.type
-  return Number(callTypeRaw) === 1
+  return isOutgoingCallType(callTypeRaw)
 }
 
 const completedCalls = computed(() =>

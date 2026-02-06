@@ -6,6 +6,7 @@ import { useDateRange } from '@/composables/useDateRange'
 import { useReportSettingsStoreRefs } from '@/stores/reportSettings'
 import { useUsersStore, useUsersStoreRefs } from '@/stores/users'
 import type { TelephonyCallRecord } from '@/api/calls'
+import { isOutgoingCallType, isIncomingCallType } from '@/api/calls'
 
 import VueApexCharts from 'vue3-apexcharts'
 import { getDayChartOptions } from '@/config/charts/dayChart'
@@ -57,7 +58,8 @@ function getUserId(call: TelephonyCallRecord): string {
 }
 
 function isOutgoing(call: TelephonyCallRecord): boolean {
-  return Number(call.CALL_TYPE ?? call.callType ?? call.TYPE ?? call.type) === 1
+  const callTypeRaw = call.CALL_TYPE ?? call.callType ?? call.TYPE ?? call.type
+  return isOutgoingCallType(callTypeRaw)
 }
 
 function isMissed(call: TelephonyCallRecord): boolean {
@@ -96,8 +98,10 @@ const byTypeData = computed(() => {
   let incoming = 0
   let missed = 0
   for (const call of calls.value) {
-    if (isOutgoing(call)) outgoing += 1
-    else {
+    const callTypeRaw = call.CALL_TYPE ?? call.callType ?? call.TYPE ?? call.type
+    if (isOutgoingCallType(callTypeRaw)) {
+      outgoing += 1
+    } else if (isIncomingCallType(callTypeRaw)) {
       incoming += 1
       if (isMissed(call)) missed += 1
     }

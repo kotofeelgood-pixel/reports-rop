@@ -2,7 +2,7 @@ import { computed, onMounted, ref, watch } from 'vue'
 import { useColorMode } from '@vueuse/core'
 import { useReportSettingsStoreRefs } from '@/stores/reportSettings'
 import { useDateRange } from '@/composables/useDateRange'
-import { telephonyCallList, type TelephonyCallRecord } from '@/api/calls'
+import { telephonyCallList, type TelephonyCallRecord, isOutgoingCallType, isIncomingCallType } from '@/api/calls'
 
 type ChartDataPoint = {
   hour: number
@@ -30,11 +30,12 @@ function buildChartDataFromCalls(calls: TelephonyCallRecord[]): ChartDataPoint[]
     const hour = getHourFromCall(call)
     if (hour === null) continue
     const bucket = byHour.get(hour)!
-    const callTypeNum = Number(call.CALL_TYPE ?? call.callType ?? call.TYPE ?? call.type)
+    const callTypeRaw = call.CALL_TYPE ?? call.callType ?? call.TYPE ?? call.type
     const duration = Number(call.CALL_DURATION ?? call.DURATION ?? call.duration ?? 0)
     const isMissed = duration <= 0 || Boolean(call.CALL_FAILED_CODE ?? call.call_failed_code)
-    if (callTypeNum === 1) bucket.outgoing += 1
-    else {
+    if (isOutgoingCallType(callTypeRaw)) {
+      bucket.outgoing += 1
+    } else if (isIncomingCallType(callTypeRaw)) {
       bucket.incoming += 1
       if (isMissed) bucket.missed += 1
     }
