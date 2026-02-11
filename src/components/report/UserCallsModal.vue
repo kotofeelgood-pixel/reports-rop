@@ -4,7 +4,7 @@ import * as XLSX from 'xlsx'
 import ModalComponent from '@/components/modal/ModalComponent.vue'
 import ButtonComponent from '@/components/buttons/ButtonComponent.vue'
 import type { Call } from '@/tools/calls'
-import { getCrmEntityUrl } from '@/tools'
+import { getCrmEntityUrl, openInB24 } from '@/tools'
 import { formatDateRangeFromDates } from '@/tools/date'
 
 type Props = {
@@ -362,15 +362,14 @@ const exportToExcel = async () => {
                 <td class="px-4 py-4 text-gray-700 dark:text-gray-300">{{ call.type }}</td>
                 <td class="px-4 py-4 text-gray-700 dark:text-gray-300">{{ call.duration }}</td>
                 <td class="px-4 py-4">
-                  <a
+                  <button
                     v-if="getCrmEntityLink(call)"
-                    :href="getCrmEntityLink(call)"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    class="text-blue-600 hover:underline dark:text-blue-400"
+                    type="button"
+                    class="text-blue-600 hover:underline dark:text-blue-400 bg-transparent border-0 cursor-pointer p-0 font-inherit text-left"
+                    @click="openInB24(getCrmEntityLink(call)!)"
                   >
                     {{ getCrmDisplayName(call) }}
-                  </a>
+                  </button>
                   <span v-else class="text-gray-600 dark:text-gray-400">{{ getCrmDisplayName(call) }}</span>
                 </td>
                 <td class="px-4 py-4 text-center">

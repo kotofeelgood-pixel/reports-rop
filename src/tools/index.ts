@@ -114,3 +114,42 @@ export const getCrmEntityUrl = (entityType: string, entityId: string | number): 
   return `https://${domain}${path}`
 }
 
+/** Путь профиля пользователя (для BX24.openPath). */
+export const getUserProfilePath = (userId: string | number): string => {
+  return `/company/personal/user/${userId}/`
+}
+
+/** Путь карточки CRM (для BX24.openPath). Возвращает null, если тип не поддерживается. */
+export const getCrmEntityPath = (entityType: string, entityId: string | number): string | null => {
+  if (!entityType || !entityId) return null
+  const type = String(entityType).toUpperCase()
+  const id = String(entityId)
+  if (type === 'LEAD') return `/crm/lead/details/${id}/`
+  if (type === 'CONTACT') return `/crm/contact/details/${id}/`
+  if (type === 'COMPANY') return `/crm/company/details/${id}/`
+  return null
+}
+
+/**
+ * Открывает ссылку в контексте приложения Bitrix24 (слайдер/портал).
+ * Использует bx.onApplication или BX24.openPath; при недоступности API — window.open.
+ */
+export const openInB24 = (urlOrPath: string): void => {
+  const w = globalThis as any
+  const path = urlOrPath.startsWith('http') ? new URL(urlOrPath).pathname : urlOrPath.startsWith('/') ? urlOrPath : `/${urlOrPath}`
+
+  if (typeof w?.bx?.onApplication === 'function') {
+    w.bx.onApplication(urlOrPath)
+    return
+  }
+  if (typeof w?.BX?.onApplication === 'function') {
+    w.BX.onApplication(urlOrPath)
+    return
+  }
+  if (typeof w?.BX24?.openPath === 'function') {
+    w.BX24.openPath(path, () => {})
+    return
+  }
+  window.open(urlOrPath.startsWith('http') ? urlOrPath : getPortalUrl(path), '_blank', 'noopener,noreferrer')
+}
+

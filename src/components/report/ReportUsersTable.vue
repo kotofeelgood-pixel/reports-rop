@@ -12,7 +12,7 @@ import { useDateRange } from '@/composables/useDateRange'
 import { useUsersStore, useUsersStoreRefs } from '@/stores/users'
 import { useReportSettingsStoreRefs } from '@/stores/reportSettings'
 import { telephonyCallList, type TelephonyCallRecord, isOutgoingCallType, isIncomingCallType, isMissedCall } from '@/api/calls'
-import { getUserProfileUrl } from '@/tools'
+import { getUserProfilePath, openInB24 } from '@/tools'
 
 type Row = {
   id: string
@@ -422,14 +422,13 @@ watch([dateRange, dateValue, selectedUsers], () => {
                   :userId="row.id"
                   size="sm"
                 />
-                <a
-                  :href="getUserProfileUrl(row.id)"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  class="text-[#2563eb] hover:underline"
+                <button
+                  type="button"
+                  class="text-[#2563eb] hover:underline text-left bg-transparent border-0 cursor-pointer p-0 font-inherit"
+                  @click="openInB24(getUserProfilePath(row.id))"
                 >
                   {{ row.name }}
-                </a>
+                </button>
               </div>
             </td>
             <td
