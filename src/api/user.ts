@@ -18,8 +18,8 @@ export const userCurrent = async (): Promise<Record<string, unknown> | null> => 
 }
 
 /**
- * Получить список доступных полей пользователя.
- * https://dev.1c-bitrix.ru/rest_help/users/user_fields.php
+ * Получить список доступных полей пользователя (в т.ч. PERSONAL_PHOTO для аватара).
+ * https://apidocs.bitrix24.ru/api-reference/user/user-fields.html
  */
 export const userFields = async (): Promise<unknown> => {
   const b24 = await useB24()
@@ -32,12 +32,24 @@ export const userFields = async (): Promise<unknown> => {
   }
 }
 
+/** Поля пользователя для select в user.get берём из user.fields (https://apidocs.bitrix24.ru/api-reference/user/user-fields.html), в т.ч. PERSONAL_PHOTO */
+const USER_SELECT_FALLBACK = ['ID', 'NAME', 'LAST_NAME', 'LOGIN', 'PERSONAL_PHOTO', 'UF_DEPARTMENT']
+
+async function getUserSelectFields (): Promise<string[]> {
+  const fields = await userFields()
+  if (fields && typeof fields === 'object' && !Array.isArray(fields)) {
+    const keys = Object.keys(fields)
+    if (keys.length > 0) return keys
+  }
+  return USER_SELECT_FALLBACK
+}
+
 /**
  * Получение фильтрованного списка пользователей. Метод вернет всех пользователей за исключением: ботов,
  * пользователей для e-mail, пользователей для Открытых Линий, пользователей Реплики.
  *
  * https://dev.1c-bitrix.ru/rest_help/users/user_get.php
- * Для получения PERSONAL_PHOTO используем '*' или явно указываем поле в select
+ * Список полей (в т.ч. PERSONAL_PHOTO) — из user.fields: https://apidocs.bitrix24.ru/api-reference/user/user-fields.html
  */
 export const userGet = async (
   filter: Record<string, unknown> = {},
@@ -46,15 +58,13 @@ export const userGet = async (
 ): Promise<unknown[]> => {
   const b24 = await useB24()
   try {
-    // Используем '*' для получения всех полей, включая PERSONAL_PHOTO
+    const select = await getUserSelectFields()
     const response: any = await callMethodPromise(b24, 'user.get', {
       filter,
       sort,
       order,
-      select: ['*'], // Получаем все поля, включая PERSONAL_PHOTO
+      select,
     })
-
-    console.log('response', response)
 
     const answer = response
     if (answer?.next === undefined) {
@@ -71,7 +81,7 @@ export const userGet = async (
           sort,
           order,
           start: 0,
-          select: ['*'], // Получаем все поля, включая PERSONAL_PHOTO
+          select,
         }
       ]
     ]
@@ -84,7 +94,7 @@ export const userGet = async (
           sort,
           order,
           start: next,
-          select: ['*'], // Получаем все поля, включая PERSONAL_PHOTO
+          select,
         }
       ])
       next += answer.next
@@ -97,8 +107,6 @@ export const userGet = async (
       const batchResult = await callBatchPromise(b24, chunk) as unknown[]
       data.push(...batchResult)
     }
-
-    console.log('data', data)
 
     return data
   } catch (error) {

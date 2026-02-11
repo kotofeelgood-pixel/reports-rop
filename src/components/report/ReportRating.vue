@@ -69,7 +69,8 @@ const buildTopList = (predicate: (call: TelephonyCallRecord) => boolean) => {
   const items = Array.from(counts.entries()).map(([userId, count]) => {
     const user = usersById.value.get(String(userId))
     const name = user?.name ?? `#${userId}`
-    return { userId: String(userId), name, count }
+    const photo = user?.photo ?? null
+    return { userId: String(userId), name, photo, count }
   })
 
   items.sort((a, b) => b.count - a.count)
@@ -149,7 +150,7 @@ watch([dateRange, dateValue], () => {
             @click="openRatingCallsModal(item.userId, item.name, 'совершенные звонки')"
           >
             <div class="flex min-w-0 items-center gap-2">
-              <AvatarComponent :name="item.name" size="sm" />
+              <AvatarComponent :name="item.name" :src="item.photo ?? undefined" size="sm" />
               <span class="min-w-0 truncate text-sm text-gray-900 dark:text-white">{{ item.name }}</span>
             </div>
             <div class="flex shrink-0 items-center gap-2">
@@ -180,7 +181,7 @@ watch([dateRange, dateValue], () => {
             @click="openRatingCallsModal(item.userId, item.name, 'пропущенные')"
           >
             <div class="flex min-w-0 items-center gap-2">
-              <AvatarComponent :name="item.name" size="sm" />
+              <AvatarComponent :name="item.name" :src="item.photo ?? undefined" size="sm" />
               <span class="min-w-0 truncate text-sm text-gray-900 dark:text-white">{{ item.name }}</span>
             </div>
             <div class="flex shrink-0 items-center gap-2">
