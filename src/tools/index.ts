@@ -72,19 +72,22 @@ export const getReportDateRange = (period: ReportPeriod): DateRange => {
   return getMonthDateRange(now.getFullYear(), now.getMonth() + 1)
 }
 
-export const getTaskUrl = (taskId: number | string): string => {
+/** Полный URL на портале Bitrix24 (для загрузки фото и т.п.). */
+export const getPortalUrl = (path: string): string => {
   const w = globalThis as any
   const domain = w?.BX24?.getDomain?.()
+  const p = path.startsWith('/') ? path : `/${path}`
+  return domain ? `https://${domain}${p}` : p
+}
+
+export const getTaskUrl = (taskId: number | string): string => {
   const path = `/company/personal/user/0/tasks/task/view/${taskId}/`
-  return domain ? `https://${domain}${path}` : path
+  return getPortalUrl(path)
 }
 
 /** URL карточки сотрудника в Bitrix24 (профиль пользователя). */
 export const getUserProfileUrl = (userId: string | number): string => {
-  const w = globalThis as any
-  const domain = w?.BX24?.getDomain?.()
-  const path = `/company/personal/user/${userId}/`
-  return domain ? `https://${domain}${path}` : path
+  return getPortalUrl(`/company/personal/user/${userId}/`)
 }
 
 /** URL карточки сущности CRM (лид, контакт, компания) в Bitrix24. */

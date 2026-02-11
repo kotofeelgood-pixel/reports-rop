@@ -1,6 +1,7 @@
 import { computed, ref } from 'vue'
 import { defineStore, storeToRefs } from 'pinia'
 import { getUsers } from '@/api/routes/company'
+import { getPortalUrl } from '@/tools'
 
 export type BitrixUser = {
   ID?: string | number
@@ -64,23 +65,21 @@ export const useUsersStore = defineStore('users', () => {
           let photo: string | null = null
           if (u.PERSONAL_PHOTO) {
             const photoValue = String(u.PERSONAL_PHOTO).trim()
-            // Если это числовой ID файла, преобразуем в URL
+            let path = ''
             if (/^\d+$/.test(photoValue)) {
-              photo = `/bitrix/tools/get_file.php?fid=${photoValue}`
+              path = `/bitrix/tools/get_file.php?fid=${photoValue}`
             } else if (photoValue.startsWith('http://') || photoValue.startsWith('https://')) {
-              // Если это полный URL, используем как есть
               photo = photoValue
+              path = ''
             } else if (photoValue.startsWith('/')) {
-              // Если это относительный путь, используем как есть
-              photo = photoValue
+              path = photoValue
             } else {
-              // Иначе считаем ID файла
-              photo = `/bitrix/tools/get_file.php?fid=${photoValue}`
+              path = `/bitrix/tools/get_file.php?fid=${photoValue}`
             }
+            if (path) photo = getPortalUrl(path)
           } else {
-            // Если PERSONAL_PHOTO отсутствует, используем стандартный способ получения фото пользователя
-            // Bitrix24 позволяет получать фото через специальный URL
-            photo = `/bitrix/tools/get_user_photo.php?user_id=${id}`
+            // Нет PERSONAL_PHOTO — URL для дефолтного фото по user_id (при ошибке/отсутствии покажутся инициалы)
+            photo = getPortalUrl(`/bitrix/tools/get_user_photo.php?user_id=${id}`)
           }
           return {
             id,
