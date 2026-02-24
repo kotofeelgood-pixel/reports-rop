@@ -1,16 +1,17 @@
 <script setup lang="ts">
-import { computed, onMounted, ref, watch } from 'vue'
+import { computed, h, onMounted, ref, resolveComponent, watch } from 'vue'
+import type { TableColumn } from '@bitrix24/b24ui-nuxt'
 import UserCallsModal from './UserCallsModal.vue'
 import SelectComponent from '@/components/select/SelectComponent.vue'
 import CalendarComponent from '@/components/element/calendar/CalendarComponent.vue'
 import PopoverComponent from '@/components/overlay/popover/PopoverComponent.vue'
 import ButtonComponent from '@/components/buttons/ButtonComponent.vue'
-import { useTableSort } from '@/composables/useTableSort'
 import { useCallsModal } from '@/composables/useCallsModal'
 import { useDateRange } from '@/composables/useDateRange'
 import { useUsersStore, useUsersStoreRefs } from '@/stores/users'
 import { useReportSettingsStoreRefs } from '@/stores/reportSettings'
 import { telephonyCallList, type TelephonyCallRecord, isOutgoingCallType, isIncomingCallType, isMissedCall } from '@/api/calls'
+import { getUserProfilePath, openInB24 } from '@/tools'
 
 type Row = {
   id: string
@@ -134,8 +135,7 @@ const tableTotals = computed((): Totals =>
   rowsFromCalls.value.length ? totalsFromCalls.value : { outgoing: 0, incoming: 0, missed: 0, duration: '00:00:00' }
 )
 
-const { sortedRows } = useTableSort(computedRows)
-const data = computed(() => sortedRows.value)
+const data = computed(() => computedRows.value)
 
 const {
   dateRange,
@@ -205,7 +205,148 @@ const userOptions = computed(() => {
   return filteredItems
 })
 
-const { isCallsModalOpen, selectedUserName, selectedCallType, selectedCalls, selectedDateRange, crmNames } = useCallsModal(calls, usersById)
+const {
+  isCallsModalOpen,
+  selectedUserName,
+  selectedCallType,
+  selectedCalls,
+  selectedDateRange,
+  crmNames,
+  openCallsModal,
+  openTotalsCallsModal,
+} = useCallsModal(calls, usersById)
+
+const currentDateRange = computed(() => getDateRange())
+
+const B24Avatar = resolveComponent('B24Avatar')
+
+const columns: TableColumn<Row>[] = [
+  {
+    accessorKey: 'id',
+    header: 'Id',
+  },
+  {
+    accessorKey: 'name',
+    header: 'Аватар Имя',
+    cell: ({ row }) => {
+      const original = row.original as Row
+
+      return h(
+        'div',
+        { class: 'flex items-center gap-2' },
+        [
+          h(B24Avatar as any, {
+            src: original.photo ?? undefined,
+            size: 'sm',
+          }),
+          h(
+            'button',
+            {
+              type: 'button',
+              class:
+                'text-[#2563eb] hover:underline text-left bg-transparent border-0 cursor-pointer p-0 font-inherit',
+              onClick: () => openInB24(getUserProfilePath(original.id)),
+            },
+            original.name,
+          ),
+        ],
+      )
+    },
+  },
+  {
+    accessorKey: 'outgoing',
+    header: 'Исходящие',
+    cell: ({ row }) => {
+      const original = row.original as Row
+
+      return h(
+        'button',
+        {
+          type: 'button',
+          class:
+            'cursor-pointer font-medium text-green-600 transition-all hover:underline hover:opacity-80 dark:text-green-400 bg-transparent border-0 p-0',
+          onClick: () => openCallsModal(original.id, original.name, 'исходящие', currentDateRange.value),
+        },
+        String(row.getValue('outgoing') ?? 0),
+      )
+    },
+    footer: () =>
+      h(
+        'button',
+        {
+          type: 'button',
+          class:
+            'cursor-pointer text-green-600 transition-all hover:underline hover:opacity-80 dark:text-green-400 bg-transparent border-0 p-0',
+          onClick: () => openTotalsCallsModal('исходящие', currentDateRange.value),
+        },
+        String(tableTotals.value.outgoing),
+      ),
+  },
+  {
+    accessorKey: 'incoming',
+    header: 'Входящие',
+    cell: ({ row }) => {
+      const original = row.original as Row
+
+      return h(
+        'button',
+        {
+          type: 'button',
+          class:
+            'cursor-pointer font-medium text-[#2563eb] transition-all hover:underline hover:opacity-80 dark:text-blue-400 bg-transparent border-0 p-0',
+          onClick: () => openCallsModal(original.id, original.name, 'входящие', currentDateRange.value),
+        },
+        String(row.getValue('incoming') ?? 0),
+      )
+    },
+    footer: () =>
+      h(
+        'button',
+        {
+          type: 'button',
+          class:
+            'cursor-pointer text-[#2563eb] transition-all hover:underline hover:opacity-80 dark:text-blue-400 bg-transparent border-0 p-0',
+          onClick: () => openTotalsCallsModal('входящие', currentDateRange.value),
+        },
+        String(tableTotals.value.incoming),
+      ),
+  },
+  {
+    accessorKey: 'missed',
+    header: 'Пропущенные',
+    cell: ({ row }) => {
+      const original = row.original as Row
+
+      return h(
+        'button',
+        {
+          type: 'button',
+          class:
+            'cursor-pointer font-medium text-red-600 transition-all hover:underline hover:opacity-80 dark:text-red-400 bg-transparent border-0 p-0',
+          onClick: () => openCallsModal(original.id, original.name, 'пропущенные', currentDateRange.value),
+        },
+        String(row.getValue('missed') ?? 0),
+      )
+    },
+    footer: () =>
+      h(
+        'button',
+        {
+          type: 'button',
+          class:
+            'cursor-pointer text-red-600 transition-all hover:underline hover:opacity-80 dark:text-red-400 bg-transparent border-0 p-0',
+          onClick: () => openTotalsCallsModal('пропущенные', currentDateRange.value),
+        },
+        String(tableTotals.value.missed),
+      ),
+  },
+  {
+    accessorKey: 'duration',
+    header: 'Длительность',
+    cell: ({ row }) => String(row.getValue('duration') ?? ''),
+    footer: () => tableTotals.value.duration,
+  },
+]
 
 const fetchCalls = async () => {
   const range = getDateRange()
@@ -336,7 +477,11 @@ watch([dateRange, dateValue, selectedUsers], () => {
       </div>
     </div>
 
-    <B24Table :data="data" class="flex-1" />
+    <B24Table
+      :data="data"
+      :columns="columns"
+      class="flex-1"
+    />
 
     <UserCallsModal
       v-if="isCallsModalOpen"
