@@ -10,7 +10,13 @@ import { useCallsModal } from '@/composables/useCallsModal'
 import { useDateRange } from '@/composables/useDateRange'
 import { useUsersStore, useUsersStoreRefs } from '@/stores/users'
 import { useReportSettingsStoreRefs } from '@/stores/reportSettings'
-import { telephonyCallList, type TelephonyCallRecord, isOutgoingCallType, isIncomingCallType, isMissedCall } from '@/api/calls'
+import {
+  telephonyCallList,
+  type TelephonyCallRecord,
+  isOutgoingCallType,
+  isIncomingCallType,
+  isMissedCall,
+} from '@/api/calls'
 import { getUserProfilePath, openInB24 } from '@/tools'
 
 type Row = {
@@ -38,7 +44,7 @@ const props = withDefaults(
   {
     rows: () => [],
     totals: () => ({ outgoing: 0, incoming: 0, missed: 0, duration: '00:00:00' }),
-  }
+  },
 )
 
 const usersStore = useUsersStore()
@@ -59,7 +65,8 @@ const rowsFromCalls = computed<Row[]>(() => {
     const duration = Number(durationRaw)
     if (duration < minDuration) continue
 
-    const userIdRaw = call.PORTAL_USER_ID ?? call.USER_ID ?? call.RESPONSIBLE_ID ?? call.ASSIGNED_BY_ID
+    const userIdRaw =
+      call.PORTAL_USER_ID ?? call.USER_ID ?? call.RESPONSIBLE_ID ?? call.ASSIGNED_BY_ID
     const userId = String(userIdRaw ?? '').trim()
     if (!userId || excluded.has(userId)) continue
 
@@ -109,18 +116,24 @@ const rowsFromCalls = computed<Row[]>(() => {
 })
 
 const totalsFromCalls = computed<Totals>(() => {
-  if (!rowsFromCalls.value.length) return props.totals ?? { outgoing: 0, incoming: 0, missed: 0, duration: '00:00:00' }
-  const totals = rowsFromCalls.value.reduce((acc, row) => {
-    acc.outgoing += row.outgoing
-    acc.incoming += row.incoming
-    acc.missed += row.missed
-    const parts = row.duration.split(':').map(Number)
-    const h = parts[0] ?? 0
-    const m = parts[1] ?? 0
-    const s = parts[2] ?? 0
-    acc._seconds += (h * 3600) + (m * 60) + (s || 0)
-    return acc
-  }, { outgoing: 0, incoming: 0, missed: 0, duration: '00:00:00', _seconds: 0 } as Totals & { _seconds: number })
+  if (!rowsFromCalls.value.length)
+    return props.totals ?? { outgoing: 0, incoming: 0, missed: 0, duration: '00:00:00' }
+  const totals = rowsFromCalls.value.reduce(
+    (acc, row) => {
+      acc.outgoing += row.outgoing
+      acc.incoming += row.incoming
+      acc.missed += row.missed
+      const parts = row.duration.split(':').map(Number)
+      const h = parts[0] ?? 0
+      const m = parts[1] ?? 0
+      const s = parts[2] ?? 0
+      acc._seconds += h * 3600 + m * 60 + (s || 0)
+      return acc
+    },
+    { outgoing: 0, incoming: 0, missed: 0, duration: '00:00:00', _seconds: 0 } as Totals & {
+      _seconds: number
+    },
+  )
   const total = Math.max(0, totals._seconds)
   const h = Math.floor(total / 3600)
   const m = Math.floor((total % 3600) / 60)
@@ -131,8 +144,11 @@ const totalsFromCalls = computed<Totals>(() => {
 
 // Всегда показываем результат запроса по выбранному периоду; при отсутствии данных — пустая таблица
 const computedRows = computed(() => rowsFromCalls.value)
-const tableTotals = computed((): Totals =>
-  rowsFromCalls.value.length ? totalsFromCalls.value : { outgoing: 0, incoming: 0, missed: 0, duration: '00:00:00' }
+const tableTotals = computed(
+  (): Totals =>
+    rowsFromCalls.value.length
+      ? totalsFromCalls.value
+      : { outgoing: 0, incoming: 0, missed: 0, duration: '00:00:00' },
 )
 
 const data = computed(() => computedRows.value)
@@ -158,7 +174,7 @@ const formatDateMedium = (value: { day: number; month: number; year: number } | 
 }
 
 const dateRangeDisplay = computed(
-  () => `${formatDateMedium(dateValue.value.start)} — ${formatDateMedium(dateValue.value.end)}`
+  () => `${formatDateMedium(dateValue.value.start)} — ${formatDateMedium(dateValue.value.end)}`,
 )
 
 type DayCallStats = { outgoing: number; incoming: number; missed: number }
@@ -193,14 +209,14 @@ const getCallsForDay = (day: { day: number; month: number; year: number }): DayC
 }
 
 const userOptions = computed(() => {
-  const fromStore = (allUsers.value || []).map(u => ({ label: u.name, value: u.id }))
-  const fromRows = computedRows.value.map(row => ({ label: row.name, value: row.id }))
+  const fromStore = (allUsers.value || []).map((u) => ({ label: u.name, value: u.id }))
+  const fromRows = computedRows.value.map((row) => ({ label: row.name, value: row.id }))
 
   // Если список пользователей уже загрузили — используем его, иначе fallback на строки отчёта
   const items = fromStore.length ? fromStore : fromRows
 
   const excluded = new Set((excludedEmployeeIds.value || []).map(String))
-  const filteredItems = items.filter(i => !excluded.has(String(i.value)))
+  const filteredItems = items.filter((i) => !excluded.has(String(i.value)))
 
   return filteredItems
 })
@@ -231,26 +247,22 @@ const columns: TableColumn<Row>[] = [
     cell: ({ row }) => {
       const original = row.original as Row
 
-      return h(
-        'div',
-        { class: 'flex items-center gap-2' },
-        [
-          h(B24Avatar as any, {
-            src: original.photo ?? undefined,
-            size: 'sm',
-          }),
-          h(
-            'button',
-            {
-              type: 'button',
-              class:
-                'text-[#2563eb] hover:underline text-left bg-transparent border-0 cursor-pointer p-0 font-inherit',
-              onClick: () => openInB24(getUserProfilePath(original.id)),
-            },
-            original.name,
-          ),
-        ],
-      )
+      return h('div', { class: 'flex items-center gap-2' }, [
+        h(B24Avatar as any, {
+          src: original.photo ?? undefined,
+          size: 'sm',
+        }),
+        h(
+          'button',
+          {
+            type: 'button',
+            class:
+              'text-[#2563eb] hover:underline text-left bg-transparent border-0 cursor-pointer p-0 font-inherit',
+            onClick: () => openInB24(getUserProfilePath(original.id)),
+          },
+          original.name,
+        ),
+      ])
     },
   },
   {
@@ -265,7 +277,8 @@ const columns: TableColumn<Row>[] = [
           type: 'button',
           class:
             'cursor-pointer font-medium text-green-600 transition-all hover:underline hover:opacity-80 dark:text-green-400 bg-transparent border-0 p-0',
-          onClick: () => openCallsModal(original.id, original.name, 'исходящие', currentDateRange.value),
+          onClick: () =>
+            openCallsModal(original.id, original.name, 'исходящие', currentDateRange.value),
         },
         String(row.getValue('outgoing') ?? 0),
       )
@@ -294,7 +307,8 @@ const columns: TableColumn<Row>[] = [
           type: 'button',
           class:
             'cursor-pointer font-medium text-[#2563eb] transition-all hover:underline hover:opacity-80 dark:text-blue-400 bg-transparent border-0 p-0',
-          onClick: () => openCallsModal(original.id, original.name, 'входящие', currentDateRange.value),
+          onClick: () =>
+            openCallsModal(original.id, original.name, 'входящие', currentDateRange.value),
         },
         String(row.getValue('incoming') ?? 0),
       )
@@ -323,7 +337,8 @@ const columns: TableColumn<Row>[] = [
           type: 'button',
           class:
             'cursor-pointer font-medium text-red-600 transition-all hover:underline hover:opacity-80 dark:text-red-400 bg-transparent border-0 p-0',
-          onClick: () => openCallsModal(original.id, original.name, 'пропущенные', currentDateRange.value),
+          onClick: () =>
+            openCallsModal(original.id, original.name, 'пропущенные', currentDateRange.value),
         },
         String(row.getValue('missed') ?? 0),
       )
@@ -385,14 +400,24 @@ onMounted(() => {
   void fetchCalls()
 })
 
-watch([dateRange, dateValue, selectedUsers], () => {
-  void fetchCalls()
-}, { deep: true })
+watch(
+  [dateRange, dateValue, selectedUsers],
+  () => {
+    void fetchCalls()
+  },
+  { deep: true },
+)
 </script>
 
 <template>
-  <section class="flex min-w-0 flex-1 flex-col rounded-lg border border-gray-200 bg-white dark:border-gray-700 dark:bg-[#252525]">
-    <h2 class="border-b border-gray-200 bg-white px-4 py-3 text-base font-semibold text-gray-900 dark:border-gray-700 dark:bg-[#252525] dark:text-white">Пользователи</h2>
+  <section
+    class="flex min-w-0 flex-1 flex-col rounded-lg border border-gray-200 bg-white dark:border-gray-700 dark:bg-[#252525]"
+  >
+    <h2
+      class="border-b border-gray-200 bg-white px-4 py-3 text-base font-semibold text-gray-900 dark:border-gray-700 dark:bg-[#252525] dark:text-white"
+    >
+      Пользователи
+    </h2>
 
     <!-- Фильтры -->
     <div class="border-b border-gray-200 px-4 py-4 dark:border-gray-700">
@@ -405,7 +430,11 @@ watch([dateRange, dateValue, selectedUsers], () => {
               v-model="dateRange"
               :items="dateRangeOptions"
               :class="[dateRange === 'custom' ? '!w-auto min-w-[200px]' : '!w-full', 'text-xs']"
-              :style="dateRange === 'custom' ? 'width: auto !important; min-width: 200px;' : 'width: 100% !important;'"
+              :style="
+                dateRange === 'custom'
+                  ? 'width: auto !important; min-width: 200px;'
+                  : 'width: 100% !important;'
+              "
             />
             <PopoverComponent
               v-if="showDatePicker"
@@ -414,11 +443,7 @@ watch([dateRange, dateValue, selectedUsers], () => {
               align="start"
               class="flex-1"
             >
-              <ButtonComponent
-                color="light-border"
-                size="md"
-                class="w-full text-xs"
-              >
+              <ButtonComponent color="light-border" size="md" class="w-full text-xs">
                 {{ dateRangeDisplay }}
               </ButtonComponent>
               <template #content>
@@ -464,25 +489,22 @@ watch([dateRange, dateValue, selectedUsers], () => {
 
         <!-- Фильтр по пользователям -->
         <div class="space-y-1.5">
-          <label class="block text-xs font-medium text-gray-800 dark:text-gray-200">Пользователи</label>
+          <label class="block text-xs font-medium text-gray-800 dark:text-gray-200"
+            >Пользователи</label
+          >
           <SelectComponent
             v-model="selectedUsers"
             :items="userOptions"
             multiple
             placeholder="Все пользователи"
             class="!w-full text-xs"
-            style="width: 100% !important;"
+            style="width: 100% !important"
           />
         </div>
       </div>
     </div>
 
-    <B24Table
-      :data="data"
-      :columns="columns"
-      class="flex-1"
-    />
-
+    <B24Table :data="data" :columns="columns" class="flex-1" />
     <UserCallsModal
       v-if="isCallsModalOpen"
       v-model:open="isCallsModalOpen"
@@ -494,4 +516,3 @@ watch([dateRange, dateValue, selectedUsers], () => {
     />
   </section>
 </template>
-
