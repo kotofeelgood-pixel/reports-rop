@@ -20,15 +20,10 @@ const isSettingsOpen = ref(false)
 
 <template>
   <div class="flex min-h-screen flex-col bg-gray-50 dark:bg-[#1a1a1a]">
-    <ReportHeader 
-      @openSettings="isSettingsOpen = true"
-    />
+    <ReportHeader @openSettings="isSettingsOpen = true" />
 
     <!-- Расположение столбцами (таблица слева, график+рейтинг справа) -->
-    <main
-      v-if="layoutType === 'columns'"
-      class="flex flex-1 gap-4 overflow-hidden p-4"
-    >
+    <main v-if="layoutType === 'columns'" class="flex flex-1 gap-4 overflow-hidden p-4">
       <ReportUsersTable />
       <aside class="flex min-w-0 flex-1 flex-col gap-4">
         <ReportChart />
@@ -37,12 +32,12 @@ const isSettingsOpen = ref(false)
     </main>
 
     <!-- Расположение строками (таблица сверху, график и рейтинг снизу рядом) -->
-    <main
-      v-else
-      class="flex flex-1 flex-col gap-4 overflow-hidden p-4"
-    >
+    <main v-else class="flex flex-1 flex-col gap-4 overflow-hidden p-4">
       <ReportUsersTable />
-      <div class="flex min-h-0 flex-1 gap-4 overflow-hidden" :class="layoutType === 'rows' ? 'flex-col' : 'flex-row'">
+      <div
+        class="flex min-h-0 flex-1 gap-4 overflow-hidden"
+        :class="layoutType === 'rows' ? 'flex-col' : 'flex-row'"
+      >
         <div class="flex min-w-0 flex-1">
           <ReportChart />
         </div>
@@ -52,8 +47,6 @@ const isSettingsOpen = ref(false)
       </div>
     </main>
 
-    <ReportSettingsModal
-      v-model:open="isSettingsOpen"
-    />
+    <ReportSettingsModal v-model:open="isSettingsOpen" />
   </div>
 </template>

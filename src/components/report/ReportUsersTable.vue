@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { computed, onMounted, ref, watch } from 'vue'
-import AvatarComponent from '@/components/avatar/AvatarComponent.vue'
 import UserCallsModal from './UserCallsModal.vue'
 import SelectComponent from '@/components/select/SelectComponent.vue'
 import CalendarComponent from '@/components/element/calendar/CalendarComponent.vue'
@@ -12,7 +11,6 @@ import { useDateRange } from '@/composables/useDateRange'
 import { useUsersStore, useUsersStoreRefs } from '@/stores/users'
 import { useReportSettingsStoreRefs } from '@/stores/reportSettings'
 import { telephonyCallList, type TelephonyCallRecord, isOutgoingCallType, isIncomingCallType, isMissedCall } from '@/api/calls'
-import { getUserProfilePath, openInB24 } from '@/tools'
 
 type Row = {
   id: string
@@ -136,7 +134,8 @@ const tableTotals = computed((): Totals =>
   rowsFromCalls.value.length ? totalsFromCalls.value : { outgoing: 0, incoming: 0, missed: 0, duration: '00:00:00' }
 )
 
-const { sortBy, sortDir, setSort, sortedRows } = useTableSort(computedRows)
+const { sortedRows } = useTableSort(computedRows)
+const data = computed(() => sortedRows.value)
 
 const {
   dateRange,
@@ -206,9 +205,7 @@ const userOptions = computed(() => {
   return filteredItems
 })
 
-const { isCallsModalOpen, selectedUserName, selectedCallType, selectedCalls, selectedDateRange, crmNames, openCallsModal, openTotalsCallsModal } = useCallsModal(calls, usersById)
-
-const currentDateRange = computed(() => getDateRange())
+const { isCallsModalOpen, selectedUserName, selectedCallType, selectedCalls, selectedDateRange, crmNames } = useCallsModal(calls, usersById)
 
 const fetchCalls = async () => {
   const range = getDateRange()
@@ -339,145 +336,7 @@ watch([dateRange, dateValue, selectedUsers], () => {
       </div>
     </div>
 
-    <div class="flex-1 overflow-auto">
-      <table class="w-full text-left text-sm">
-        <thead class="sticky top-0 z-10 bg-[#e0f7fc] text-gray-700 dark:bg-[#1e3a47] dark:text-gray-300">
-          <tr>
-            <th
-              class="cursor-pointer select-none px-4 py-3 font-medium hover:bg-[#bae6fd]/80 dark:hover:bg-[#2a4a5a]"
-              role="button"
-              tabindex="0"
-              @click="setSort('name')"
-              @keydown.enter="setSort('name')"
-            >
-              <span class="inline-flex items-center gap-1 text-xs">
-                ОТВЕТСТВЕННЫЙ
-                <span v-if="sortBy === 'name'" class="text-gray-900">{{ sortDir === 'asc' ? '↑' : '↓' }}</span>
-              </span>
-            </th>
-            <th
-              class="cursor-pointer select-none px-4 py-3 font-medium hover:bg-[#bae6fd]/80 dark:hover:bg-[#2a4a5a]"
-              role="button"
-              tabindex="0"
-              @click="setSort('outgoing')"
-              @keydown.enter="setSort('outgoing')"
-            >
-              <span class="inline-flex items-center gap-1 text-xs">
-                <span class="inline-block size-3 rounded bg-green-500/80" />
-                ИСХ.
-                <span v-if="sortBy === 'outgoing'" class="text-gray-900">{{ sortDir === 'asc' ? '↑' : '↓' }}</span>
-              </span>
-            </th>
-            <th
-              class="cursor-pointer select-none px-4 py-3 font-medium hover:bg-[#bae6fd]/80 dark:hover:bg-[#2a4a5a]"
-              role="button"
-              tabindex="0"
-              @click="setSort('incoming')"
-              @keydown.enter="setSort('incoming')"
-            >
-              <span class="inline-flex items-center gap-1 text-xs">
-                <span class="inline-block size-3 rounded bg-[#2fc6f6]/80" />
-                ВХОД.
-                <span v-if="sortBy === 'incoming'" class="text-gray-900">{{ sortDir === 'asc' ? '↑' : '↓' }}</span>
-              </span>
-            </th>
-            <th
-              class="cursor-pointer select-none px-4 py-3 font-medium hover:bg-[#bae6fd]/80 dark:hover:bg-[#2a4a5a]"
-              role="button"
-              tabindex="0"
-              @click="setSort('missed')"
-              @keydown.enter="setSort('missed')"
-            >
-              <span class="inline-flex items-center gap-1 text-xs">
-                <span class="inline-block size-3 rounded bg-red-500/80" />
-                ПР.
-                <span v-if="sortBy === 'missed'" class="text-gray-900">{{ sortDir === 'asc' ? '↑' : '↓' }}</span>
-              </span>
-            </th>
-            <th
-              class="cursor-pointer select-none px-4 py-3 font-medium hover:bg-[#bae6fd]/80 dark:hover:bg-[#2a4a5a]"
-              role="button"
-              tabindex="0"
-              @click="setSort('duration')"
-              @keydown.enter="setSort('duration')"
-            >
-              <span class="inline-flex items-center gap-1 text-xs">
-                ДЛИТЕЛЬНОСТЬ
-                <span v-if="sortBy === 'duration'" class="text-gray-900">{{ sortDir === 'asc' ? '↑' : '↓' }}</span>
-              </span>
-            </th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr
-            v-for="row in sortedRows"
-            :key="row.id"
-            class="border-t border-gray-100 hover:bg-gray-50/80 dark:border-gray-700 dark:hover:bg-gray-800/50"
-          >
-            <td class="px-4 py-2">
-              <div class="flex items-center gap-2">
-                <AvatarComponent
-                  :name="row.name"
-                  :src="row.photo ?? undefined"
-                  :userId="row.id"
-                  size="sm"
-                />
-                <button
-                  type="button"
-                  class="text-[#2563eb] hover:underline text-left bg-transparent border-0 cursor-pointer p-0 font-inherit"
-                  @click="openInB24(getUserProfilePath(row.id))"
-                >
-                  {{ row.name }}
-                </button>
-              </div>
-            </td>
-            <td
-              class="cursor-pointer px-4 py-2 font-medium text-green-600 transition-all hover:underline hover:opacity-80 dark:text-green-400"
-              @click="openCallsModal(row.id, row.name, 'исходящие', currentDateRange)"
-            >
-              {{ row.outgoing }}
-            </td>
-            <td
-              class="cursor-pointer px-4 py-2 font-medium text-[#2563eb] transition-all hover:underline hover:opacity-80 dark:text-blue-400"
-              @click="openCallsModal(row.id, row.name, 'входящие', currentDateRange)"
-            >
-              {{ row.incoming }}
-            </td>
-            <td
-              class="cursor-pointer px-4 py-2 font-medium text-red-600 transition-all hover:underline hover:opacity-80 dark:text-red-400"
-              @click="openCallsModal(row.id, row.name, 'пропущенные', currentDateRange)"
-            >
-              {{ row.missed }}
-            </td>
-            <td class="px-4 py-2 text-gray-700 dark:text-gray-300">{{ row.duration }}</td>
-          </tr>
-        </tbody>
-        <tfoot>
-          <tr class="border-t-2 border-gray-200 bg-[#e0f7fc] font-medium dark:border-gray-600 dark:bg-[#1e3a47]">
-            <td class="px-4 py-2 dark:text-gray-300">ИТОГИ:</td>
-            <td
-              class="cursor-pointer px-4 py-2 text-green-600 transition-all hover:underline hover:opacity-80 dark:text-green-400"
-              @click="openTotalsCallsModal('исходящие', currentDateRange)"
-            >
-              {{ tableTotals.outgoing }}
-            </td>
-            <td
-              class="cursor-pointer px-4 py-2 text-[#2563eb] transition-all hover:underline hover:opacity-80 dark:text-blue-400"
-              @click="openTotalsCallsModal('входящие', currentDateRange)"
-            >
-              {{ tableTotals.incoming }}
-            </td>
-            <td
-              class="cursor-pointer px-4 py-2 text-red-600 transition-all hover:underline hover:opacity-80 dark:text-red-400"
-              @click="openTotalsCallsModal('пропущенные', currentDateRange)"
-            >
-              {{ tableTotals.missed }}
-            </td>
-            <td class="px-4 py-2 text-gray-700 dark:text-gray-300">{{ tableTotals.duration }}</td>
-          </tr>
-        </tfoot>
-      </table>
-    </div>
+    <B24Table :data="data" class="flex-1" />
 
     <UserCallsModal
       v-if="isCallsModalOpen"

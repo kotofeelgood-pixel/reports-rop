@@ -9,4 +9,3 @@ import { RouterView } from 'vue-router'
     </B24App>
   </B24ConfigProvider>
 </template>
-
