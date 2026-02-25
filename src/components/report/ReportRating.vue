@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted } from 'vue'
+import { computed, onMounted, Ref } from 'vue'
 import AvatarComponent from '@/components/avatar/AvatarComponent.vue'
 import ProgressComponent from '@/components/progress/ProgressComponent.vue'
 import UserCallsModal from './UserCallsModal.vue'
@@ -32,7 +32,7 @@ const {
   selectedDateRange,
   crmNames,
   openCallsModal,
-  openTotalsCallsModal,
+  // openTotalsCallsModal,
 } = useCallsModal(callsRef as unknown as Ref<TelephonyCallRecord[]>, usersById)
 
 const currentDateRange = computed(() => getDateRange())
@@ -42,10 +42,10 @@ function openRatingCallsModal(userId: string, userName: string, callTypeLabel: s
   openCallsModal(userId, userName, callType, currentDateRange.value)
 }
 
-function openRatingTotalsModal(callTypeLabel: string) {
-  const callType = callTypeLabel === 'совершенные звонки' ? 'исходящие' : 'пропущенные'
-  openTotalsCallsModal(callType, currentDateRange.value)
-}
+// function openRatingTotalsModal(callTypeLabel: string) {
+//   const callType = callTypeLabel === 'совершенные звонки' ? 'исходящие' : 'пропущенные'
+//   openTotalsCallsModal(callType, currentDateRange.value)
+// }
 
 const normalizeUserId = (call: TelephonyCallRecord): string => {
   const id = call.PORTAL_USER_ID ?? call.USER_ID ?? call.RESPONSIBLE_ID ?? call.ASSIGNED_BY_ID
@@ -94,7 +94,7 @@ const buildTopList = (predicate: (call: TelephonyCallRecord) => boolean) => {
   return top.map((item) => ({ ...item, max }))
 }
 
-import { isOutgoingCallType, isIncomingCallType } from '@/api/calls'
+import { isOutgoingCallType } from '@/api/calls'
 
 const isOutgoingCall = (call: TelephonyCallRecord): boolean => {
   const callTypeRaw = call.CALL_TYPE ?? call.callType ?? call.TYPE ?? call.type
@@ -115,11 +115,10 @@ onMounted(() => {
 </script>
 
 <template>
-  <div
-    v-if="hasRatingData"
-    class="flex flex-1 flex-col gap-4 rounded-lg border border-gray-200 bg-white p-4 dark:border-gray-700 dark:bg-[#252525]"
-  >
-    <h2 class="text-base font-semibold text-gray-900 dark:text-white">Рейтинг сотрудников</h2>
+  <B24Card v-if="hasRatingData">
+    <template #header>
+      <p>Рейтинг сотрудников</p>
+    </template>
     <div :class="layoutType === 'rows' ? 'flex flex-col gap-4' : 'grid grid-cols-2 gap-4'">
       <div class="overflow-hidden rounded-lg border border-gray-200 dark:border-gray-700">
         <div class="flex items-center gap-2 bg-[#2fc6f6] px-3 py-2">
@@ -193,7 +192,6 @@ onMounted(() => {
         </ul>
       </div>
     </div>
-
     <UserCallsModal
       v-if="isCallsModalOpen"
       v-model:open="isCallsModalOpen"
@@ -203,5 +201,5 @@ onMounted(() => {
       :crm-names="crmNames"
       :date-range="selectedDateRange"
     />
-  </div>
+  </B24Card>
 </template>
