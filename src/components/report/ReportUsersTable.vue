@@ -82,6 +82,8 @@ const rowsFromCalls = computed<Row[]>(() => {
 
     const callTypeRaw = call.CALL_TYPE ?? call.callType ?? call.TYPE ?? call.type
     const isMissed = isMissedCall(call)
+    const failedCode = String(call.CALL_FAILED_CODE ?? call.call_failed_code ?? '').trim()
+    const is304 = failedCode === '304'
 
     const user = usersById.value.get(userId)
     const name = user?.name ?? `#${userId}`
@@ -103,12 +105,13 @@ const rowsFromCalls = computed<Row[]>(() => {
     const row = map.get(userId)!
     if (isOutgoingCallType(callTypeRaw)) {
       row.outgoing += 1
-    } else if (isIncomingCallType(callTypeRaw)) {
+    } else if (isIncomingCallType(callTypeRaw) && !is304) {
       row.incoming += 1
-      if (isMissed) row.missed += 1
-    } else if (isCallbackCallType(callTypeRaw)) {
+    } else if (isCallbackCallType(callTypeRaw) && !is304) {
       row.callback += 1
-      if (isMissed) row.missed += 1
+    }
+    if (isMissed) {
+      row.missed += 1
     }
     // Если CALL_TYPE не распознан (не 1,2,3,4), пропускаем или обрабатываем как входящий
 
@@ -222,11 +225,15 @@ const callsByDate = computed(() => {
     const stat = map.get(dateStr)!
     const callTypeRaw = call.CALL_TYPE ?? call.callType ?? call.TYPE ?? call.type
     const isMissed = isMissedCall(call)
+    const failedCode = String(call.CALL_FAILED_CODE ?? call.call_failed_code ?? '').trim()
+    const is304 = failedCode === '304'
     if (isOutgoingCallType(callTypeRaw)) {
       stat.outgoing += 1
-    } else if (isIncomingCallType(callTypeRaw)) {
+    } else if (isIncomingCallType(callTypeRaw) && !is304) {
       stat.incoming += 1
-      if (isMissed) stat.missed += 1
+    }
+    if (isMissed) {
+      stat.missed += 1
     }
   }
   return map

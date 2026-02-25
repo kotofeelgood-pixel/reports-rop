@@ -33,12 +33,14 @@ function buildChartDataFromCalls(calls: TelephonyCallRecord[]): ChartDataPoint[]
     const callTypeRaw = call.CALL_TYPE ?? call.callType ?? call.TYPE ?? call.type
     const duration = Number(call.CALL_DURATION ?? call.DURATION ?? call.duration ?? 0)
     const isMissed = isMissedCall(call)
+    const failedCode = String(call.CALL_FAILED_CODE ?? call.call_failed_code ?? '').trim()
+    const is304 = failedCode === '304'
     if (isOutgoingCallType(callTypeRaw)) {
       bucket.outgoing += 1
-    } else if (isIncomingCallType(callTypeRaw)) {
+    } else if (isIncomingCallType(callTypeRaw) && !is304) {
       bucket.incoming += 1
-      if (isMissed) bucket.missed += 1
     }
+    if (isMissed) bucket.missed += 1
   }
   return Array.from({ length: 24 }, (_, hour) => {
     const b = byHour.get(hour)!
