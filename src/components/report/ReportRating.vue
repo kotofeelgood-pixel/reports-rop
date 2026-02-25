@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, onMounted } from 'vue'
 import AvatarComponent from '@/components/avatar/AvatarComponent.vue'
 import ProgressComponent from '@/components/progress/ProgressComponent.vue'
 import UserCallsModal from './UserCallsModal.vue'
@@ -21,10 +21,19 @@ const props = withDefaults(
 const { layoutType, minCallDurationSeconds } = useReportSettingsStoreRefs()
 const usersStore = useUsersStore()
 const { usersById } = useUsersStoreRefs()
-const { dateRange, dateValue, getDateRange } = useDateRange()
+const { getDateRange } = useDateRange()
 
 const callsRef = computed(() => props.calls ?? [])
-const { isCallsModalOpen, selectedUserName, selectedCallType, selectedCalls, selectedDateRange, crmNames, openCallsModal, openTotalsCallsModal } = useCallsModal(callsRef as unknown as Ref<TelephonyCallRecord[]>, usersById)
+const {
+  isCallsModalOpen,
+  selectedUserName,
+  selectedCallType,
+  selectedCalls,
+  selectedDateRange,
+  crmNames,
+  openCallsModal,
+  openTotalsCallsModal,
+} = useCallsModal(callsRef as unknown as Ref<TelephonyCallRecord[]>, usersById)
 
 const currentDateRange = computed(() => getDateRange())
 
@@ -82,7 +91,7 @@ const buildTopList = (predicate: (call: TelephonyCallRecord) => boolean) => {
   items.sort((a, b) => b.count - a.count)
   const top = items.slice(0, 5)
   const max = top[0]?.count ?? 1
-  return top.map(item => ({ ...item, max }))
+  return top.map((item) => ({ ...item, max }))
 }
 
 import { isOutgoingCallType, isIncomingCallType } from '@/api/calls'
@@ -92,16 +101,12 @@ const isOutgoingCall = (call: TelephonyCallRecord): boolean => {
   return isOutgoingCallType(callTypeRaw)
 }
 
-const completedCalls = computed(() =>
-  buildTopList(call => isOutgoingCall(call))
-)
+const completedCalls = computed(() => buildTopList((call) => isOutgoingCall(call)))
 
-const missedCalls = computed(() =>
-  buildTopList(call => isMissedCall(call))
-)
+const missedCalls = computed(() => buildTopList((call) => isMissedCall(call)))
 
 const hasRatingData = computed(
-  () => completedCalls.value.length > 0 || missedCalls.value.length > 0
+  () => completedCalls.value.length > 0 || missedCalls.value.length > 0,
 )
 
 onMounted(() => {
@@ -118,7 +123,9 @@ onMounted(() => {
     <div :class="layoutType === 'rows' ? 'flex flex-col gap-4' : 'grid grid-cols-2 gap-4'">
       <div class="overflow-hidden rounded-lg border border-gray-200 dark:border-gray-700">
         <div class="flex items-center gap-2 bg-[#2fc6f6] px-3 py-2">
-          <span class="text-xs font-semibold uppercase tracking-wide text-white">Совершенные звонки</span>
+          <span class="text-xs font-semibold uppercase tracking-wide text-white"
+            >Совершенные звонки</span
+          >
         </div>
         <ul class="space-y-2 p-2">
           <li
@@ -129,7 +136,9 @@ onMounted(() => {
           >
             <div class="flex min-w-0 items-center gap-2">
               <AvatarComponent :name="item.name" :src="item.photo ?? undefined" size="sm" />
-              <span class="min-w-0 truncate text-sm text-gray-900 dark:text-white">{{ item.name }}</span>
+              <span class="min-w-0 truncate text-sm text-gray-900 dark:text-white">{{
+                item.name
+              }}</span>
             </div>
             <div class="flex shrink-0 items-center gap-2">
               <div class="w-[100px]">
@@ -141,7 +150,9 @@ onMounted(() => {
                   class="w-full"
                 />
               </div>
-              <span class="text-sm font-medium text-gray-700 dark:text-gray-300">{{ item.count }}</span>
+              <span class="text-sm font-medium text-gray-700 dark:text-gray-300">{{
+                item.count
+              }}</span>
             </div>
           </li>
         </ul>
@@ -160,7 +171,9 @@ onMounted(() => {
           >
             <div class="flex min-w-0 items-center gap-2">
               <AvatarComponent :name="item.name" :src="item.photo ?? undefined" size="sm" />
-              <span class="min-w-0 truncate text-sm text-gray-900 dark:text-white">{{ item.name }}</span>
+              <span class="min-w-0 truncate text-sm text-gray-900 dark:text-white">{{
+                item.name
+              }}</span>
             </div>
             <div class="flex shrink-0 items-center gap-2">
               <div class="w-[100px]">
@@ -172,7 +185,9 @@ onMounted(() => {
                   class="w-full"
                 />
               </div>
-              <span class="text-sm font-medium text-gray-700 dark:text-gray-300">{{ item.count }}</span>
+              <span class="text-sm font-medium text-gray-700 dark:text-gray-300">{{
+                item.count
+              }}</span>
             </div>
           </li>
         </ul>
@@ -190,4 +205,3 @@ onMounted(() => {
     />
   </div>
 </template>
-

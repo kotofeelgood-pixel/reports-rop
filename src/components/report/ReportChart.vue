@@ -9,25 +9,31 @@ const props = defineProps<{
   calls?: TelephonyCallRecord[]
 }>()
 
+const colors = ['#4ade80', '#2fc6f6', '#ef4444', '#f97316']
+
 const callsRef = computed(() => props.calls ?? [])
 
 const { series, chartOptions } = useChartData(callsRef)
 </script>
 
 <template>
-  <CardComponent class="flex flex-1 flex-col overflow-hidden rounded-lg border border-gray-200 bg-white p-4 dark:border-gray-700 dark:bg-[#252525]">
-    <h2 class="mb-3 text-base font-semibold text-gray-700 dark:text-white">График</h2>
-    <div class="mb-3 flex flex-wrap gap-4 text-xs text-gray-600 dark:text-gray-300">
-      <span class="flex items-center gap-1.5"><span class="size-3 shrink-0 rounded-full bg-green-400" /> Исходящие</span>
-      <span class="flex items-center gap-1.5"><span class="size-3 shrink-0 rounded-full bg-[#2fc6f6]" /> Входящие</span>
-      <span class="flex items-center gap-1.5"><span class="size-3 shrink-0 rounded-full bg-red-500" /> Пропущенные</span>
-      <span class="flex items-center gap-1.5"><span class="size-3 shrink-0 rounded-full bg-orange-500" /> Обработанные пропущенные</span>
-    </div>
-    <VueApexCharts
-      :options="chartOptions"
-      :series="series"
-      height="220"
-    />
-  </CardComponent>
-</template>
+  <B24Card class="">
+    <template #header>
+      <div class="flex items-center justify-between">
+        <p>График</p>
+        <ul class="flex items-center gap-2 text-xs">
+          <li
+            v-for="(value, index) in series"
+            :key="index"
+            class="flex items-center gap-1.5 py-0.5 px-2 rounded-md text-white text-xs"
+            :style="{ backgroundColor: colors[index] }"
+          >
+            {{ value.name }}
+          </li>
+        </ul>
+      </div>
+    </template>
 
+    <VueApexCharts :options="chartOptions" :series="series" height="220" />
+  </B24Card>
+</template>

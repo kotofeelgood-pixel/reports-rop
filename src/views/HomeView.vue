@@ -26,7 +26,7 @@ const isSettingsOpen = ref(false)
 
     <!-- Расположение столбцами (таблица слева, график+рейтинг справа) -->
     <main v-if="layoutType === 'columns'" class="flex flex-1 gap-4 overflow-hidden p-4">
-      <ReportUsersTable :calls="calls" />
+      <ReportUsersTable :calls="calls" class="flex-1" />
       <aside class="flex min-w-0 flex-1 flex-col gap-4">
         <ReportChart :calls="calls" />
         <ReportRating :calls="calls" />

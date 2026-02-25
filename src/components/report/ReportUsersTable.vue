@@ -134,13 +134,15 @@ const rowsFromCalls = computed<Row[]>(() => {
 
 const totalsFromCalls = computed<Totals>(() => {
   if (!rowsFromCalls.value.length) {
-    return props.totals ?? {
-      outgoing: 0,
-      incoming: 0,
-      missed: 0,
-      callback: 0,
-      duration: '00:00:00',
-    }
+    return (
+      props.totals ?? {
+        outgoing: 0,
+        incoming: 0,
+        missed: 0,
+        callback: 0,
+        duration: '00:00:00',
+      }
+    )
   }
   const totals = rowsFromCalls.value.reduce(
     (acc, row) => {
@@ -435,88 +437,69 @@ onMounted(() => {
 </script>
 
 <template>
-  <section
-    class="flex min-w-0 flex-1 flex-col rounded-lg border border-gray-200 bg-white dark:border-gray-700 dark:bg-[#252525]"
-  >
-    <h2
-      class="border-b border-gray-200 bg-white px-4 py-3 text-base font-semibold text-gray-900 dark:border-gray-700 dark:bg-[#252525] dark:text-white"
-    >
-      Пользователи
-    </h2>
-
-    <!-- Фильтры -->
-    <div class="border-b border-gray-200 px-4 py-4 dark:border-gray-700">
-      <div class="flex gap-2">
-        <!-- Фильтр по дате -->
-        <div class="space-y-1.5">
-          <label class="block text-xs font-medium text-gray-800 dark:text-gray-200">Дата</label>
-          <div class="flex gap-2">
-            <SelectComponent
-              v-model="dateRange"
-              :items="dateRangeOptions"
-              :class="[dateRange === 'custom' ? '!w-auto min-w-[200px]' : '!w-full', 'text-xs']"
-              :style="
-                dateRange === 'custom'
-                  ? 'width: auto !important; min-width: 200px;'
-                  : 'width: 100% !important;'
-              "
-            />
-            <PopoverComponent
-              v-if="showDatePicker"
-              v-model:open="isDatePickerOpen"
-              side="bottom"
-              align="start"
-              class="flex-1"
-            >
-              <ButtonComponent color="light-border" size="md" class="w-full text-xs">
-                {{ dateRangeDisplay }}
-              </ButtonComponent>
-              <template #content>
-                <div class="p-4">
-                  <CalendarComponent
-                    v-model="dateValue"
-                    range
-                    locale="ru-RU"
-                    :number-of-months="2"
-                    year-controls
-                  >
-                    <template #day="{ day }">
-                      <div class="flex flex-col items-center gap-0.5">
-                        <span>{{ day?.day ?? '' }}</span>
-                        <div
-                          v-if="day && getCallsForDay(day)"
-                          class="flex items-center justify-center gap-0.5"
-                        >
-                          <span
-                            v-if="getCallsForDay(day)!.outgoing > 0"
-                            class="size-1.5 rounded-full bg-green-500"
-                            :title="`Исходящие: ${getCallsForDay(day)!.outgoing}`"
-                          />
-                          <span
-                            v-if="getCallsForDay(day)!.incoming > 0"
-                            class="size-1.5 rounded-full bg-[#2fc6f6]"
-                            :title="`Входящие: ${getCallsForDay(day)!.incoming}`"
-                          />
-                          <span
-                            v-if="getCallsForDay(day)!.missed > 0"
-                            class="size-1.5 rounded-full bg-red-500"
-                            :title="`Пропущенные: ${getCallsForDay(day)!.missed}`"
-                          />
-                        </div>
-                      </div>
-                    </template>
-                  </CalendarComponent>
-                </div>
-              </template>
-            </PopoverComponent>
-          </div>
-        </div>
-
-        <!-- Фильтр по пользователям -->
-        <div class="space-y-1.5">
-          <label class="block text-xs font-medium text-gray-800 dark:text-gray-200"
-            >Пользователи</label
+  <B24Card>
+    <template #header>
+      <div class="flex items-center justify-between">
+        <p>Пользователи</p>
+        <div class="flex items-center gap-2">
+          <SelectComponent
+            v-model="dateRange"
+            :items="dateRangeOptions"
+            :class="[dateRange === 'custom' ? '!w-auto min-w-[200px]' : '!w-full', 'text-xs']"
+            :style="
+              dateRange === 'custom'
+                ? 'width: auto !important; min-width: 200px;'
+                : 'width: 100% !important;'
+            "
+          />
+          <PopoverComponent
+            v-if="showDatePicker"
+            v-model:open="isDatePickerOpen"
+            side="bottom"
+            align="start"
+            class="flex-1"
           >
+            <ButtonComponent color="light-border" size="md" class="w-full text-xs">
+              {{ dateRangeDisplay }}
+            </ButtonComponent>
+            <template #content>
+              <div class="p-4">
+                <CalendarComponent
+                  v-model="dateValue"
+                  range
+                  locale="ru-RU"
+                  :number-of-months="2"
+                  year-controls
+                >
+                  <template #day="{ day }">
+                    <div class="flex flex-col items-center gap-0.5">
+                      <span>{{ day?.day ?? '' }}</span>
+                      <div
+                        v-if="day && getCallsForDay(day)"
+                        class="flex items-center justify-center gap-0.5"
+                      >
+                        <span
+                          v-if="getCallsForDay(day)!.outgoing > 0"
+                          class="size-1.5 rounded-full bg-green-500"
+                          :title="`Исходящие: ${getCallsForDay(day)!.outgoing}`"
+                        />
+                        <span
+                          v-if="getCallsForDay(day)!.incoming > 0"
+                          class="size-1.5 rounded-full bg-[#2fc6f6]"
+                          :title="`Входящие: ${getCallsForDay(day)!.incoming}`"
+                        />
+                        <span
+                          v-if="getCallsForDay(day)!.missed > 0"
+                          class="size-1.5 rounded-full bg-red-500"
+                          :title="`Пропущенные: ${getCallsForDay(day)!.missed}`"
+                        />
+                      </div>
+                    </div>
+                  </template>
+                </CalendarComponent>
+              </div>
+            </template>
+          </PopoverComponent>
           <SelectComponent
             v-model="selectedUsers"
             :items="userOptions"
@@ -527,17 +510,18 @@ onMounted(() => {
           />
         </div>
       </div>
-    </div>
-
-    <B24Table :data="data" :columns="columns" class="flex-1" />
-    <UserCallsModal
-      v-if="isCallsModalOpen"
-      v-model:open="isCallsModalOpen"
-      :user-name="selectedUserName"
-      :call-type="selectedCallType"
-      :calls="selectedCalls"
-      :crm-names="crmNames"
-      :date-range="selectedDateRange"
-    />
-  </section>
+    </template>
+    <section class="flex min-w-0 flex-1 flex-col">
+      <B24Table :data="data" :columns="columns" class="flex-1" />
+      <UserCallsModal
+        v-if="isCallsModalOpen"
+        v-model:open="isCallsModalOpen"
+        :user-name="selectedUserName"
+        :call-type="selectedCallType"
+        :calls="selectedCalls"
+        :crm-names="crmNames"
+        :date-range="selectedDateRange"
+      />
+    </section>
+  </B24Card>
 </template>
