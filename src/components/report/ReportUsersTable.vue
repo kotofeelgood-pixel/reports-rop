@@ -275,11 +275,11 @@ const B24Avatar = resolveComponent('B24Avatar')
 const columns: TableColumn<Row>[] = [
   {
     accessorKey: 'id',
-    header: 'Id',
+    header: 'ID',
   },
   {
     accessorKey: 'name',
-    header: 'Аватар Имя',
+    header: 'Имя',
     cell: ({ row }) => {
       const original = row.original as Row
 
@@ -303,7 +303,7 @@ const columns: TableColumn<Row>[] = [
   },
   {
     accessorKey: 'outgoing',
-    header: 'Исходящие',
+    header: 'Исх.',
     cell: ({ row }) => {
       const original = row.original as Row
 
@@ -333,7 +333,7 @@ const columns: TableColumn<Row>[] = [
   },
   {
     accessorKey: 'incoming',
-    header: 'Входящие',
+    header: 'Вх.',
     cell: ({ row }) => {
       const original = row.original as Row
 
@@ -363,7 +363,7 @@ const columns: TableColumn<Row>[] = [
   },
   {
     accessorKey: 'missed',
-    header: 'Пропущенные',
+    header: 'Проп.',
     cell: ({ row }) => {
       const original = row.original as Row
 
@@ -393,7 +393,7 @@ const columns: TableColumn<Row>[] = [
   },
   {
     accessorKey: 'callback',
-    header: 'Обратный',
+    header: 'Обрат.',
     cell: ({ row }) => {
       const original = row.original as Row
 
@@ -423,7 +423,7 @@ const columns: TableColumn<Row>[] = [
   },
   {
     accessorKey: 'duration',
-    header: 'Длительность',
+    header: 'Время',
     cell: ({ row }) => String(row.getValue('duration') ?? ''),
     footer: () => tableTotals.value.duration,
   },
