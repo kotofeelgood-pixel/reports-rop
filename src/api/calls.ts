@@ -46,11 +46,18 @@ export const isOutgoingCallType = (callType: number | string | unknown): boolean
 }
 
 /**
- * Проверяет, является ли звонок входящим (включая перенаправленные и обратные)
+ * Проверяет, является ли звонок входящим (обычный или с перенаправлением)
  */
 export const isIncomingCallType = (callType: number | string | unknown): boolean => {
   const type = Number(callType)
-  return type === CALL_TYPE.INCOMING || type === CALL_TYPE.INCOMING_REDIRECTED || type === CALL_TYPE.CALLBACK
+  return type === CALL_TYPE.INCOMING || type === CALL_TYPE.INCOMING_REDIRECTED
+}
+
+/**
+ * Проверяет, является ли звонок обратным (CALLBACK)
+ */
+export const isCallbackCallType = (callType: number | string | unknown): boolean => {
+  return Number(callType) === CALL_TYPE.CALLBACK
 }
 
 /**

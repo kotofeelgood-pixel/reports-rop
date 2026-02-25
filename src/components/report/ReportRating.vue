@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, ref, watch } from 'vue'
+import { computed, ref } from 'vue'
 import AvatarComponent from '@/components/avatar/AvatarComponent.vue'
 import ProgressComponent from '@/components/progress/ProgressComponent.vue'
 import UserCallsModal from './UserCallsModal.vue'
@@ -7,15 +7,24 @@ import { useReportSettingsStoreRefs } from '@/stores/reportSettings'
 import { useUsersStore, useUsersStoreRefs } from '@/stores/users'
 import { useDateRange } from '@/composables/useDateRange'
 import { useCallsModal } from '@/composables/useCallsModal'
-import { telephonyCallList, type TelephonyCallRecord, isMissedCall as isMissedCallRecord } from '@/api/calls'
+import { type TelephonyCallRecord, isMissedCall as isMissedCallRecord } from '@/api/calls'
+
+const props = withDefaults(
+  defineProps<{
+    calls?: TelephonyCallRecord[]
+  }>(),
+  {
+    calls: () => [],
+  },
+)
 
 const { layoutType, minCallDurationSeconds } = useReportSettingsStoreRefs()
 const usersStore = useUsersStore()
 const { usersById } = useUsersStoreRefs()
-const { dateRange, dateValue, getDateRange, formatB24DateFilter } = useDateRange()
+const { dateRange, dateValue, getDateRange } = useDateRange()
 
-const calls = ref<TelephonyCallRecord[]>([])
-const { isCallsModalOpen, selectedUserName, selectedCallType, selectedCalls, selectedDateRange, crmNames, openCallsModal, openTotalsCallsModal } = useCallsModal(calls, usersById)
+const callsRef = computed(() => props.calls ?? [])
+const { isCallsModalOpen, selectedUserName, selectedCallType, selectedCalls, selectedDateRange, crmNames, openCallsModal, openTotalsCallsModal } = useCallsModal(callsRef as unknown as Ref<TelephonyCallRecord[]>, usersById)
 
 const currentDateRange = computed(() => getDateRange())
 
@@ -28,9 +37,6 @@ function openRatingTotalsModal(callTypeLabel: string) {
   const callType = callTypeLabel === 'совершенные звонки' ? 'исходящие' : 'пропущенные'
   openTotalsCallsModal(callType, currentDateRange.value)
 }
-
-const isLoading = ref(false)
-const error = ref<string | null>(null)
 
 const normalizeUserId = (call: TelephonyCallRecord): string => {
   const id = call.PORTAL_USER_ID ?? call.USER_ID ?? call.RESPONSIBLE_ID ?? call.ASSIGNED_BY_ID
@@ -57,7 +63,7 @@ const isMissedCall = (call: TelephonyCallRecord): boolean => {
 const buildTopList = (predicate: (call: TelephonyCallRecord) => boolean) => {
   const counts = new Map<string, number>()
   const minDuration = Number(minCallDurationSeconds.value) || 0
-  for (const call of calls.value) {
+  for (const call of callsRef.value) {
     const duration = normalizeDuration(call)
     if (duration < minDuration) continue
     if (!predicate(call)) continue
@@ -98,37 +104,9 @@ const hasRatingData = computed(
   () => completedCalls.value.length > 0 || missedCalls.value.length > 0
 )
 
-const fetchCalls = async () => {
-  const range = getDateRange()
-  if (!range?.start || !range?.end) {
-    calls.value = []
-    return
-  }
-  isLoading.value = true
-  error.value = null
-  try {
-    const filter: Record<string, unknown> = {
-      '>=CALL_START_DATE': formatB24DateFilter(range.start, 'start'),
-      '<=CALL_START_DATE': formatB24DateFilter(range.end, 'end'),
-    }
-    const data = await telephonyCallList({ filter, sort: 'CALL_START_DATE', order: 'DESC' })
-    calls.value = Array.isArray(data) ? data : []
-  } catch (e) {
-    error.value = e instanceof Error ? e.message : String(e)
-    calls.value = []
-  } finally {
-    isLoading.value = false
-  }
-}
-
 onMounted(() => {
   void usersStore.fetchUsers()
-  void fetchCalls()
 })
-
-watch([dateRange, dateValue], () => {
-  void fetchCalls()
-}, { deep: true })
 </script>
 
 <template>

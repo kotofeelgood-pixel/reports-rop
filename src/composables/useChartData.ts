@@ -1,4 +1,4 @@
-import { computed, onMounted, ref, watch } from 'vue'
+import { computed, onMounted, ref, watch, type Ref } from 'vue'
 import { useColorMode } from '@vueuse/core'
 import { useReportSettingsStoreRefs } from '@/stores/reportSettings'
 import { useDateRange } from '@/composables/useDateRange'
@@ -50,12 +50,13 @@ function buildChartDataFromCalls(calls: TelephonyCallRecord[]): ChartDataPoint[]
  * Композабл для управления данными графика.
  * Данные загружаются за выбранный период (как таблица и рейтинг).
  */
-export function useChartData() {
+export function useChartData(externalCalls?: Ref<TelephonyCallRecord[]>) {
   const { chartType, chartStartHour, chartEndHour, minCallDurationSeconds } = useReportSettingsStoreRefs()
   const mode = useColorMode()
   const { dateRange, dateValue, getDateRange, formatB24DateFilter } = useDateRange()
 
-  const calls = ref<TelephonyCallRecord[]>([])
+  const internalCalls = ref<TelephonyCallRecord[]>([])
+  const calls = externalCalls ?? internalCalls
   const callsFilteredByMinDuration = computed(() => {
     const list = calls.value
     const minDuration = Number(minCallDurationSeconds.value) || 0
@@ -68,6 +69,7 @@ export function useChartData() {
   const chartDataFromApi = computed(() => buildChartDataFromCalls(callsFilteredByMinDuration.value))
 
   const fetchCalls = async () => {
+    if (externalCalls) return
     try {
       const range = getDateRange()
       const filter: Record<string, unknown> = {}
@@ -76,9 +78,9 @@ export function useChartData() {
         filter['<=CALL_START_DATE'] = formatB24DateFilter(range.end, 'end')
       }
       const data = await telephonyCallList({ filter, sort: 'CALL_START_DATE', order: 'DESC' })
-      calls.value = Array.isArray(data) ? data : []
+      internalCalls.value = Array.isArray(data) ? data : []
     } catch {
-      calls.value = []
+      internalCalls.value = []
     }
   }
 

@@ -7,9 +7,11 @@ import ReportRating from '@/components/report/ReportRating.vue'
 import ReportSettingsModal from '@/components/report/ReportSettingsModal.vue'
 import { useReportSettingsStoreRefs } from '@/stores/reportSettings'
 import { useUsersStore } from '@/stores/users'
+import { useAnalyticsCalls } from '@/composables/useAnalyticsCalls'
 
 const { layoutType } = useReportSettingsStoreRefs()
 const usersStore = useUsersStore()
+const { calls } = useAnalyticsCalls()
 
 onMounted(() => {
   void usersStore.fetchUsers()
@@ -24,25 +26,25 @@ const isSettingsOpen = ref(false)
 
     <!-- Расположение столбцами (таблица слева, график+рейтинг справа) -->
     <main v-if="layoutType === 'columns'" class="flex flex-1 gap-4 overflow-hidden p-4">
-      <ReportUsersTable />
+      <ReportUsersTable :calls="calls" />
       <aside class="flex min-w-0 flex-1 flex-col gap-4">
-        <ReportChart />
-        <ReportRating />
+        <ReportChart :calls="calls" />
+        <ReportRating :calls="calls" />
       </aside>
     </main>
 
     <!-- Расположение строками (таблица сверху, график и рейтинг снизу рядом) -->
     <main v-else class="flex flex-1 flex-col gap-4 overflow-hidden p-4">
-      <ReportUsersTable />
+      <ReportUsersTable :calls="calls" />
       <div
         class="flex min-h-0 flex-1 gap-4 overflow-hidden"
         :class="layoutType === 'rows' ? 'flex-col' : 'flex-row'"
       >
         <div class="flex min-w-0 flex-1">
-          <ReportChart />
+          <ReportChart :calls="calls" />
         </div>
         <div class="flex min-w-0 flex-1">
-          <ReportRating />
+          <ReportRating :calls="calls" />
         </div>
       </div>
     </main>

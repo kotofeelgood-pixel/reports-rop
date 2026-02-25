@@ -1,9 +1,17 @@
 <script setup lang="ts">
+import { computed } from 'vue'
 import VueApexCharts from 'vue3-apexcharts'
 import CardComponent from '@/components/element/card/CardComponent.vue'
 import { useChartData } from '@/composables/useChartData'
+import type { TelephonyCallRecord } from '@/api/calls'
 
-const { series, chartOptions } = useChartData()
+const props = defineProps<{
+  calls?: TelephonyCallRecord[]
+}>()
+
+const callsRef = computed(() => props.calls ?? [])
+
+const { series, chartOptions } = useChartData(callsRef)
 </script>
 
 <template>

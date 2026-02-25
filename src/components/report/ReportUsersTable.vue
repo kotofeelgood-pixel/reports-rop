@@ -11,10 +11,10 @@ import { useDateRange } from '@/composables/useDateRange'
 import { useUsersStore, useUsersStoreRefs } from '@/stores/users'
 import { useReportSettingsStoreRefs } from '@/stores/reportSettings'
 import {
-  telephonyCallList,
   type TelephonyCallRecord,
   isOutgoingCallType,
   isIncomingCallType,
+  isCallbackCallType,
   isMissedCall,
 } from '@/api/calls'
 import { getUserProfilePath, openInB24 } from '@/tools'
@@ -26,6 +26,7 @@ type Row = {
   outgoing: number
   incoming: number
   missed: number
+  callback: number
   duration: string
 }
 
@@ -33,6 +34,7 @@ type Totals = {
   outgoing: number
   incoming: number
   missed: number
+  callback: number
   duration: string
 }
 
@@ -40,10 +42,12 @@ const props = withDefaults(
   defineProps<{
     rows?: Row[]
     totals?: Totals
+    calls?: TelephonyCallRecord[]
   }>(),
   {
     rows: () => [],
-    totals: () => ({ outgoing: 0, incoming: 0, missed: 0, duration: '00:00:00' }),
+    totals: () => ({ outgoing: 0, incoming: 0, missed: 0, callback: 0, duration: '00:00:00' }),
+    calls: () => [],
   },
 )
 
@@ -52,8 +56,14 @@ const { users: allUsers, usersById } = useUsersStoreRefs()
 const { excludedEmployeeIds, minCallDurationSeconds } = useReportSettingsStoreRefs()
 
 const calls = ref<TelephonyCallRecord[]>([])
-const isLoading = ref(false)
-const error = ref<string | null>(null)
+
+watch(
+  () => props.calls,
+  (value) => {
+    calls.value = Array.isArray(value) ? value : []
+  },
+  { immediate: true, deep: true },
+)
 
 const rowsFromCalls = computed<Row[]>(() => {
   if (!calls.value.length) return []
@@ -85,6 +95,7 @@ const rowsFromCalls = computed<Row[]>(() => {
         outgoing: 0,
         incoming: 0,
         missed: 0,
+        callback: 0,
         duration: '00:00:00',
         _seconds: 0,
       })
@@ -94,6 +105,9 @@ const rowsFromCalls = computed<Row[]>(() => {
       row.outgoing += 1
     } else if (isIncomingCallType(callTypeRaw)) {
       row.incoming += 1
+      if (isMissed) row.missed += 1
+    } else if (isCallbackCallType(callTypeRaw)) {
+      row.callback += 1
       if (isMissed) row.missed += 1
     }
     // Если CALL_TYPE не распознан (не 1,2,3,4), пропускаем или обрабатываем как входящий
@@ -116,13 +130,21 @@ const rowsFromCalls = computed<Row[]>(() => {
 })
 
 const totalsFromCalls = computed<Totals>(() => {
-  if (!rowsFromCalls.value.length)
-    return props.totals ?? { outgoing: 0, incoming: 0, missed: 0, duration: '00:00:00' }
+  if (!rowsFromCalls.value.length) {
+    return props.totals ?? {
+      outgoing: 0,
+      incoming: 0,
+      missed: 0,
+      callback: 0,
+      duration: '00:00:00',
+    }
+  }
   const totals = rowsFromCalls.value.reduce(
     (acc, row) => {
       acc.outgoing += row.outgoing
       acc.incoming += row.incoming
       acc.missed += row.missed
+      acc.callback += row.callback
       const parts = row.duration.split(':').map(Number)
       const h = parts[0] ?? 0
       const m = parts[1] ?? 0
@@ -130,7 +152,14 @@ const totalsFromCalls = computed<Totals>(() => {
       acc._seconds += h * 3600 + m * 60 + (s || 0)
       return acc
     },
-    { outgoing: 0, incoming: 0, missed: 0, duration: '00:00:00', _seconds: 0 } as Totals & {
+    {
+      outgoing: 0,
+      incoming: 0,
+      missed: 0,
+      callback: 0,
+      duration: '00:00:00',
+      _seconds: 0,
+    } as Totals & {
       _seconds: number
     },
   )
@@ -148,7 +177,7 @@ const tableTotals = computed(
   (): Totals =>
     rowsFromCalls.value.length
       ? totalsFromCalls.value
-      : { outgoing: 0, incoming: 0, missed: 0, duration: '00:00:00' },
+      : { outgoing: 0, incoming: 0, missed: 0, callback: 0, duration: '00:00:00' },
 )
 
 const data = computed(() => computedRows.value)
@@ -356,6 +385,36 @@ const columns: TableColumn<Row>[] = [
       ),
   },
   {
+    accessorKey: 'callback',
+    header: 'Обратный',
+    cell: ({ row }) => {
+      const original = row.original as Row
+
+      return h(
+        'button',
+        {
+          type: 'button',
+          class:
+            'cursor-pointer font-medium text-orange-500 transition-all hover:underline hover:opacity-80 dark:text-orange-400 bg-transparent border-0 p-0',
+          onClick: () =>
+            openCallsModal(original.id, original.name, 'обратные', currentDateRange.value),
+        },
+        String(row.getValue('callback') ?? 0),
+      )
+    },
+    footer: () =>
+      h(
+        'button',
+        {
+          type: 'button',
+          class:
+            'cursor-pointer text-orange-500 transition-all hover:underline hover:opacity-80 dark:text-orange-400 bg-transparent border-0 p-0',
+          onClick: () => openTotalsCallsModal('обратные', currentDateRange.value),
+        },
+        String(tableTotals.value.callback),
+      ),
+  },
+  {
     accessorKey: 'duration',
     header: 'Длительность',
     cell: ({ row }) => String(row.getValue('duration') ?? ''),
@@ -363,50 +422,9 @@ const columns: TableColumn<Row>[] = [
   },
 ]
 
-const fetchCalls = async () => {
-  const range = getDateRange()
-  if (!range?.start || !range?.end) {
-    calls.value = []
-    return
-  }
-  isLoading.value = true
-  error.value = null
-  try {
-    const filter: Record<string, unknown> = {
-      '>=CALL_START_DATE': formatB24DateFilter(range.start, 'start'),
-      '<=CALL_START_DATE': formatB24DateFilter(range.end, 'end'),
-    }
-    if (selectedUsers.value.length > 0) {
-      // Для мультивыбора в Bitrix24 используется оператор @ перед полем
-      // Если выбран один пользователь, используем обычный фильтр, иначе @ для мультивыбора
-      if (selectedUsers.value.length === 1) {
-        filter.PORTAL_USER_ID = selectedUsers.value[0]
-      } else {
-        filter['@PORTAL_USER_ID'] = selectedUsers.value
-      }
-    }
-    const data = await telephonyCallList({ filter, sort: 'CALL_START_DATE', order: 'DESC' })
-    calls.value = Array.isArray(data) ? data : []
-  } catch (e) {
-    error.value = e instanceof Error ? e.message : String(e)
-    calls.value = []
-  } finally {
-    isLoading.value = false
-  }
-}
-
 onMounted(() => {
   void usersStore.fetchUsers()
-  void fetchCalls()
 })
-
-watch(
-  [dateRange, dateValue, selectedUsers],
-  () => {
-    void fetchCalls()
-  },
-  { deep: true },
-)
 </script>
 
 <template>

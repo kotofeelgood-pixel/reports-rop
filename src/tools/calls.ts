@@ -32,6 +32,7 @@ const callTypeMap: Record<string, string[]> = {
   'исходящие': ['Исходящий'],
   'входящие': ['Входящий'],
   'пропущенные': ['Пропущенный'],
+  'обратные': ['Обратный'],
 }
 
 /** Запись звонка из API телефонии (voximplant.statistic.get) */
@@ -69,7 +70,14 @@ export function telephonyRecordToCall(
   const failedCode = String(record.CALL_FAILED_CODE ?? record.call_failed_code ?? '').trim()
   const isMissed = durationSec <= 0 || (failedCode !== '' && failedCode !== '200')
   // CALL_TYPE: 1=исходящий, 2=входящий, 3=входящий с перенаправлением, 4=обратный звонок
-  const typeLabel = callTypeNum === 1 ? 'Исходящий' : isMissed ? 'Пропущенный' : 'Входящий'
+  let typeLabel: string
+  if (callTypeNum === 1) {
+    typeLabel = 'Исходящий'
+  } else if (callTypeNum === 4 && !isMissed) {
+    typeLabel = 'Обратный'
+  } else {
+    typeLabel = isMissed ? 'Пропущенный' : 'Входящий'
+  }
   const recordingUrlRaw = record.CALL_RECORD_URL ?? record.RECORDING_URL ?? record.RECORDING_LINK ?? record.record_url ?? record.recording_url
   const recordingUrl = typeof recordingUrlRaw === 'string' ? recordingUrlRaw : undefined
   const hasRecording = Boolean(recordingUrl && recordingUrl.trim())
