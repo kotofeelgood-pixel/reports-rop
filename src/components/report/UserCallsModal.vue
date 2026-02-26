@@ -330,7 +330,7 @@ const columns: TableColumn<Call>[] = [
                 'text-green-600 dark:text-green-400 bg-transparent border-0 cursor-pointer p-0',
               onClick: () => togglePlayPause(),
             },
-            [h(PauseIcon, { class: 'w-3 h-3' })],
+            [h(PauseIcon, { class: 'w-4 h-4' })],
           ),
           h('span', { class: 'text-gray-300 dark:text-gray-600' }, '|'),
           h(
@@ -341,7 +341,7 @@ const columns: TableColumn<Call>[] = [
                 'text-[#2563eb] bg-transparent border-0 cursor-pointer p-0 font-inherit dark:text-blue-400',
               onClick: () => downloadRecording(call),
             },
-            [h(DownloadIcon, { class: 'w-3 h-3' })],
+            [h(DownloadIcon, { class: 'w-4 h-4' })],
           ),
         ])
       }
@@ -353,10 +353,10 @@ const columns: TableColumn<Call>[] = [
             {
               type: 'button',
               class:
-                'text-gray-600 dark:text-gray-400 bg-transparent border-0 cursor-pointer p-0',
+                'text-[#2563eb] bg-transparent border-0 cursor-pointer p-0 font-inherit dark:text-blue-400',
               onClick: () => togglePlayPause(),
             },
-            [h(PauseIcon, { class: 'w-3 h-3' })],
+            [h(PlayIcon, { class: 'w-4 h-4' })],
           ),
           h('span', { class: 'text-gray-300 dark:text-gray-600' }, '|'),
           h(
@@ -367,7 +367,7 @@ const columns: TableColumn<Call>[] = [
                 'text-[#2563eb] bg-transparent border-0 cursor-pointer p-0 font-inherit dark:text-blue-400',
               onClick: () => downloadRecording(call),
             },
-            [h(DownloadIcon, { class: 'w-3 h-3' })],
+            [h(DownloadIcon, { class: 'w-4 h-4' })],
           ),
         ])
       }
@@ -382,7 +382,7 @@ const columns: TableColumn<Call>[] = [
                 'text-[#2563eb] bg-transparent border-0 cursor-pointer p-0 font-inherit dark:text-blue-400',
               onClick: () => playRecording(call),
             },
-            [h(PlayIcon, { class: 'w-3 h-3' })],
+            [h(PlayIcon, { class: 'w-4 h-4' })],
           ),
           h('span', { class: 'text-gray-300 dark:text-gray-600' }, '|'),
           h(
@@ -393,7 +393,7 @@ const columns: TableColumn<Call>[] = [
                 'text-[#2563eb] bg-transparent border-0 cursor-pointer p-0 font-inherit dark:text-blue-400',
               onClick: () => downloadRecording(call),
             },
-            [h(DownloadIcon, { class: 'w-3 h-3' })],
+            [h(DownloadIcon, { class: 'w-4 h-4' })],
           ),
         ])
       }
