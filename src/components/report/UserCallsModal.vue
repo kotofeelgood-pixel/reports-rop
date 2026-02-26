@@ -488,16 +488,6 @@ const exportToExcel = async () => {
           </div>
         </div>
 
-        <!-- Кнопка экспорта -->
-        <div class="flex justify-start">
-          <ButtonComponent
-            color="light-border"
-            size="md"
-            @click="exportToExcel"
-          >
-            XLSX
-          </ButtonComponent>
-        </div>
       </div>
     </template>
 
