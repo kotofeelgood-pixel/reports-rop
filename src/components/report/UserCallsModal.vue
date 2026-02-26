@@ -10,6 +10,7 @@ import { formatDateRangeFromDates } from '@/tools/date'
 import UserCallsPlayer from './UserCallsPlayer.vue'
 import DownloadIcon from '@bitrix24/b24icons-vue/outline/DownloadIcon'
 import PlayIcon from '@bitrix24/b24icons-vue/common-service/PlayIcon'
+import PauseIcon from '@bitrix24/b24icons-vue/solid/PauseIcon'
 
 type Props = {
   userName: string
@@ -339,7 +340,7 @@ const columns: TableColumn<Call>[] = [
 
       if (status === 'На паузе') {
         return h('span', { class: 'inline-flex items-center gap-2' }, [
-          h('span', { class: 'font-medium text-gray-600 dark:text-gray-400' }, 'На паузе'),
+          h(PauseIcon, { class: 'w-3 h-3 text-gray-600 dark:text-gray-400' }),
           h('span', { class: 'text-gray-300 dark:text-gray-600' }, '|'),
           h(
             'button',
