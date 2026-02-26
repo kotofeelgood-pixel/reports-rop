@@ -8,6 +8,8 @@ import type { Call } from '@/tools/calls'
 import { getCrmEntityUrl, openInB24 } from '@/tools'
 import { formatDateRangeFromDates } from '@/tools/date'
 import UserCallsPlayer from './UserCallsPlayer.vue'
+import DownloadIcon from '@bitrix24/b24icons-vue/outline/DownloadIcon'
+import PlayIcon from '@bitrix24/b24icons-vue/common-service/PlayIcon'
 
 type Props = {
   userName: string
@@ -334,10 +336,10 @@ const columns: TableColumn<Call>[] = [
             {
               type: 'button',
               class:
-                'text-[#2563eb] hover:underline bg-transparent border-0 cursor-pointer p-0 font-inherit dark:text-blue-400',
+                'text-[#2563eb] bg-transparent border-0 cursor-pointer p-0 font-inherit dark:text-blue-400',
               onClick: () => downloadRecording(call),
             },
-            'Скачать',
+            [h(DownloadIcon, { class: 'w-3 h-3' })],
           ),
         ])
       }
@@ -359,10 +361,10 @@ const columns: TableColumn<Call>[] = [
             {
               type: 'button',
               class:
-                'text-[#2563eb] hover:underline bg-transparent border-0 cursor-pointer p-0 font-inherit dark:text-blue-400',
+                'text-[#2563eb] bg-transparent border-0 cursor-pointer p-0 font-inherit dark:text-blue-400',
               onClick: () => downloadRecording(call),
             },
-            'Скачать',
+            [h(DownloadIcon, { class: 'w-3 h-3' })],
           ),
         ])
       }
@@ -374,10 +376,10 @@ const columns: TableColumn<Call>[] = [
             {
               type: 'button',
               class:
-                'text-[#2563eb] hover:underline bg-transparent border-0 cursor-pointer p-0 font-inherit dark:text-blue-400',
+                'text-[#2563eb] bg-transparent border-0 cursor-pointer p-0 font-inherit dark:text-blue-400',
               onClick: () => playRecording(call),
             },
-            'Прослушать',
+            [h(PlayIcon, { class: 'w-3 h-3' })],
           ),
           h(
             'span',
@@ -389,10 +391,10 @@ const columns: TableColumn<Call>[] = [
             {
               type: 'button',
               class:
-                'text-[#2563eb] hover:underline bg-transparent border-0 cursor-pointer p-0 font-inherit dark:text-blue-400',
+                'text-[#2563eb] bg-transparent border-0 cursor-pointer p-0 font-inherit dark:text-blue-400',
               onClick: () => downloadRecording(call),
             },
-            'Скачать',
+            [h(DownloadIcon, { class: 'w-3 h-3' })],
           ),
         ])
       }
