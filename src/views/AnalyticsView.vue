@@ -15,7 +15,6 @@ import { getTopUsersChartOptions } from '@/config/charts/topUsersChart'
 import { getTypeChartOptions } from '@/config/charts/typeChart'
 import ReportHeader from '@/components/report/ReportHeader.vue'
 // import ReportSettingsModal from '@/components/report/ReportSettingsModal.vue'
-import CardComponent from '@/components/element/card/CardComponent.vue'
 
 const { calls, loading, error } = useAnalyticsCalls()
 const { chartStartHour, chartEndHour, chartType } = useReportSettingsStoreRefs()
@@ -232,22 +231,14 @@ const topUsersChartOptions = computed(() =>
 
       <div v-else class="grid gap-4 lg:grid-cols-2">
         <!-- По часам -->
-        <CardComponent
-          class="rounded-lg border border-gray-200 bg-white p-4 dark:border-gray-700 dark:bg-[#252525]"
-        >
-          <h2 class="mb-3 text-base font-semibold text-gray-800 dark:text-white">
-            Звонки по часам
-          </h2>
+        <B24Card>
+          <template #header>Звонки по часам</template>
           <VueApexCharts :options="hourChartOptions" :series="hourSeries" height="280" />
-        </CardComponent>
+        </B24Card>
 
         <!-- По типам -->
-        <CardComponent
-          class="rounded-lg border border-gray-200 bg-white p-4 dark:border-gray-700 dark:bg-[#252525]"
-        >
-          <h2 class="mb-3 text-base font-semibold text-gray-800 dark:text-white">
-            Соотношение по типам
-          </h2>
+        <B24Card>
+          <template #header>Соотношение по типам</template>
           <VueApexCharts
             v-if="typeSeries.length > 0"
             :options="typeChartOptions"
@@ -261,14 +252,13 @@ const topUsersChartOptions = computed(() =>
           >
             Нет данных за период
           </p>
-        </CardComponent>
+        </B24Card>
 
         <!-- По дням -->
-        <CardComponent
+        <B24Card
           v-if="dayCategories.length > 0"
-          class="rounded-lg border border-gray-200 bg-white p-4 dark:border-gray-700 dark:bg-[#252525] lg:col-span-2"
         >
-          <h2 class="mb-3 text-base font-semibold text-gray-800 dark:text-white">Звонки по дням</h2>
+          <template #header>Звонки по дням</template>
           <template v-if="hasDayChartData">
             <div class="overflow-x-auto overflow-y-hidden">
               <div :style="{ minWidth: dayChartMinWidth }">
@@ -283,14 +273,10 @@ const topUsersChartOptions = computed(() =>
               Нет данных за период
             </p>
           </template>
-        </CardComponent>
+        </B24Card>
         <!-- Топ сотрудников -->
-        <CardComponent
-          class="rounded-lg border border-gray-200 bg-white p-4 dark:border-gray-700 dark:bg-[#252525] lg:col-span-2"
-        >
-          <h2 class="mb-3 text-base font-semibold text-gray-800 dark:text-white">
-            Топ сотрудников по количеству звонков
-          </h2>
+        <B24Card>
+          <template #header>Топ сотрудников по количеству звонков</template>
           <VueApexCharts
             v-if="topUsersCategories.length > 0"
             :options="topUsersChartOptions"
@@ -304,7 +290,7 @@ const topUsersChartOptions = computed(() =>
           >
             Нет данных за период
           </p>
-        </CardComponent>
+        </B24Card>
       </div>
     </main>
 
