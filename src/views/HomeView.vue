@@ -4,7 +4,7 @@ import ReportHeader from '@/components/report/ReportHeader.vue'
 import ReportUsersTable from '@/components/report/ReportUsersTable.vue'
 import ReportChart from '@/components/report/ReportChart.vue'
 import ReportRating from '@/components/report/ReportRating.vue'
-import ReportSettingsModal from '@/components/report/ReportSettingsModal.vue'
+// import ReportSettingsModal from '@/components/report/ReportSettingsModal.vue'
 import { useReportSettingsStoreRefs } from '@/stores/reportSettings'
 import { useUsersStore } from '@/stores/users'
 import { useAnalyticsCalls } from '@/composables/useAnalyticsCalls'
@@ -49,6 +49,6 @@ const isSettingsOpen = ref(false)
       </div>
     </main>
 
-    <ReportSettingsModal v-model:open="isSettingsOpen" />
+    <!-- <ReportSettingsModal v-model:open="isSettingsOpen" /> -->
   </div>
 </template>
