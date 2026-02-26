@@ -122,7 +122,7 @@ onMounted(() => {
     <div :class="layoutType === 'rows' ? 'flex flex-col gap-4' : 'grid grid-cols-2 gap-4'">
       <B24Card variant="tinted">
         <template #header><p class="text-xs text-black">Совершенные звонки</p></template>
-        <ul class="space-y-2 p-2">
+        <ul class="space-y-2">
           <li
             v-for="item in completedCalls"
             :key="item.userId"
@@ -154,7 +154,7 @@ onMounted(() => {
       </B24Card>
       <B24Card variant="tinted-warning">
         <template #header><p class="text-xs text-black">Пропущенные</p></template>
-        <ul class="space-y-2 p-2">
+        <ul class="space-y-2">
           <li
             v-for="item in missedCalls"
             :key="item.userId"
