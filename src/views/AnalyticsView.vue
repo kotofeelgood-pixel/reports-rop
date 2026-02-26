@@ -229,7 +229,7 @@ const topUsersChartOptions = computed(() =>
         <span class="text-gray-500 dark:text-gray-400">Загрузка данных…</span>
       </div>
       <template v-else>
-        <div class="grid grid-cols-3 gap-4">
+        <div class="grid grid-cols-3 gap-4 mb-4">
           <B24Card>
             <template #header>Звонки по часам</template>
             <VueApexCharts :options="hourChartOptions" :series="hourSeries" height="280" />
