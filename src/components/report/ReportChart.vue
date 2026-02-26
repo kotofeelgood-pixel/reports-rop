@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import VueApexCharts from 'vue3-apexcharts'
-import CardComponent from '@/components/element/card/CardComponent.vue'
 import { useChartData } from '@/composables/useChartData'
 import type { TelephonyCallRecord } from '@/api/calls'
 
@@ -11,17 +10,28 @@ const props = defineProps<{
 
 const callsRef = computed(() => props.calls ?? [])
 
-const { pieSeries, pieOptions } = useChartData(callsRef)
+const { series, chartOptions } = useChartData(callsRef)
 </script>
 
 <template>
-  <B24Card class="">
-    <template #header>
-      <div class="flex items-center justify-between">
-        <p>Соотношение по типам</p>
-      </div>
-    </template>
+  <B24Card>
+    <template #header>График</template>
 
-    <VueApexCharts :options="pieOptions" :series="pieSeries" height="260" />
+    <div class="flex flex-wrap gap-2 pb-4">
+      <span class="rounded-full bg-green-400 px-3 py-1 text-xs font-medium text-white">
+        Исходящие
+      </span>
+      <span class="rounded-full bg-sky-400 px-3 py-1 text-xs font-medium text-white">
+        Входящие
+      </span>
+      <span class="rounded-full bg-red-500 px-3 py-1 text-xs font-medium text-white">
+        Пропущенные
+      </span>
+      <span class="rounded-full bg-orange-500 px-3 py-1 text-xs font-medium text-white">
+        Обработанные пропущенные
+      </span>
+    </div>
+
+    <VueApexCharts :options="chartOptions" :series="series" height="260" />
   </B24Card>
 </template>
