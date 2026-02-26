@@ -270,7 +270,7 @@ const topUsersChartOptions = computed(() =>
             </p>
           </B24Card>
         </div>
-        <div class="grid gap-4 lg:grid-cols-2">
+        <div class="">
           <!-- По часам -->
 
           <!-- По дням -->
