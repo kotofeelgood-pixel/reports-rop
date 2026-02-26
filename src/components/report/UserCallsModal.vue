@@ -65,18 +65,21 @@ const modalBodyClass = computed(() => ({
 }))
 
 const playableCalls = computed(() =>
-  (props.calls || []).filter(c => c.hasRecording && Boolean(c.recordingUrl && c.recordingUrl.trim()))
+  (props.calls || []).filter(
+    (c) => c.hasRecording && Boolean(c.recordingUrl && c.recordingUrl.trim()),
+  ),
 )
 
 const currentPlayableIndex = computed(() => {
   const id = currentPlayingCall.value?.id
   if (!id) return -1
-  return playableCalls.value.findIndex(c => c.id === id)
+  return playableCalls.value.findIndex((c) => c.id === id)
 })
 
 const hasPrev = computed(() => currentPlayableIndex.value > 0)
 const hasNext = computed(
-  () => currentPlayableIndex.value >= 0 && currentPlayableIndex.value < playableCalls.value.length - 1,
+  () =>
+    currentPlayableIndex.value >= 0 && currentPlayableIndex.value < playableCalls.value.length - 1,
 )
 
 watch(model, (newVal) => {
@@ -202,9 +205,11 @@ const downloadRecording = (call: Call) => {
     if (xhr.status < 200 || xhr.status >= 300) return
     const blob = xhr.response as Blob
     const baseUrl = call.recordingUrl!.split(/[#?]/)[0] ?? ''
-    const ext =
-      (baseUrl.match(/\.(mp3|wav|ogg|m4a|webm|opus)$/i)?.[1]?.toLowerCase()) ?? 'mp3'
-    const safeTime = call.time.replace(/[^\d-]/g, '-').replace(/-+/g, '-').slice(0, 8)
+    const ext = baseUrl.match(/\.(mp3|wav|ogg|m4a|webm|opus)$/i)?.[1]?.toLowerCase() ?? 'mp3'
+    const safeTime = call.time
+      .replace(/[^\d-]/g, '-')
+      .replace(/-+/g, '-')
+      .slice(0, 8)
     const safeNumber = (call.number || 'unknown').replace(/\D/g, '').slice(-10) || 'call'
     const filename = `zapis_${safeTime}_${safeNumber}.${ext}`
     const url = URL.createObjectURL(blob)
@@ -305,11 +310,7 @@ const columns: TableColumn<Call>[] = [
         )
       }
 
-      return h(
-        'span',
-        { class: 'text-gray-600 dark:text-gray-400' },
-        title,
-      )
+      return h('span', { class: 'text-gray-600 dark:text-gray-400' }, title)
     },
   },
   {
@@ -321,16 +322,8 @@ const columns: TableColumn<Call>[] = [
 
       if (status === 'Проигрывается') {
         return h('span', { class: 'inline-flex items-center gap-2' }, [
-          h(
-            'span',
-            { class: 'font-medium text-green-600 dark:text-green-400' },
-            'Проигрывается',
-          ),
-          h(
-            'span',
-            { class: 'text-gray-300 dark:text-gray-600' },
-            '|',
-          ),
+          h('span', { class: 'font-medium text-green-600 dark:text-green-400' }, 'Проигрывается'),
+          h('span', { class: 'text-gray-300 dark:text-gray-600' }, '|'),
           h(
             'button',
             {
@@ -339,23 +332,15 @@ const columns: TableColumn<Call>[] = [
                 'text-[#2563eb] bg-transparent border-0 cursor-pointer p-0 font-inherit dark:text-blue-400',
               onClick: () => downloadRecording(call),
             },
-            [h(DownloadIcon, { class: 'w-3 h-3' })],
+            [h(DownloadIcon, { class: 'w-8 h-8' })],
           ),
         ])
       }
 
       if (status === 'На паузе') {
         return h('span', { class: 'inline-flex items-center gap-2' }, [
-          h(
-            'span',
-            { class: 'font-medium text-gray-600 dark:text-gray-400' },
-            'На паузе',
-          ),
-          h(
-            'span',
-            { class: 'text-gray-300 dark:text-gray-600' },
-            '|',
-          ),
+          h('span', { class: 'font-medium text-gray-600 dark:text-gray-400' }, 'На паузе'),
+          h('span', { class: 'text-gray-300 dark:text-gray-600' }, '|'),
           h(
             'button',
             {
@@ -364,7 +349,7 @@ const columns: TableColumn<Call>[] = [
                 'text-[#2563eb] bg-transparent border-0 cursor-pointer p-0 font-inherit dark:text-blue-400',
               onClick: () => downloadRecording(call),
             },
-            [h(DownloadIcon, { class: 'w-3 h-3' })],
+            [h(DownloadIcon, { class: 'w-8 h-8' })],
           ),
         ])
       }
@@ -381,11 +366,7 @@ const columns: TableColumn<Call>[] = [
             },
             [h(PlayIcon, { class: 'w-3 h-3' })],
           ),
-          h(
-            'span',
-            { class: 'text-gray-300 dark:text-gray-600' },
-            '|',
-          ),
+          h('span', { class: 'text-gray-300 dark:text-gray-600' }, '|'),
           h(
             'button',
             {
@@ -399,11 +380,7 @@ const columns: TableColumn<Call>[] = [
         ])
       }
 
-      return h(
-        'span',
-        { class: 'text-gray-400' },
-        '—',
-      )
+      return h('span', { class: 'text-gray-400' }, '—')
     },
   },
 ]
@@ -458,84 +435,86 @@ const exportToExcel = async () => {
       :close="true"
       :b24ui="modalBodyClass"
     >
-    <template #body>
-      <div class="space-y-4">
-        <!-- Кнопка назад и дата -->
-        <div class="flex items-center justify-between">
-          <ButtonComponent
-            variant="ghost"
-            size="md"
-            class="flex items-center gap-2 text-gray-700 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white"
-            @click="model = false"
-          >
-            <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
-            </svg>
-            Назад
-          </ButtonComponent>
-          <div v-if="dateRangeDisplay" class="text-sm font-medium text-gray-600 dark:text-gray-400">
-            Период: {{ dateRangeDisplay }}
+      <template #body>
+        <div class="space-y-4">
+          <!-- Кнопка назад и дата -->
+          <div class="flex items-center justify-between">
+            <ButtonComponent
+              variant="ghost"
+              size="md"
+              class="flex items-center gap-2 text-gray-700 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white"
+              @click="model = false"
+            >
+              <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M15 19l-7-7 7-7"
+                />
+              </svg>
+              Назад
+            </ButtonComponent>
+            <div
+              v-if="dateRangeDisplay"
+              class="text-sm font-medium text-gray-600 dark:text-gray-400"
+            >
+              Период: {{ dateRangeDisplay }}
+            </div>
+          </div>
+          <!-- Таблица звонков -->
+          <div class="flex min-w-0 flex-1 flex-col">
+            <div class="max-h-[60vh] overflow-y-auto">
+              <B24Table :data="data" :columns="columns" class="min-w-full" />
+            </div>
           </div>
         </div>
-        <!-- Таблица звонков -->
-        <div class="flex min-w-0 flex-1 flex-col">
-          <div class="max-h-[60vh] overflow-y-auto">
-            <B24Table
-              :data="data"
-              :columns="columns"
-              class="min-w-full"
-            />
-          </div>
-        </div>
+      </template>
 
-      </div>
-    </template>
-
-    <!-- Скрытый аудио-элемент для воспроизведения записи -->
-    <audio
-      ref="audioRef"
-      class="pointer-events-none absolute h-px w-px opacity-0"
-      preload="metadata"
-      @play="onAudioPlay"
-      @pause="onAudioPause"
-      @ended="onAudioEnded"
-      @timeupdate="onAudioTimeUpdate"
-      @loadedmetadata="onAudioLoadedMetadata"
-      @error="onAudioError"
-    />
-
-    <!-- Аудио-плеер внутри модалки -->
-    <template #footer>
-      <UserCallsPlayer
-        v-if="currentPlayingCall"
-        :current-playing-call="currentPlayingCall"
-        :title="getCrmDisplayName(currentPlayingCall)"
-        :is-playing="isPlaying"
-        :has-prev="hasPrev"
-        :has-next="hasNext"
-        :playback-rate="playbackRate"
-        :playback-rates="playbackRates"
-        :auto-advance="autoAdvance"
-        :audio-error="audioError"
-        :audio-current-time="audioCurrentTime"
-        :audio-duration="audioDuration"
-        @play-prev="playPrev"
-        @play-next="playNext"
-        @toggle-play-pause="togglePlayPause"
-        @set-playback-rate="setPlaybackRate"
-        @toggle-auto-advance="toggleAutoAdvance"
-        @seek="onSeek"
-        @close="closePlayer"
+      <!-- Скрытый аудио-элемент для воспроизведения записи -->
+      <audio
+        ref="audioRef"
+        class="pointer-events-none absolute h-px w-px opacity-0"
+        preload="metadata"
+        @play="onAudioPlay"
+        @pause="onAudioPause"
+        @ended="onAudioEnded"
+        @timeupdate="onAudioTimeUpdate"
+        @loadedmetadata="onAudioLoadedMetadata"
+        @error="onAudioError"
       />
-    </template>
-  </ModalComponent>
+
+      <!-- Аудио-плеер внутри модалки -->
+      <template #footer>
+        <UserCallsPlayer
+          v-if="currentPlayingCall"
+          :current-playing-call="currentPlayingCall"
+          :title="getCrmDisplayName(currentPlayingCall)"
+          :is-playing="isPlaying"
+          :has-prev="hasPrev"
+          :has-next="hasNext"
+          :playback-rate="playbackRate"
+          :playback-rates="playbackRates"
+          :auto-advance="autoAdvance"
+          :audio-error="audioError"
+          :audio-current-time="audioCurrentTime"
+          :audio-duration="audioDuration"
+          @play-prev="playPrev"
+          @play-next="playNext"
+          @toggle-play-pause="togglePlayPause"
+          @set-playback-rate="setPlaybackRate"
+          @toggle-auto-advance="toggleAutoAdvance"
+          @seek="onSeek"
+          @close="closePlayer"
+        />
+      </template>
+    </ModalComponent>
   </Teleport>
 </template>
 
 <style scoped>
 /* Гарантируем, что плеер всегда поверх модалки */
-:deep([style*="z-index: 999999"]) {
+:deep([style*='z-index: 999999']) {
   z-index: 999999 !important;
 }
 </style>
-
