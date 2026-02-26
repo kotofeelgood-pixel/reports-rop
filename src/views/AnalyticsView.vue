@@ -14,7 +14,7 @@ import { getHourChartOptions } from '@/config/charts/hourChart'
 import { getTopUsersChartOptions } from '@/config/charts/topUsersChart'
 import { getTypeChartOptions } from '@/config/charts/typeChart'
 import ReportHeader from '@/components/report/ReportHeader.vue'
-import ReportSettingsModal from '@/components/report/ReportSettingsModal.vue'
+// import ReportSettingsModal from '@/components/report/ReportSettingsModal.vue'
 import CardComponent from '@/components/element/card/CardComponent.vue'
 
 const { calls, loading, error } = useAnalyticsCalls()
@@ -80,14 +80,15 @@ const byHourData = computed(() => {
       if (isMissed(call)) b.missed += 1
     }
   }
-  return Array.from({ length: 24 }, (_, hour) => ({ hour, ...byHour.get(hour)! }))
-    .filter(d => d.hour >= chartStartHour.value && d.hour <= chartEndHour.value)
+  return Array.from({ length: 24 }, (_, hour) => ({ hour, ...byHour.get(hour)! })).filter(
+    (d) => d.hour >= chartStartHour.value && d.hour <= chartEndHour.value,
+  )
 })
 
 const hourSeries = computed(() => [
-  { name: 'Исходящие', data: byHourData.value.map(d => d.outgoing) },
-  { name: 'Входящие', data: byHourData.value.map(d => d.incoming) },
-  { name: 'Пропущенные', data: byHourData.value.map(d => d.missed) },
+  { name: 'Исходящие', data: byHourData.value.map((d) => d.outgoing) },
+  { name: 'Входящие', data: byHourData.value.map((d) => d.incoming) },
+  { name: 'Пропущенные', data: byHourData.value.map((d) => d.missed) },
 ])
 
 // --- График по типам (donut) ---
@@ -110,12 +111,12 @@ const byTypeData = computed(() => {
     { name: 'Исходящие', value: outgoing, color: '#4ade80' },
     { name: 'Входящие', value: incoming, color: '#2fc6f6' },
     { name: 'Пропущенные', value: missed, color: '#ef4444' },
-  ].filter(d => d.value > 0)
+  ].filter((d) => d.value > 0)
 })
 
-const typeSeries = computed(() => byTypeData.value.map(d => d.value))
-const typeLabels = computed(() => byTypeData.value.map(d => d.name))
-const typeColors = computed(() => byTypeData.value.map(d => d.color))
+const typeSeries = computed(() => byTypeData.value.map((d) => d.value))
+const typeLabels = computed(() => byTypeData.value.map((d) => d.name))
+const typeColors = computed(() => byTypeData.value.map((d) => d.color))
 
 // --- График по дням ---
 const byDayData = computed(() => {
@@ -135,14 +136,17 @@ const byDayData = computed(() => {
   }
   const sorted = Array.from(byDay.entries()).sort((a, b) => a[0].localeCompare(b[0]))
   return sorted.map(([date, count]) => ({
-    label: new Date(date + 'T12:00:00').toLocaleDateString('ru-RU', { day: '2-digit', month: 'short' }),
+    label: new Date(date + 'T12:00:00').toLocaleDateString('ru-RU', {
+      day: '2-digit',
+      month: 'short',
+    }),
     count,
   }))
 })
 
-const daySeries = computed(() => [{ name: 'Звонков', data: byDayData.value.map(d => d.count) }])
-const dayCategories = computed(() => byDayData.value.map(d => d.label))
-const hasDayChartData = computed(() => byDayData.value.some(d => d.count > 0))
+const daySeries = computed(() => [{ name: 'Звонков', data: byDayData.value.map((d) => d.count) }])
+const dayCategories = computed(() => byDayData.value.map((d) => d.label))
+const hasDayChartData = computed(() => byDayData.value.some((d) => d.count > 0))
 /** Минимальная ширина графика по дням: ~32px на день, чтобы подписи не слеплялись; при длинном периоде — прокрутка */
 const dayChartMinWidth = computed(() => `${Math.max(dayCategories.value.length * 32, 400)}px`)
 
@@ -165,8 +169,10 @@ const topUsersData = computed(() => {
   return items
 })
 
-const topUsersSeries = computed(() => [{ name: 'Звонков', data: topUsersData.value.map(d => d.count) }])
-const topUsersCategories = computed(() => topUsersData.value.map(d => d.name))
+const topUsersSeries = computed(() => [
+  { name: 'Звонков', data: topUsersData.value.map((d) => d.count) },
+])
+const topUsersCategories = computed(() => topUsersData.value.map((d) => d.name))
 
 // --- Общие опции темы ---
 const chartTheme = computed(() => {
@@ -181,7 +187,7 @@ const hourChartOptions = computed(() =>
   getHourChartOptions({
     chartTheme: chartTheme.value,
     chartType: chartType.value === 'bar' ? 'bar' : 'line',
-    categories: byHourData.value.map(d => d.hour),
+    categories: byHourData.value.map((d) => d.hour),
   }),
 )
 
@@ -210,12 +216,13 @@ const topUsersChartOptions = computed(() =>
 
 <template>
   <div class="flex min-h-screen flex-col bg-gray-50 dark:bg-[#1a1a1a]">
-    <ReportHeader 
-      @openSettings="isSettingsOpen = true"
-    />
+    <ReportHeader @openSettings="isSettingsOpen = true" />
 
     <main class="flex-1 overflow-auto p-4">
-      <div v-if="error" class="mb-4 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700 dark:border-red-800 dark:bg-red-900/20 dark:text-red-300">
+      <div
+        v-if="error"
+        class="mb-4 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700 dark:border-red-800 dark:bg-red-900/20 dark:text-red-300"
+      >
         {{ error }}
       </div>
 
@@ -225,14 +232,22 @@ const topUsersChartOptions = computed(() =>
 
       <div v-else class="grid gap-4 lg:grid-cols-2">
         <!-- По часам -->
-        <CardComponent class="rounded-lg border border-gray-200 bg-white p-4 dark:border-gray-700 dark:bg-[#252525]">
-          <h2 class="mb-3 text-base font-semibold text-gray-800 dark:text-white">Звонки по часам</h2>
+        <CardComponent
+          class="rounded-lg border border-gray-200 bg-white p-4 dark:border-gray-700 dark:bg-[#252525]"
+        >
+          <h2 class="mb-3 text-base font-semibold text-gray-800 dark:text-white">
+            Звонки по часам
+          </h2>
           <VueApexCharts :options="hourChartOptions" :series="hourSeries" height="280" />
         </CardComponent>
 
         <!-- По типам -->
-        <CardComponent class="rounded-lg border border-gray-200 bg-white p-4 dark:border-gray-700 dark:bg-[#252525]">
-          <h2 class="mb-3 text-base font-semibold text-gray-800 dark:text-white">Соотношение по типам</h2>
+        <CardComponent
+          class="rounded-lg border border-gray-200 bg-white p-4 dark:border-gray-700 dark:bg-[#252525]"
+        >
+          <h2 class="mb-3 text-base font-semibold text-gray-800 dark:text-white">
+            Соотношение по типам
+          </h2>
           <VueApexCharts
             v-if="typeSeries.length > 0"
             :options="typeChartOptions"
@@ -240,7 +255,10 @@ const topUsersChartOptions = computed(() =>
             type="donut"
             height="280"
           />
-          <p v-else class="flex h-[280px] items-center justify-center text-sm text-gray-500 dark:text-gray-400">
+          <p
+            v-else
+            class="flex h-[280px] items-center justify-center text-sm text-gray-500 dark:text-gray-400"
+          >
             Нет данных за период
           </p>
         </CardComponent>
@@ -254,23 +272,25 @@ const topUsersChartOptions = computed(() =>
           <template v-if="hasDayChartData">
             <div class="overflow-x-auto overflow-y-hidden">
               <div :style="{ minWidth: dayChartMinWidth }">
-                <VueApexCharts
-                  :options="dayChartOptions"
-                  :series="daySeries"
-                  height="280"
-                />
+                <VueApexCharts :options="dayChartOptions" :series="daySeries" height="280" />
               </div>
             </div>
           </template>
           <template v-else>
-            <p class="flex h-[200px] items-center justify-center text-sm text-gray-500 dark:text-gray-400">
+            <p
+              class="flex h-[200px] items-center justify-center text-sm text-gray-500 dark:text-gray-400"
+            >
               Нет данных за период
             </p>
           </template>
         </CardComponent>
         <!-- Топ сотрудников -->
-        <CardComponent class="rounded-lg border border-gray-200 bg-white p-4 dark:border-gray-700 dark:bg-[#252525] lg:col-span-2">
-          <h2 class="mb-3 text-base font-semibold text-gray-800 dark:text-white">Топ сотрудников по количеству звонков</h2>
+        <CardComponent
+          class="rounded-lg border border-gray-200 bg-white p-4 dark:border-gray-700 dark:bg-[#252525] lg:col-span-2"
+        >
+          <h2 class="mb-3 text-base font-semibold text-gray-800 dark:text-white">
+            Топ сотрудников по количеству звонков
+          </h2>
           <VueApexCharts
             v-if="topUsersCategories.length > 0"
             :options="topUsersChartOptions"
@@ -278,13 +298,16 @@ const topUsersChartOptions = computed(() =>
             type="bar"
             height="320"
           />
-          <p v-else class="flex h-[200px] items-center justify-center text-sm text-gray-500 dark:text-gray-400">
+          <p
+            v-else
+            class="flex h-[200px] items-center justify-center text-sm text-gray-500 dark:text-gray-400"
+          >
             Нет данных за период
           </p>
         </CardComponent>
       </div>
     </main>
 
-    <ReportSettingsModal v-model:open="isSettingsOpen" />
+    <!-- <ReportSettingsModal v-model:open="isSettingsOpen" /> -->
   </div>
 </template>
