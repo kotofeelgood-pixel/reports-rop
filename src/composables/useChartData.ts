@@ -118,6 +118,27 @@ export function useChartData(externalCalls?: Ref<TelephonyCallRecord[]>) {
     },
   ])
 
+  const pieSeries = computed(() => {
+    const list = callsFilteredByMinDuration.value
+    let outgoing = 0
+    let incoming = 0
+    let missed = 0
+    for (const call of list) {
+      const callTypeRaw = call.CALL_TYPE ?? call.callType ?? call.TYPE ?? call.type
+      const failedCode = String(call.CALL_FAILED_CODE ?? call.call_failed_code ?? '').trim()
+      const is304 = failedCode === '304'
+      if (isOutgoingCallType(callTypeRaw)) {
+        outgoing += 1
+      } else if (isIncomingCallType(callTypeRaw) && !is304) {
+        incoming += 1
+      }
+      if (isMissedCall(call)) {
+        missed += 1
+      }
+    }
+    return [outgoing, incoming, missed]
+  })
+
   const chartOptions = computed(() => {
     const isDark = mode.value === 'dark'
     const textColor = isDark ? '#9ca3af' : '#6b7280'
@@ -216,9 +237,96 @@ export function useChartData(externalCalls?: Ref<TelephonyCallRecord[]>) {
     }
   })
 
+  const pieOptions = computed(() => {
+    const isDark = mode.value === 'dark'
+    const textColor = isDark ? '#e5e7eb' : '#111827'
+    const secondaryText = isDark ? '#9ca3af' : '#6b7280'
+    const themeMode: 'dark' | 'light' = isDark ? 'dark' : 'light'
+
+    return {
+      chart: {
+        type: 'donut' as const,
+        height: 260,
+        toolbar: {
+          show: false,
+        },
+      },
+      labels: ['Исходящие', 'Входящие', 'Пропущенные'],
+      colors: ['#4ade80', '#2fc6f6', '#ef4444'],
+      legend: {
+        show: true,
+        position: 'bottom' as const,
+        horizontalAlign: 'center' as const,
+        fontSize: '12px',
+        labels: {
+          colors: secondaryText,
+        },
+        markers: {
+          width: 10,
+          height: 10,
+          radius: 999,
+        },
+      },
+      dataLabels: {
+        enabled: true,
+        formatter: (val: number) => `${val.toFixed(1)}%`,
+        style: {
+          fontSize: '12px',
+          fontWeight: 600,
+          colors: ['#ffffff'],
+        },
+        dropShadow: {
+          enabled: false,
+        },
+      },
+      stroke: {
+        width: 2,
+        colors: [isDark ? '#1f2937' : '#ffffff'],
+      },
+      plotOptions: {
+        pie: {
+          donut: {
+            size: '70%',
+            labels: {
+              show: true,
+              name: {
+                show: false,
+              },
+              value: {
+                show: true,
+                fontSize: '18px',
+                fontWeight: 700,
+                color: textColor,
+                formatter: (val: string) => val,
+              },
+              total: {
+                show: true,
+                label: 'Всего',
+                color: secondaryText,
+                fontSize: '12px',
+                formatter: (w: any) => {
+                  const sum = (w?.globals?.seriesTotals || []).reduce(
+                    (acc: number, n: number) => acc + n,
+                    0,
+                  )
+                  return String(sum)
+                },
+              },
+            },
+          },
+        },
+      },
+      theme: {
+        mode: themeMode,
+      },
+    }
+  })
+
   return {
     filteredChartData,
     series,
     chartOptions,
+    pieSeries,
+    pieOptions,
   }
 }
