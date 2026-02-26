@@ -340,7 +340,7 @@ const columns: TableColumn<Call>[] = [
 
       if (status === 'На паузе') {
         return h('span', { class: 'inline-flex items-center gap-2' }, [
-          h(PauseIcon, { class: 'w-3 h-3 text-gray-600 dark:text-gray-400' }),
+          h(PauseIcon, { class: 'w-8 h-8 text-gray-600 dark:text-gray-400' }),
           h('span', { class: 'text-gray-300 dark:text-gray-600' }, '|'),
           h(
             'button',
@@ -365,7 +365,7 @@ const columns: TableColumn<Call>[] = [
                 'text-[#2563eb] bg-transparent border-0 cursor-pointer p-0 font-inherit dark:text-blue-400',
               onClick: () => playRecording(call),
             },
-            [h(PlayIcon, { class: 'w-3 h-3' })],
+            [h(PlayIcon, { class: 'w-8 h-8' })],
           ),
           h('span', { class: 'text-gray-300 dark:text-gray-600' }, '|'),
           h(
@@ -376,7 +376,7 @@ const columns: TableColumn<Call>[] = [
                 'text-[#2563eb] bg-transparent border-0 cursor-pointer p-0 font-inherit dark:text-blue-400',
               onClick: () => downloadRecording(call),
             },
-            [h(DownloadIcon, { class: 'w-3 h-3' })],
+            [h(DownloadIcon, { class: 'w-8 h-8' })],
           ),
         ])
       }
