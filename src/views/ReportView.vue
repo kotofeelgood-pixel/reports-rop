@@ -180,6 +180,8 @@ const buildFileName = () => {
 const exportReport = () => {
   if (!rows.value.length) return
 
+  const rangeLabel = dateDisplayValue.value || ''
+
   const header = [
     'ID пользователя',
     'ФИО пользователя',
@@ -189,6 +191,7 @@ const exportReport = () => {
     'Обрат.',
     'Время',
     'CRM',
+    'Период',
   ]
 
   const data = rows.value.map((row) => [
@@ -200,6 +203,7 @@ const exportReport = () => {
     row.callback,
     row.duration,
     row.crmUrl ?? '',
+    rangeLabel,
   ])
 
   const worksheet = XLSX.utils.aoa_to_sheet([header, ...data])

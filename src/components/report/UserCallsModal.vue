@@ -263,6 +263,10 @@ const data = computed<Call[]>(() => (props.calls || []) as Call[])
 
 const columns: TableColumn<Call>[] = [
   {
+    accessorKey: 'date',
+    header: 'ДАТА',
+  },
+  {
     accessorKey: 'time',
     header: 'ВРЕМЯ',
   },
