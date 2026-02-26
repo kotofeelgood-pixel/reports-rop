@@ -1,8 +1,8 @@
 import { computed, onMounted, ref, watch, type Ref } from 'vue'
-import { useColorMode } from '@vueuse/core'
 import { useReportSettingsStoreRefs } from '@/stores/reportSettings'
 import { useDateRange } from '@/composables/useDateRange'
 import { telephonyCallList, type TelephonyCallRecord, isOutgoingCallType, isIncomingCallType, isMissedCall } from '@/api/calls'
+import { useThemeStoreRefs } from '@/stores/theme'
 
 type ChartDataPoint = {
   hour: number
@@ -54,7 +54,7 @@ function buildChartDataFromCalls(calls: TelephonyCallRecord[]): ChartDataPoint[]
  */
 export function useChartData(externalCalls?: Ref<TelephonyCallRecord[]>) {
   const { chartType, chartStartHour, chartEndHour, minCallDurationSeconds } = useReportSettingsStoreRefs()
-  const mode = useColorMode()
+  const { isDark } = useThemeStoreRefs()
   const { dateRange, dateValue, getDateRange, formatB24DateFilter } = useDateRange()
 
   const internalCalls = ref<TelephonyCallRecord[]>([])
@@ -140,10 +140,10 @@ export function useChartData(externalCalls?: Ref<TelephonyCallRecord[]>) {
   })
 
   const chartOptions = computed(() => {
-    const isDark = mode.value === 'dark'
-    const textColor = isDark ? '#9ca3af' : '#6b7280'
-    const gridColor = isDark ? '#374151' : '#e5e7eb'
-    const themeMode: 'dark' | 'light' = isDark ? 'dark' : 'light'
+    const dark = isDark.value
+    const textColor = dark ? '#9ca3af' : '#6b7280'
+    const gridColor = dark ? '#374151' : '#e5e7eb'
+    const themeMode: 'dark' | 'light' = dark ? 'dark' : 'light'
 
     return {
       chart: {
@@ -238,10 +238,10 @@ export function useChartData(externalCalls?: Ref<TelephonyCallRecord[]>) {
   })
 
   const pieOptions = computed(() => {
-    const isDark = mode.value === 'dark'
-    const textColor = isDark ? '#e5e7eb' : '#111827'
-    const secondaryText = isDark ? '#9ca3af' : '#6b7280'
-    const themeMode: 'dark' | 'light' = isDark ? 'dark' : 'light'
+    const dark = isDark.value
+    const textColor = dark ? '#e5e7eb' : '#111827'
+    const secondaryText = dark ? '#9ca3af' : '#6b7280'
+    const themeMode: 'dark' | 'light' = dark ? 'dark' : 'light'
 
     return {
       chart: {

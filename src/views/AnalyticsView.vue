@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
-import { useColorMode } from '@vueuse/core'
 import { useAnalyticsCalls } from '@/composables/useAnalyticsCalls'
 import { useDateRange } from '@/composables/useDateRange'
 import { useReportSettingsStoreRefs } from '@/stores/reportSettings'
 import { useUsersStore, useUsersStoreRefs } from '@/stores/users'
+import { useThemeStoreRefs } from '@/stores/theme'
 import type { TelephonyCallRecord } from '@/api/calls'
 import { isOutgoingCallType, isIncomingCallType, isMissedCall } from '@/api/calls'
 
@@ -19,9 +19,9 @@ import ReportHeader from '@/components/report/ReportHeader.vue'
 const { calls, loading, error } = useAnalyticsCalls()
 const { chartStartHour, chartEndHour, chartType } = useReportSettingsStoreRefs()
 const { getDateRange } = useDateRange()
-const mode = useColorMode()
 const usersStore = useUsersStore()
 const { usersById } = useUsersStoreRefs()
+const { isDark } = useThemeStoreRefs()
 
 const isSettingsOpen = ref(false)
 
@@ -175,10 +175,10 @@ const topUsersCategories = computed(() => topUsersData.value.map((d) => d.name))
 
 // --- Общие опции темы ---
 const chartTheme = computed(() => {
-  const isDark = mode.value === 'dark'
-  const textColor = isDark ? '#9ca3af' : '#6b7280'
-  const gridColor = isDark ? '#374151' : '#e5e7eb'
-  const themeMode: 'light' | 'dark' = isDark ? 'dark' : 'light'
+  const dark = isDark.value
+  const textColor = dark ? '#9ca3af' : '#6b7280'
+  const gridColor = dark ? '#374151' : '#e5e7eb'
+  const themeMode: 'light' | 'dark' = dark ? 'dark' : 'light'
   return { textColor, gridColor, themeMode }
 })
 
