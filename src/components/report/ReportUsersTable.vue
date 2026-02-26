@@ -440,7 +440,6 @@ onMounted(() => {
   <B24Card>
     <template #header>
       <div class="flex items-center justify-between">
-        <p>Пользователи</p>
         <div class="flex items-center gap-2">
           <SelectComponent
             v-model="dateRange"
