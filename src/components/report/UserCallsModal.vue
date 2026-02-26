@@ -398,31 +398,6 @@ const onSeek = (e: Event) => {
 const toggleAutoAdvance = () => {
   autoAdvance.value = !autoAdvance.value
 }
-
-const exportToExcel = async () => {
-  const list = (props.calls || []) as Call[]
-  try {
-    const headers = ['ДАТА', 'ВРЕМЯ', 'НОМЕР', 'ТИП', 'ДЛИТЕЛЬНОСТЬ', 'CRM', 'Запись']
-    const rows = list.map((c) => [
-      c.date,
-      c.time,
-      c.number,
-      c.type,
-      c.duration,
-      getCrmDisplayName(c),
-      c.hasRecording ? 'Да' : '—',
-    ])
-    const data = [headers, ...rows]
-    const ws = XLSX.utils.aoa_to_sheet(data)
-    const wb = XLSX.utils.book_new()
-    XLSX.utils.book_append_sheet(wb, ws, 'Звонки')
-    const date = new Date().toISOString().slice(0, 10)
-    const fileName = `report-calls-${date}.xlsx`
-    XLSX.writeFile(wb, fileName)
-  } catch {
-    // экспорт без уведомлений
-  }
-}
 </script>
 
 <template>
