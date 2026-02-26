@@ -94,6 +94,14 @@ export function useCallsModal(
     isCallsModalOpen.value = true
   }
 
+  const closeCallsModal = () => {
+    isCallsModalOpen.value = false
+    selectedUserName.value = ''
+    selectedCallType.value = ''
+    selectedDateRange.value = null
+    selectedCalls.value = []
+  }
+
   return {
     isCallsModalOpen,
     selectedUserName,
@@ -103,5 +111,6 @@ export function useCallsModal(
     crmNames,
     openCallsModal,
     openTotalsCallsModal,
+    closeCallsModal,
   }
 }

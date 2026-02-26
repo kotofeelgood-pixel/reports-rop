@@ -477,11 +477,13 @@ const exportToExcel = async () => {
         </div>
         <!-- Таблица звонков -->
         <div class="flex min-w-0 flex-1 flex-col">
-          <B24Table
-            :data="data"
-            :columns="columns"
-            class="flex-1"
-          />
+          <div class="max-h-[60vh] overflow-y-auto">
+            <B24Table
+              :data="data"
+              :columns="columns"
+              class="min-w-full"
+            />
+          </div>
         </div>
 
         <!-- Кнопка экспорта -->

@@ -131,10 +131,16 @@ export function getCallsFromTelephonyRecords(
   userId: string | null,
   callType: string
 ): Call[] {
-  const allowedTypes = callTypeMap[callType.toLowerCase()] || []
+  const normalizedType = callType.toLowerCase()
+  const allowedTypes = callTypeMap[normalizedType] || []
   const mapped = records.map((r, i) => telephonyRecordToCall(r, i, usersById))
   return mapped.filter(call => {
     if (userId != null && call.userId !== userId) return false
-    return allowedTypes.includes(call.type)
+    // Для "пропущенных" учитываем все неотвеченные звонки (любого CALL_TYPE),
+    // чтобы данные совпадали с колонкой "Проп." в отчётной таблице.
+    if (normalizedType === 'пропущенные') {
+      return call.status === 'Не отвечен'
+    }
+    return allowedTypes.length ? allowedTypes.includes(call.type) : true
   })
 }
