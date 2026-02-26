@@ -199,16 +199,17 @@ const {
 
 const selectedUsers = ref<string[]>([])
 
-const dateFormatter = new Intl.DateTimeFormat('ru-RU', { dateStyle: 'medium' })
+const pad = (n: number) => String(n).padStart(2, '0')
 
-const formatDateMedium = (value: { day: number; month: number; year: number } | null): string => {
+const formatDateNumeric = (value: { day: number; month: number; year: number } | null): string => {
   if (!value) return '—'
-  const date = new Date(value.year, value.month - 1, value.day)
-  return dateFormatter.format(date)
+  const shortYear = value.year % 100
+  return `${pad(value.day)}.${pad(value.month)}.${pad(shortYear)}`
 }
 
 const dateRangeDisplay = computed(
-  () => `${formatDateMedium(dateValue.value.start)} — ${formatDateMedium(dateValue.value.end)}`,
+  () =>
+    `${formatDateNumeric(dateValue.value.start)} — ${formatDateNumeric(dateValue.value.end)}`,
 )
 
 type DayCallStats = { outgoing: number; incoming: number; missed: number }
@@ -285,21 +286,23 @@ const columns: TableColumn<Row>[] = [
     cell: ({ row }) => {
       const original = row.original as Row
 
-      return h('div', { class: 'flex items-center gap-2' }, [
+      return h('div', { class: 'flex items-center gap-1' }, [
         h(B24Avatar as any, {
           src: original.photo ?? undefined,
           size: 'sm',
         }),
-        h(
-          'button',
-          {
-            type: 'button',
-            class:
-              'text-[#2563eb] hover:underline text-left bg-transparent border-0 cursor-pointer p-0 font-inherit',
-            onClick: () => openInB24(getUserProfilePath(original.id)),
-          },
-          original.name,
-        ),
+        h('div', { class: 'max-w-[140px] truncate text-xs' }, [
+          h(
+            'button',
+            {
+              type: 'button',
+              class:
+                'text-[#2563eb] hover:underline text-left bg-transparent border-0 cursor-pointer p-0 font-inherit',
+              onClick: () => openInB24(getUserProfilePath(original.id)),
+            },
+            original.name,
+          ),
+        ]),
       ])
     },
   },
