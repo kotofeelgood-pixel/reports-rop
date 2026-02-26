@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { computed, watch, ref } from 'vue'
+import { computed, watch, ref, h } from 'vue'
+import type { TableColumn } from '@bitrix24/b24ui-nuxt'
 import * as XLSX from 'xlsx'
 import ModalComponent from '@/components/modal/ModalComponent.vue'
 import ButtonComponent from '@/components/buttons/ButtonComponent.vue'
@@ -271,6 +272,149 @@ const recordingStatus = (call: Call): string => {
   return isPlaying.value ? 'Проигрывается' : 'На паузе'
 }
 
+const data = computed<Call[]>(() => (props.calls || []) as Call[])
+
+const columns: TableColumn<Call>[] = [
+  {
+    accessorKey: 'time',
+    header: 'ВРЕМЯ',
+  },
+  {
+    accessorKey: 'number',
+    header: 'НОМЕР',
+  },
+  {
+    accessorKey: 'type',
+    header: 'ТИП',
+  },
+  {
+    accessorKey: 'duration',
+    header: 'ДЛИТ.',
+  },
+  {
+    id: 'crm',
+    header: 'CRM',
+    cell: ({ row }) => {
+      const call = row.original as Call
+      const title = getCrmDisplayName(call)
+      const link = getCrmEntityLink(call)
+
+      if (link) {
+        return h(
+          'button',
+          {
+            type: 'button',
+            class:
+              'text-[#2563eb] hover:underline bg-transparent border-0 cursor-pointer p-0 font-inherit dark:text-blue-400',
+            onClick: () => openInB24(link),
+          },
+          title,
+        )
+      }
+
+      return h(
+        'span',
+        { class: 'text-gray-600 dark:text-gray-400' },
+        title,
+      )
+    },
+  },
+  {
+    id: 'recording',
+    header: 'Запись',
+    cell: ({ row }) => {
+      const call = row.original as Call
+      const status = recordingStatus(call)
+
+      if (status === 'Проигрывается') {
+        return h('span', { class: 'inline-flex items-center gap-2' }, [
+          h(
+            'span',
+            { class: 'font-medium text-green-600 dark:text-green-400' },
+            'Проигрывается',
+          ),
+          h(
+            'span',
+            { class: 'text-gray-300 dark:text-gray-600' },
+            '|',
+          ),
+          h(
+            'button',
+            {
+              type: 'button',
+              class:
+                'text-[#2563eb] hover:underline bg-transparent border-0 cursor-pointer p-0 font-inherit dark:text-blue-400',
+              onClick: () => downloadRecording(call),
+            },
+            'Скачать',
+          ),
+        ])
+      }
+
+      if (status === 'На паузе') {
+        return h('span', { class: 'inline-flex items-center gap-2' }, [
+          h(
+            'span',
+            { class: 'font-medium text-gray-600 dark:text-gray-400' },
+            'На паузе',
+          ),
+          h(
+            'span',
+            { class: 'text-gray-300 dark:text-gray-600' },
+            '|',
+          ),
+          h(
+            'button',
+            {
+              type: 'button',
+              class:
+                'text-[#2563eb] hover:underline bg-transparent border-0 cursor-pointer p-0 font-inherit dark:text-blue-400',
+              onClick: () => downloadRecording(call),
+            },
+            'Скачать',
+          ),
+        ])
+      }
+
+      if (call.hasRecording) {
+        return h('span', { class: 'inline-flex items-center gap-2' }, [
+          h(
+            'button',
+            {
+              type: 'button',
+              class:
+                'text-[#2563eb] hover:underline bg-transparent border-0 cursor-pointer p-0 font-inherit dark:text-blue-400',
+              onClick: () => playRecording(call),
+            },
+            'Прослушать',
+          ),
+          h(
+            'span',
+            { class: 'text-gray-300 dark:text-gray-600' },
+            '|',
+          ),
+          h(
+            'button',
+            {
+              type: 'button',
+              class:
+                'text-[#2563eb] hover:underline bg-transparent border-0 cursor-pointer p-0 font-inherit dark:text-blue-400',
+              onClick: () => downloadRecording(call),
+            },
+            'Скачать',
+          ),
+        ])
+      }
+
+      return h(
+        'span',
+        { class: 'text-gray-400' },
+        '—',
+      )
+    },
+  },
+]
+
 const onSeek = (e: Event) => {
   const audio = audioRef.value
   const input = e.target as HTMLInputElement
@@ -336,89 +480,12 @@ const exportToExcel = async () => {
           </div>
         </div>
         <!-- Таблица звонков -->
-        <div>
-          <table class="w-full text-left text-base">
-            <thead class="bg-[#e0f7fc] text-gray-700 dark:bg-[#1e3a47] dark:text-gray-300">
-              <tr>
-                <th class="px-4 py-4 font-semibold">ВРЕМЯ</th>
-                <th class="px-4 py-4 font-semibold">НОМЕР</th>
-                <th class="px-4 py-4 font-semibold">ТИП</th>
-                <th class="px-4 py-4 font-semibold">ДЛИТ.</th>
-                <th class="px-4 py-4 font-semibold">CRM</th>
-                <th class="px-4 py-4 text-center font-semibold">Запись</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr
-                v-for="call in calls"
-                :key="call.id"
-                :class="[
-                  'border-t border-gray-100 hover:bg-gray-50/80 dark:border-gray-700 dark:hover:bg-gray-800/50',
-                  isCurrentTrack(call) ? 'bg-blue-50/60 dark:bg-blue-900/20' : '',
-                ]"
-              >
-                <td class="px-4 py-4 text-gray-700 dark:text-gray-300">{{ call.time }}</td>
-                <td class="px-4 py-4 text-gray-700 dark:text-gray-300">{{ call.number }}</td>
-                <td class="px-4 py-4 text-gray-700 dark:text-gray-300">{{ call.type }}</td>
-                <td class="px-4 py-4 text-gray-700 dark:text-gray-300">{{ call.duration }}</td>
-                <td class="px-4 py-4">
-                  <button
-                    v-if="getCrmEntityLink(call)"
-                    type="button"
-                    class="text-blue-600 hover:underline dark:text-blue-400 bg-transparent border-0 cursor-pointer p-0 font-inherit text-left"
-                    @click="openInB24(getCrmEntityLink(call)!)"
-                  >
-                    {{ getCrmDisplayName(call) }}
-                  </button>
-                  <span v-else class="text-gray-600 dark:text-gray-400">{{ getCrmDisplayName(call) }}</span>
-                </td>
-                <td class="px-4 py-4 text-center">
-                  <span
-                    v-if="recordingStatus(call) === 'Проигрывается'"
-                    class="inline-flex items-center gap-2"
-                  >
-                    <span class="font-medium text-green-600 dark:text-green-400">Проигрывается</span>
-                    <span class="text-gray-300 dark:text-gray-600">|</span>
-                    <button
-                      class="text-blue-600 hover:underline dark:text-blue-400"
-                      @click="downloadRecording(call)"
-                    >
-                      Скачать
-                    </button>
-                  </span>
-                  <span
-                    v-else-if="recordingStatus(call) === 'На паузе'"
-                    class="inline-flex items-center gap-2"
-                  >
-                    <span class="font-medium text-gray-600 dark:text-gray-400">На паузе</span>
-                    <span class="text-gray-300 dark:text-gray-600">|</span>
-                    <button
-                      class="text-blue-600 hover:underline dark:text-blue-400"
-                      @click="downloadRecording(call)"
-                    >
-                      Скачать
-                    </button>
-                  </span>
-                  <span v-else-if="call.hasRecording" class="inline-flex items-center gap-2">
-                    <button
-                      class="text-blue-600 hover:underline dark:text-blue-400"
-                      @click="playRecording(call)"
-                    >
-                      Прослушать
-                    </button>
-                    <span class="text-gray-300 dark:text-gray-600">|</span>
-                    <button
-                      class="text-blue-600 hover:underline dark:text-blue-400"
-                      @click="downloadRecording(call)"
-                    >
-                      Скачать
-                    </button>
-                  </span>
-                  <span v-else class="text-gray-400">—</span>
-                </td>
-              </tr>
-            </tbody>
-          </table>
+        <div class="flex min-w-0 flex-1 flex-col">
+          <B24Table
+            :data="data"
+            :columns="columns"
+            class="flex-1"
+          />
         </div>
 
         <!-- Кнопка экспорта -->
