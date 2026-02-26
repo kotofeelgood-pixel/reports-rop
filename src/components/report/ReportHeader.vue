@@ -26,6 +26,10 @@ const items = [
     label: 'Документация',
     to: { name: 'documentation' },
   },
+  {
+    label: 'Сформировать отчет',
+    to: { name: 'report' },
+  },
 ]
 </script>
 
