@@ -228,70 +228,71 @@ const topUsersChartOptions = computed(() =>
       <div v-if="loading" class="flex items-center justify-center py-12">
         <span class="text-gray-500 dark:text-gray-400">Загрузка данных…</span>
       </div>
+      <template v-else>
+        <div class="grid grid-cols-3 gap-4">
+          <B24Card>
+            <template #header>Звонки по часам</template>
+            <VueApexCharts :options="hourChartOptions" :series="hourSeries" height="280" />
+          </B24Card>
 
-      <div v-else class="grid gap-4 lg:grid-cols-2">
-        <!-- По часам -->
-        <B24Card>
-          <template #header>Звонки по часам</template>
-          <VueApexCharts :options="hourChartOptions" :series="hourSeries" height="280" />
-        </B24Card>
-
-        <!-- По типам -->
-        <B24Card>
-          <template #header>Соотношение по типам</template>
-          <VueApexCharts
-            v-if="typeSeries.length > 0"
-            :options="typeChartOptions"
-            :series="typeSeries"
-            type="donut"
-            height="280"
-          />
-          <p
-            v-else
-            class="flex h-[280px] items-center justify-center text-sm text-gray-500 dark:text-gray-400"
-          >
-            Нет данных за период
-          </p>
-        </B24Card>
-
-        <!-- По дням -->
-        <B24Card
-          v-if="dayCategories.length > 0"
-        >
-          <template #header>Звонки по дням</template>
-          <template v-if="hasDayChartData">
-            <div class="overflow-x-auto overflow-y-hidden">
-              <div :style="{ minWidth: dayChartMinWidth }">
-                <VueApexCharts :options="dayChartOptions" :series="daySeries" height="280" />
-              </div>
-            </div>
-          </template>
-          <template v-else>
+          <!-- По типам -->
+          <B24Card>
+            <template #header>Соотношение по типам</template>
+            <VueApexCharts
+              v-if="typeSeries.length > 0"
+              :options="typeChartOptions"
+              :series="typeSeries"
+              type="donut"
+              height="280"
+            />
             <p
+              v-else
+              class="flex h-[280px] items-center justify-center text-sm text-gray-500 dark:text-gray-400"
+            >
+              Нет данных за период
+            </p>
+          </B24Card>
+
+          <B24Card>
+            <template #header>Топ сотрудников по количеству звонков</template>
+            <VueApexCharts
+              v-if="topUsersCategories.length > 0"
+              :options="topUsersChartOptions"
+              :series="topUsersSeries"
+              type="bar"
+              height="320"
+            />
+            <p
+              v-else
               class="flex h-[200px] items-center justify-center text-sm text-gray-500 dark:text-gray-400"
             >
               Нет данных за период
             </p>
-          </template>
-        </B24Card>
-        <!-- Топ сотрудников -->
-        <B24Card>
-          <template #header>Топ сотрудников по количеству звонков</template>
-          <VueApexCharts
-            v-if="topUsersCategories.length > 0"
-            :options="topUsersChartOptions"
-            :series="topUsersSeries"
-            type="bar"
-            height="320"
-          />
-          <p
-            v-else
-            class="flex h-[200px] items-center justify-center text-sm text-gray-500 dark:text-gray-400"
-          >
-            Нет данных за период
-          </p>
-        </B24Card>
-      </div>
+          </B24Card>
+        </div>
+        <div class="grid gap-4 lg:grid-cols-2">
+          <!-- По часам -->
+
+          <!-- По дням -->
+          <B24Card v-if="dayCategories.length > 0">
+            <template #header>Звонки по дням</template>
+            <template v-if="hasDayChartData">
+              <div class="overflow-x-auto overflow-y-hidden">
+                <div :style="{ minWidth: dayChartMinWidth }">
+                  <VueApexCharts :options="dayChartOptions" :series="daySeries" height="280" />
+                </div>
+              </div>
+            </template>
+            <template v-else>
+              <p
+                class="flex h-[200px] items-center justify-center text-sm text-gray-500 dark:text-gray-400"
+              >
+                Нет данных за период
+              </p>
+            </template>
+          </B24Card>
+        </div>
+      </template>
     </main>
 
     <!-- <ReportSettingsModal v-model:open="isSettingsOpen" /> -->
