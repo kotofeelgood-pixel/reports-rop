@@ -185,7 +185,33 @@ const tableTotals = computed(
       : { outgoing: 0, incoming: 0, missed: 0, callback: 0, duration: '00:00:00' },
 )
 
-const data = computed(() => computedRows.value)
+type SortField = 'outgoing' | 'incoming' | 'missed' | 'callback' | null
+
+const sortField = ref<SortField>(null)
+const sortDirection = ref<'asc' | 'desc'>('desc')
+
+const toggleSort = (field: Exclude<SortField, null>) => {
+  if (sortField.value === field) {
+    sortDirection.value = sortDirection.value === 'asc' ? 'desc' : 'asc'
+  } else {
+    sortField.value = field
+    sortDirection.value = 'desc'
+  }
+}
+
+const sortedRows = computed(() => {
+  const rows = [...computedRows.value]
+  if (!sortField.value) return rows
+  const field = sortField.value
+  const dir = sortDirection.value === 'asc' ? 1 : -1
+  return rows.sort((a, b) => {
+    const av = a[field]
+    const bv = b[field]
+    return (av - bv) * dir
+  })
+})
+
+const data = computed(() => sortedRows.value)
 
 const {
   dateRange,
@@ -308,7 +334,31 @@ const columns: TableColumn<Row>[] = [
   },
   {
     accessorKey: 'outgoing',
-    header: 'Исх.',
+    header: () =>
+      h(
+        'button',
+        {
+          type: 'button',
+          class:
+            'flex items-center gap-1 text-xs font-medium text-gray-700 dark:text-gray-200 bg-transparent border-0 cursor-pointer p-0',
+          onClick: () => toggleSort('outgoing'),
+        },
+        [
+          h('span', 'Исх.'),
+          h(
+            'span',
+            {
+              class:
+                'text-gray-400 dark:text-gray-500 inline-block align-middle text-[10px]',
+            },
+            sortField.value === 'outgoing'
+              ? sortDirection.value === 'asc'
+                ? '▲'
+                : '▼'
+              : '↕',
+          ),
+        ],
+      ),
     cell: ({ row }) => {
       const original = row.original as Row
 
@@ -338,7 +388,31 @@ const columns: TableColumn<Row>[] = [
   },
   {
     accessorKey: 'incoming',
-    header: 'Вх.',
+    header: () =>
+      h(
+        'button',
+        {
+          type: 'button',
+          class:
+            'flex items-center gap-1 text-xs font-medium text-gray-700 dark:text-gray-200 bg-transparent border-0 cursor-pointer p-0',
+          onClick: () => toggleSort('incoming'),
+        },
+        [
+          h('span', 'Вх.'),
+          h(
+            'span',
+            {
+              class:
+                'text-gray-400 dark:text-gray-500 inline-block align-middle text-[10px]',
+            },
+            sortField.value === 'incoming'
+              ? sortDirection.value === 'asc'
+                ? '▲'
+                : '▼'
+              : '↕',
+          ),
+        ],
+      ),
     cell: ({ row }) => {
       const original = row.original as Row
 
@@ -368,7 +442,31 @@ const columns: TableColumn<Row>[] = [
   },
   {
     accessorKey: 'missed',
-    header: 'Проп.',
+    header: () =>
+      h(
+        'button',
+        {
+          type: 'button',
+          class:
+            'flex items-center gap-1 text-xs font-medium text-gray-700 dark:text-gray-200 bg-transparent border-0 cursor-pointer p-0',
+          onClick: () => toggleSort('missed'),
+        },
+        [
+          h('span', 'Проп.'),
+          h(
+            'span',
+            {
+              class:
+                'text-gray-400 dark:text-gray-500 inline-block align-middle text-[10px]',
+            },
+            sortField.value === 'missed'
+              ? sortDirection.value === 'asc'
+                ? '▲'
+                : '▼'
+              : '↕',
+          ),
+        ],
+      ),
     cell: ({ row }) => {
       const original = row.original as Row
 
@@ -398,7 +496,31 @@ const columns: TableColumn<Row>[] = [
   },
   {
     accessorKey: 'callback',
-    header: 'Обрат.',
+    header: () =>
+      h(
+        'button',
+        {
+          type: 'button',
+          class:
+            'flex items-center gap-1 text-xs font-medium text-gray-700 dark:text-gray-200 bg-transparent border-0 cursor-pointer p-0',
+          onClick: () => toggleSort('callback'),
+        },
+        [
+          h('span', 'Обрат.'),
+          h(
+            'span',
+            {
+              class:
+                'text-gray-400 dark:text-gray-500 inline-block align-middle text-[10px]',
+            },
+            sortField.value === 'callback'
+              ? sortDirection.value === 'asc'
+                ? '▲'
+                : '▼'
+              : '↕',
+          ),
+        ],
+      ),
     cell: ({ row }) => {
       const original = row.original as Row
 
