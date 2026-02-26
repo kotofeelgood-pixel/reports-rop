@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { computed, watch, ref, h } from 'vue'
 import type { TableColumn } from '@bitrix24/b24ui-nuxt'
-import * as XLSX from 'xlsx'
 import ModalComponent from '@/components/modal/ModalComponent.vue'
 import ButtonComponent from '@/components/buttons/ButtonComponent.vue'
 import type { Call } from '@/tools/calls'
