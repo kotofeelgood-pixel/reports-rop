@@ -2,6 +2,7 @@ export type Call = {
   id: string
   userId: string
   time: string
+  date: string
   number: string
   type: string
   duration: string
@@ -43,6 +44,14 @@ function formatDuration(seconds: number): string {
   const m = Math.floor(s / 60)
   const h = Math.floor(m / 60)
   return `${String(h).padStart(2, '0')}:${String((m % 60)).padStart(2, '0')}:${String(s % 60).padStart(2, '0')}`
+}
+
+function parseDateFromApi(raw: unknown): string {
+  const str = String(raw ?? '')
+  if (!str) return '—'
+  const date = new Date(str)
+  if (Number.isNaN(date.getTime())) return str.slice(0, 10)
+  return date.toLocaleDateString('ru-RU')
 }
 
 function parseTimeFromApi(raw: unknown): string {
@@ -93,10 +102,12 @@ export function telephonyRecordToCall(
   const transcriptId = typeof transcriptIdRaw === 'string' ? transcriptIdRaw.trim() || undefined : undefined
   const transcriptPendingRaw = record.TRANSCRIPT_PENDING ?? record.transcript_pending
   const transcriptPending = typeof transcriptPendingRaw === 'string' ? transcriptPendingRaw : undefined
+  const startRaw = record.CALL_START_DATE ?? record.call_start_date
   return {
     id,
     userId,
-    time: parseTimeFromApi(record.CALL_START_DATE ?? record.call_start_date),
+    time: parseTimeFromApi(startRaw),
+    date: parseDateFromApi(startRaw),
     number: String(record.PHONE_NUMBER ?? record.phone_number ?? record.PHONE_NUMBER_FROM ?? record.PHONE_NUMBER_TO ?? '—'),
     type: typeLabel,
     duration: formatDuration(durationSec),

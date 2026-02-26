@@ -29,10 +29,6 @@ function getCrmDisplayName(call: Call): string {
   const key = `${type}_${call.crmEntityId}`
   const name = map.get(key)
   if (name) return name
-  // Если имени нет в карте, возвращаем тип сущности
-  if (type === 'LEAD') return 'Лид'
-  if (type === 'CONTACT') return 'Контакт'
-  if (type === 'COMPANY') return 'Компания'
   return call.crm
 }
 
@@ -422,8 +418,9 @@ const toggleAutoAdvance = () => {
 const exportToExcel = async () => {
   const list = (props.calls || []) as Call[]
   try {
-    const headers = ['ВРЕМЯ', 'НОМЕР', 'ТИП', 'ДЛИТЕЛЬНОСТЬ', 'CRM', 'Запись']
+    const headers = ['ДАТА', 'ВРЕМЯ', 'НОМЕР', 'ТИП', 'ДЛИТЕЛЬНОСТЬ', 'CRM', 'Запись']
     const rows = list.map((c) => [
+      c.date,
       c.time,
       c.number,
       c.type,
