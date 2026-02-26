@@ -122,80 +122,67 @@ onMounted(() => {
     <div :class="layoutType === 'rows' ? 'flex flex-col gap-4' : 'grid grid-cols-2 gap-4'">
       <B24Card variant="tinted">
         <template #header>Совершенные звонки</template>
-        <div class="">
-          <!-- <div class="flex items-center gap-2 bg-[#2fc6f6] px-3 py-2">
-            <span class="text-xs font-semibold uppercase tracking-wide text-white"
-              >Совершенные звонки</span
-            >
-          </div> -->
-          <ul class="space-y-2 p-2">
-            <li
-              v-for="item in completedCalls"
-              :key="item.userId"
-              class="flex cursor-pointer items-center justify-between gap-2 rounded-lg bg-gray-100 px-2 py-2 transition-colors hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700"
-              @click="openRatingCallsModal(item.userId, item.name, 'совершенные звонки')"
-            >
-              <div class="flex min-w-0 items-center gap-2">
-                <AvatarComponent :name="item.name" :src="item.photo ?? undefined" size="sm" />
-                <span class="min-w-0 truncate text-sm text-gray-900 dark:text-white">{{
-                  item.name
-                }}</span>
+        <ul class="space-y-2 p-2">
+          <li
+            v-for="item in completedCalls"
+            :key="item.userId"
+            class="flex cursor-pointer items-center justify-between gap-2 rounded-lg bg-gray-100 px-2 py-2 transition-colors hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700"
+            @click="openRatingCallsModal(item.userId, item.name, 'совершенные звонки')"
+          >
+            <div class="flex min-w-0 items-center gap-2">
+              <AvatarComponent :name="item.name" :src="item.photo ?? undefined" size="sm" />
+              <span class="min-w-0 truncate text-sm text-gray-900 dark:text-white">{{
+                item.name
+              }}</span>
+            </div>
+            <div class="flex shrink-0 items-center gap-2">
+              <div class="w-[100px]">
+                <ProgressComponent
+                  :model-value="item.count"
+                  :max="item.max"
+                  color="air-primary-success"
+                  size="sm"
+                  class="w-full"
+                />
               </div>
-              <div class="flex shrink-0 items-center gap-2">
-                <div class="w-[100px]">
-                  <ProgressComponent
-                    :model-value="item.count"
-                    :max="item.max"
-                    color="air-primary-success"
-                    size="sm"
-                    class="w-full"
-                  />
-                </div>
-                <span class="text-sm font-medium text-gray-700 dark:text-gray-300">{{
-                  item.count
-                }}</span>
-              </div>
-            </li>
-          </ul>
-        </div>
+              <span class="text-sm font-medium text-gray-700 dark:text-gray-300">{{
+                item.count
+              }}</span>
+            </div>
+          </li>
+        </ul>
       </B24Card>
-      <B24Card>
-        <div class="">
-          <div class="bg-[#2fc6f6] px-3 py-2">
-            <span class="text-xs font-semibold uppercase tracking-wide text-white"
-              >Пропущенные</span
-            >
-          </div>
-          <ul class="space-y-2 p-2">
-            <li
-              v-for="item in missedCalls"
-              :key="item.userId"
-              class="flex cursor-pointer items-center justify-between gap-2 rounded-lg bg-gray-100 px-2 py-2 transition-colors hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700"
-              @click="openRatingCallsModal(item.userId, item.name, 'пропущенные')"
-            >
-              <div class="flex min-w-0 items-center gap-2">
-                <AvatarComponent :name="item.name" :src="item.photo ?? undefined" size="sm" />
-                <span class="min-w-0 truncate text-sm text-gray-900 dark:text-white">{{
-                  item.name
-                }}</span>
+      <B24Card variant="tinted-warning">
+        <template #header>Пропущенные</template>
+        <ul class="space-y-2 p-2">
+          <li
+            v-for="item in missedCalls"
+            :key="item.userId"
+            class="flex cursor-pointer items-center justify-between gap-2 rounded-lg bg-gray-100 px-2 py-2 transition-colors hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700"
+            @click="openRatingCallsModal(item.userId, item.name, 'пропущенные')"
+          >
+            <div class="flex min-w-0 items-center gap-2">
+              <AvatarComponent :name="item.name" :src="item.photo ?? undefined" size="sm" />
+              <span class="min-w-0 truncate text-sm text-gray-900 dark:text-white">{{
+                item.name
+              }}</span>
+            </div>
+            <div class="flex shrink-0 items-center gap-2">
+              <div class="w-[100px]">
+                <ProgressComponent
+                  :model-value="item.count"
+                  :max="item.max"
+                  color="air-primary-alert"
+                  size="sm"
+                  class="w-full"
+                />
               </div>
-              <div class="flex shrink-0 items-center gap-2">
-                <div class="w-[100px]">
-                  <ProgressComponent
-                    :model-value="item.count"
-                    :max="item.max"
-                    color="air-primary-alert"
-                    size="sm"
-                    class="w-full"
-                  />
-                </div>
-                <span class="text-sm font-medium text-gray-700 dark:text-gray-300">{{
-                  item.count
-                }}</span>
-              </div>
-            </li>
-          </ul>
-        </div>
+              <span class="text-sm font-medium text-gray-700 dark:text-gray-300">{{
+                item.count
+              }}</span>
+            </div>
+          </li>
+        </ul>
       </B24Card>
     </div>
     <UserCallsModal
