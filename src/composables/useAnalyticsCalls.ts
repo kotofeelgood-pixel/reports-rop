@@ -1,47 +1,16 @@
-import { onMounted, ref, watch } from 'vue'
-import { useDateRange } from '@/composables/useDateRange'
-import { telephonyCallList, type TelephonyCallRecord } from '@/api/calls'
+import { useCallsStoreRefs, useCallsStore } from '@/stores/calls'
 
 /**
- * Загрузка звонков за выбранный период для экрана аналитики.
- * Использует тот же диапазон дат, что и отчёт (reportSettings).
+ * Обёртка над calls-стором для удобного доступа во вьюхах.
+ * Все запросы и слежение за диапазоном дат живут в `useCallsStore`.
  */
 export function useAnalyticsCalls() {
-  const { getDateRange, formatB24DateFilter, dateRange, dateValue } = useDateRange()
-  const calls = ref<TelephonyCallRecord[]>([])
-  const loading = ref(false)
-  const error = ref<string | null>(null)
+  const store = useCallsStore()
+  const { calls, loading, error } = useCallsStoreRefs()
 
-  const fetchCalls = async () => {
-    const range = getDateRange()
-    if (!range?.start || !range?.end) {
-      calls.value = []
-      return
-    }
-    loading.value = true
-    error.value = null
-    try {
-      const filter: Record<string, unknown> = {
-        '>=CALL_START_DATE': formatB24DateFilter(range.start, 'start'),
-        '<=CALL_START_DATE': formatB24DateFilter(range.end, 'end'),
-      }
-      const data = await telephonyCallList({ filter, sort: 'CALL_START_DATE', order: 'DESC' })
-      calls.value = Array.isArray(data) ? data : []
-    } catch (e) {
-      error.value = e instanceof Error ? e.message : String(e)
-      calls.value = []
-    } finally {
-      loading.value = false
-    }
+  if (!store.loadedRangeKey) {
+    void store.fetchCalls()
   }
 
-  onMounted(() => {
-    void fetchCalls()
-  })
-
-  watch([dateRange, dateValue], () => {
-    void fetchCalls()
-  }, { deep: true })
-
-  return { calls, loading, error, fetchCalls }
+  return { calls, loading, error, fetchCalls: store.fetchCalls }
 }

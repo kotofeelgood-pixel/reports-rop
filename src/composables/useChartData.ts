@@ -1,7 +1,6 @@
 import { computed, onMounted, ref, watch, type Ref } from 'vue'
 import { useReportSettingsStoreRefs } from '@/stores/reportSettings'
-import { useDateRange } from '@/composables/useDateRange'
-import { telephonyCallList, type TelephonyCallRecord, isOutgoingCallType, isIncomingCallType, isMissedCall } from '@/api/calls'
+import { type TelephonyCallRecord, isOutgoingCallType, isIncomingCallType, isMissedCall } from '@/api/calls'
 import { useThemeStoreRefs } from '@/stores/theme'
 
 type ChartDataPoint = {
