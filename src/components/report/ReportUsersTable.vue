@@ -227,7 +227,6 @@ const {
   isDatePickerOpen,
   showDatePicker,
   dateRangeOptions,
-  formatB24DateFilter,
   getDateRange,
 } = useDateRange()
 
@@ -309,27 +308,40 @@ const B24Avatar = resolveComponent('B24Avatar')
 
 const columns: TableColumn<Row>[] = [
   {
-    accessorKey: 'id',
-    header: 'ID',
-  },
-  {
     accessorKey: 'name',
     header: 'Имя',
     cell: ({ row }) => {
       const original = row.original as Row
 
+      const initial =
+        original.name && original.name.trim().length > 0
+          ? original.name.trim().charAt(0).toUpperCase()
+          : ''
+
+      const avatarNode =
+        original.photo && original.photo.trim().length > 0
+          ? h(B24Avatar, {
+              src: original.photo,
+              size: 'sm',
+            })
+          : h(
+              'div',
+              {
+                class:
+                  'flex h-7 w-7 items-center justify-center rounded-full bg-gray-700 text-xs font-medium text-white',
+              },
+              initial,
+            )
+
       return h('div', { class: 'flex items-center gap-1' }, [
-        h(B24Avatar as any, {
-          src: original.photo ?? undefined,
-          size: 'sm',
-        }),
+        avatarNode,
         h('div', { class: 'max-w-[140px] truncate text-xs' }, [
           h(
             'button',
             {
               type: 'button',
               class:
-                'text-[#2563eb] hover:underline text-left bg-transparent border-0 cursor-pointer p-0 font-inherit',
+                'text-white hover:underline text-left bg-transparent border-0 cursor-pointer p-0 font-inherit',
               onClick: () => openInB24(getUserProfilePath(original.id)),
             },
             original.name,
