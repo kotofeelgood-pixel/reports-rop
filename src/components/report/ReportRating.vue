@@ -38,7 +38,7 @@ const {
 const currentDateRange = computed(() => getDateRange())
 
 function openRatingCallsModal(userId: string, userName: string, callTypeLabel: string) {
-  const callType = callTypeLabel === 'совершенные звонки' ? 'исходящие' : 'пропущенные'
+  const callType = callTypeLabel === 'совершенные звонки' ? 'исходящие' : 'входящие'
   openCallsModal(userId, userName, callType, currentDateRange.value)
 }
 
@@ -94,19 +94,25 @@ const buildTopList = (predicate: (call: TelephonyCallRecord) => boolean) => {
   return top.map((item) => ({ ...item, max }))
 }
 
-import { isOutgoingCallType } from '@/api/calls'
+import { isOutgoingCallType, isIncomingCallType } from '@/api/calls'
 
 const isOutgoingCall = (call: TelephonyCallRecord): boolean => {
   const callTypeRaw = call.CALL_TYPE ?? call.callType ?? call.TYPE ?? call.type
   return isOutgoingCallType(callTypeRaw)
 }
 
+const isIncomingAnsweredCall = (call: TelephonyCallRecord): boolean => {
+  const callTypeRaw = call.CALL_TYPE ?? call.callType ?? call.TYPE ?? call.type
+  // Входящий, не пропущенный
+  return isIncomingCallType(callTypeRaw) && !isMissedCall(call)
+}
+
 const completedCalls = computed(() => buildTopList((call) => isOutgoingCall(call)))
 
-const missedCalls = computed(() => buildTopList((call) => isMissedCall(call)))
+const incomingCalls = computed(() => buildTopList((call) => isIncomingAnsweredCall(call)))
 
 const hasRatingData = computed(
-  () => completedCalls.value.length > 0 || missedCalls.value.length > 0,
+  () => completedCalls.value.length > 0 || incomingCalls.value.length > 0,
 )
 
 onMounted(() => {
@@ -156,14 +162,14 @@ onMounted(() => {
       </B24Card>
       <B24Card variant="tinted-warning">
         <template #header>
-          <p class="text-xs text-gray-700 dark:text-white">Пропущенные</p>
+          <p class="text-xs text-gray-700 dark:text-white">Входящие звонки</p>
         </template>
         <ul class="space-y-2">
           <li
-            v-for="item in missedCalls"
+            v-for="item in incomingCalls"
             :key="item.userId"
             class="flex cursor-pointer items-center justify-between gap-2 rounded-lg bg-gray-100 px-2 py-2 transition-colors hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700"
-            @click="openRatingCallsModal(item.userId, item.name, 'пропущенные')"
+            @click="openRatingCallsModal(item.userId, item.name, 'входящие')"
           >
             <div class="flex min-w-0 items-center gap-2">
               <AvatarComponent :name="item.name" :src="item.photo ?? undefined" size="sm" />
