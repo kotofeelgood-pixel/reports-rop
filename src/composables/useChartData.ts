@@ -30,13 +30,10 @@ function buildChartDataFromCalls(calls: TelephonyCallRecord[]): ChartDataPoint[]
     if (hour === null) continue
     const bucket = byHour.get(hour)!
     const callTypeRaw = call.CALL_TYPE ?? call.callType ?? call.TYPE ?? call.type
-    const duration = Number(call.CALL_DURATION ?? call.DURATION ?? call.duration ?? 0)
     const isMissed = isMissedCall(call)
-    const failedCode = String(call.CALL_FAILED_CODE ?? call.call_failed_code ?? '').trim()
-    const is304 = failedCode === '304'
     if (isOutgoingCallType(callTypeRaw)) {
       bucket.outgoing += 1
-    } else if (isIncomingCallType(callTypeRaw) && !is304) {
+    } else if (isIncomingCallType(callTypeRaw)) {
       bucket.incoming += 1
     }
     if (isMissed) bucket.missed += 1
@@ -124,11 +121,9 @@ export function useChartData(externalCalls?: Ref<TelephonyCallRecord[]>) {
     let missed = 0
     for (const call of list) {
       const callTypeRaw = call.CALL_TYPE ?? call.callType ?? call.TYPE ?? call.type
-      const failedCode = String(call.CALL_FAILED_CODE ?? call.call_failed_code ?? '').trim()
-      const is304 = failedCode === '304'
       if (isOutgoingCallType(callTypeRaw)) {
         outgoing += 1
-      } else if (isIncomingCallType(callTypeRaw) && !is304) {
+      } else if (isIncomingCallType(callTypeRaw)) {
         incoming += 1
       }
       if (isMissedCall(call)) {

@@ -55,35 +55,36 @@ const usersStore = useUsersStore()
 const { users: allUsers, usersById } = useUsersStoreRefs()
 const { excludedEmployeeIds, minCallDurationSeconds } = useReportSettingsStoreRefs()
 
-const calls = ref<TelephonyCallRecord[]>([])
+const internalCalls = ref<TelephonyCallRecord[]>([])
 
 watch(
   () => props.calls,
   (value) => {
-    calls.value = Array.isArray(value) ? value : []
+    internalCalls.value = Array.isArray(value) ? value : []
   },
   { immediate: true, deep: true },
 )
 
 const rowsFromCalls = computed<Row[]>(() => {
-  if (!calls.value.length) return []
+  if (!internalCalls.value.length) return []
   const excluded = new Set((excludedEmployeeIds.value || []).map(String))
   const minDuration = Number(minCallDurationSeconds.value) || 0
   const map = new Map<string, Row & { _seconds: number }>()
-  for (const call of calls.value) {
+  for (const call of internalCalls.value) {
     const durationRaw = call.CALL_DURATION ?? call.DURATION ?? call.duration ?? 0
     const duration = Number(durationRaw)
     if (duration < minDuration) continue
 
     const userIdRaw =
-      call.PORTAL_USER_ID ?? call.USER_ID ?? call.RESPONSIBLE_ID ?? call.ASSIGNED_BY_ID
+      call.RESPONSIBLE_ID ??
+      call.ASSIGNED_BY_ID ??
+      call.USER_ID ??
+      call.PORTAL_USER_ID
     const userId = String(userIdRaw ?? '').trim()
     if (!userId || excluded.has(userId)) continue
 
     const callTypeRaw = call.CALL_TYPE ?? call.callType ?? call.TYPE ?? call.type
     const isMissed = isMissedCall(call)
-    const failedCode = String(call.CALL_FAILED_CODE ?? call.call_failed_code ?? '').trim()
-    const is304 = failedCode === '304'
 
     const user = usersById.value.get(userId)
     const name = user?.name ?? `#${userId}`
@@ -105,9 +106,9 @@ const rowsFromCalls = computed<Row[]>(() => {
     const row = map.get(userId)!
     if (isOutgoingCallType(callTypeRaw)) {
       row.outgoing += 1
-    } else if (isIncomingCallType(callTypeRaw) && !is304) {
+    } else if (isIncomingCallType(callTypeRaw)) {
       row.incoming += 1
-    } else if (isCallbackCallType(callTypeRaw) && !is304) {
+    } else if (isCallbackCallType(callTypeRaw)) {
       row.callback += 1
     }
     if (isMissed) {
@@ -242,7 +243,7 @@ type DayCallStats = { outgoing: number; incoming: number; missed: number }
 const callsByDate = computed(() => {
   const map = new Map<string, DayCallStats>()
   const minDuration = Number(minCallDurationSeconds.value) || 0
-  for (const call of calls.value) {
+  for (const call of internalCalls.value) {
     const duration = Number(call.CALL_DURATION ?? call.DURATION ?? call.duration ?? 0)
     if (duration < minDuration) continue
     const raw = call.CALL_START_DATE ?? call.call_start_date ?? ''
@@ -254,11 +255,9 @@ const callsByDate = computed(() => {
     const stat = map.get(dateStr)!
     const callTypeRaw = call.CALL_TYPE ?? call.callType ?? call.TYPE ?? call.type
     const isMissed = isMissedCall(call)
-    const failedCode = String(call.CALL_FAILED_CODE ?? call.call_failed_code ?? '').trim()
-    const is304 = failedCode === '304'
     if (isOutgoingCallType(callTypeRaw)) {
       stat.outgoing += 1
-    } else if (isIncomingCallType(callTypeRaw) && !is304) {
+    } else if (isIncomingCallType(callTypeRaw)) {
       stat.incoming += 1
     }
     if (isMissed) {
@@ -295,7 +294,7 @@ const {
   crmNames,
   openCallsModal,
   openTotalsCallsModal,
-} = useCallsModal(calls, usersById)
+} = useCallsModal(internalCalls, usersById)
 
 const currentDateRange = computed(() => getDateRange())
 

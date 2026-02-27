@@ -81,14 +81,15 @@ const buildReportRows = (source: TelephonyCallRecord[]): ReportRow[] => {
     if (duration < minDuration) continue
 
     const userIdRaw =
-      call.PORTAL_USER_ID ?? call.USER_ID ?? call.RESPONSIBLE_ID ?? call.ASSIGNED_BY_ID
+      call.RESPONSIBLE_ID ??
+      call.ASSIGNED_BY_ID ??
+      call.USER_ID ??
+      call.PORTAL_USER_ID
     const userId = String(userIdRaw ?? '').trim()
     if (!userId || excluded.has(userId)) continue
 
     const callTypeRaw = call.CALL_TYPE ?? call.callType ?? call.TYPE ?? call.type
     const isMissed = isMissedCall(call)
-    const failedCode = String(call.CALL_FAILED_CODE ?? call.call_failed_code ?? '').trim()
-    const is304 = failedCode === '304'
 
     const user = usersById.value.get(userId)
     const fullName = user?.name ?? `#${userId}`
@@ -110,9 +111,9 @@ const buildReportRows = (source: TelephonyCallRecord[]): ReportRow[] => {
 
     if (isOutgoingCallType(callTypeRaw)) {
       row.outgoing += 1
-    } else if (isIncomingCallType(callTypeRaw) && !is304) {
+    } else if (isIncomingCallType(callTypeRaw)) {
       row.incoming += 1
-    } else if (isCallbackCallType(callTypeRaw) && !is304) {
+    } else if (isCallbackCallType(callTypeRaw)) {
       row.callback += 1
     }
 

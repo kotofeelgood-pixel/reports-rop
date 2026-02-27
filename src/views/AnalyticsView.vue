@@ -97,11 +97,9 @@ const byTypeData = computed(() => {
   let missed = 0
   for (const call of calls.value) {
     const callTypeRaw = call.CALL_TYPE ?? call.callType ?? call.TYPE ?? call.type
-    const failedCode = String(call.CALL_FAILED_CODE ?? call.call_failed_code ?? '').trim()
-    const is304 = failedCode === '304'
     if (isOutgoingCallType(callTypeRaw)) {
       outgoing += 1
-    } else if (isIncomingCallType(callTypeRaw) && !is304) {
+    } else if (isIncomingCallType(callTypeRaw)) {
       incoming += 1
     }
     if (isMissed(call)) missed += 1
