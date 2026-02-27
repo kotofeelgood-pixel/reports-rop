@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import ReportHeader from '@/components/report/ReportHeader.vue'
 import ReportUsersTable from '@/components/report/ReportUsersTable.vue'
 import ReportChart from '@/components/report/ReportChart.vue'
@@ -12,6 +12,24 @@ import { useAnalyticsCalls } from '@/composables/useAnalyticsCalls'
 const { layoutType } = useReportSettingsStoreRefs()
 const usersStore = useUsersStore()
 const { calls } = useAnalyticsCalls()
+
+const selectedUserIds = ref<string[]>([])
+
+const filteredCallsForRating = computed(() => {
+  const ids = selectedUserIds.value.map(String)
+  if (!ids.length) return calls.value
+  const set = new Set(ids)
+  return calls.value.filter((call: any) => {
+    const userIdRaw =
+      call.PORTAL_USER_ID ??
+      call.USER_ID ??
+      call.RESPONSIBLE_ID ??
+      call.ASSIGNED_BY_ID
+    const userId = String(userIdRaw ?? '').trim()
+    if (!userId) return false
+    return set.has(userId)
+  })
+})
 
 onMounted(() => {
   void usersStore.fetchUsers()
@@ -26,16 +44,16 @@ const isSettingsOpen = ref(false)
 
     <!-- Расположение столбцами (таблица слева, график+рейтинг справа) -->
     <main v-if="layoutType === 'columns'" class="flex flex-1 gap-4 overflow-hidden p-4">
-      <ReportUsersTable :calls="calls" class="flex-1" />
+      <ReportUsersTable v-model:selected-user-ids="selectedUserIds" :calls="calls" class="flex-1" />
       <aside class="flex min-w-0 flex-1 flex-col gap-4">
         <ReportChart :calls="calls" />
-        <ReportRating :calls="calls" />
+        <ReportRating :calls="filteredCallsForRating" />
       </aside>
     </main>
 
     <!-- Расположение строками (таблица сверху, график и рейтинг снизу рядом) -->
     <main v-else class="flex flex-1 flex-col gap-4 overflow-hidden p-4">
-      <ReportUsersTable :calls="calls" />
+      <ReportUsersTable v-model:selected-user-ids="selectedUserIds" :calls="calls" />
       <div
         class="flex min-h-0 flex-1 gap-4 overflow-hidden"
         :class="layoutType === 'rows' ? 'flex-col' : 'flex-row'"
@@ -44,7 +62,7 @@ const isSettingsOpen = ref(false)
           <ReportChart :calls="calls" />
         </div>
         <div class="flex min-w-0 flex-1">
-          <ReportRating :calls="calls" />
+          <ReportRating :calls="filteredCallsForRating" />
         </div>
       </div>
     </main>

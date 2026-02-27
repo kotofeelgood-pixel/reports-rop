@@ -68,6 +68,7 @@ watch(
 const rowsFromCalls = computed<Row[]>(() => {
   if (!internalCalls.value.length) return []
   const excluded = new Set((excludedEmployeeIds.value || []).map(String))
+  const selected = new Set((selectedUsers.value || []).map(String))
   const minDuration = Number(minCallDurationSeconds.value) || 0
   const map = new Map<string, Row & { _seconds: number }>()
   for (const call of internalCalls.value) {
@@ -82,6 +83,7 @@ const rowsFromCalls = computed<Row[]>(() => {
       call.ASSIGNED_BY_ID
     const userId = String(userIdRaw ?? '').trim()
     if (!userId || excluded.has(userId)) continue
+    if (selected.size && !selected.has(userId)) continue
 
     const callTypeRaw = call.CALL_TYPE ?? call.callType ?? call.TYPE ?? call.type
     const isMissed = isMissedCall(call)
@@ -231,7 +233,7 @@ const {
   getDateRange,
 } = useDateRange()
 
-const selectedUsers = ref<string[]>([])
+const selectedUsers = defineModel<string[]>('selectedUserIds', { default: () => [] })
 
 const pad = (n: number) => String(n).padStart(2, '0')
 
