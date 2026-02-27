@@ -459,7 +459,7 @@ const toggleAutoAdvance = () => {
           </div>
           <!-- Таблица звонков -->
           <div class="flex min-w-0 flex-1 flex-col">
-            <div data-simplebar class="max-h-[60vh]">
+            <div data-simplebar data-simplebar-auto-hide="false" class="max-h-[60vh]">
               <B24Table :data="data" :columns="columns" class="min-w-full" />
             </div>
           </div>
@@ -511,5 +511,15 @@ const toggleAutoAdvance = () => {
 /* Гарантируем, что плеер всегда поверх модалки */
 :deep([style*='z-index: 999999']) {
   z-index: 999999 !important;
+}
+
+/* SimpleBar: всегда показываем скролл и задаём цвета под темы */
+:global(.simplebar-scrollbar::before) {
+  opacity: 1 !important;
+  background-color: #4b5563; /* тёмный для светлой темы */
+}
+
+:global(.dark .simplebar-scrollbar::before) {
+  background-color: #ffffff; /* белый для тёмной темы */
 }
 </style>
