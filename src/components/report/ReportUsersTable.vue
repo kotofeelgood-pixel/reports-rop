@@ -76,10 +76,10 @@ const rowsFromCalls = computed<Row[]>(() => {
     if (duration < minDuration) continue
 
     const userIdRaw =
-      call.RESPONSIBLE_ID ??
-      call.ASSIGNED_BY_ID ??
+      call.PORTAL_USER_ID ??
       call.USER_ID ??
-      call.PORTAL_USER_ID
+      call.RESPONSIBLE_ID ??
+      call.ASSIGNED_BY_ID
     const userId = String(userIdRaw ?? '').trim()
     if (!userId || excluded.has(userId)) continue
 
@@ -107,11 +107,18 @@ const rowsFromCalls = computed<Row[]>(() => {
     if (isOutgoingCallType(callTypeRaw)) {
       row.outgoing += 1
     } else if (isIncomingCallType(callTypeRaw)) {
-      row.incoming += 1
+      if (!isMissed) {
+        row.incoming += 1
+      } else {
+        row.missed += 1
+      }
     } else if (isCallbackCallType(callTypeRaw)) {
-      row.callback += 1
-    }
-    if (isMissed) {
+      if (!isMissed) {
+        row.callback += 1
+      } else {
+        row.missed += 1
+      }
+    } else if (isMissed) {
       row.missed += 1
     }
     // Если CALL_TYPE не распознан (не 1,2,3,4), пропускаем или обрабатываем как входящий
