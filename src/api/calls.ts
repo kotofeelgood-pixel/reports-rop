@@ -24,6 +24,12 @@ export const DEFAULT_CALL_SELECT_FIELDS = [
   'TRANSCRIPT_PENDING',
 ] as const
 
+type TelephonyStatisticResponse = {
+  result?: TelephonyCallRecord[]
+  total?: number
+  next?: number | string | null
+}
+
 /**
  * Типы звонков согласно документации Bitrix24:
  * 1 - исходящий
@@ -95,15 +101,44 @@ export const telephonyCallList = async ({
 }: CallListParams = {}): Promise<TelephonyCallRecord[]> => {
   const b24 = await useB24()
   try {
-    const params: Record<string, unknown> = {
-      FILTER: filter,
-      SELECT: select,
-      SORT: sort,
-      ORDER: order,
+    const all: TelephonyCallRecord[] = []
+    let start: number | null = 0
+    const MAX_PAGES = 20
+
+    for (let page = 0; page < MAX_PAGES && start !== null; page += 1) {
+      const params: Record<string, unknown> = {
+        FILTER: filter,
+        SELECT: select,
+        SORT: sort,
+        ORDER: order,
+      }
+      if (start && start > 0) {
+        params.start = start
+      }
+
+      const response: unknown = await callMethodPromise(b24, 'voximplant.statistic.get', params)
+      const answer = response as TelephonyStatisticResponse
+      const pageResult = Array.isArray(answer?.result) ? answer.result : []
+      all.push(...pageResult)
+
+      const nextRaw = (answer as any)?.next ?? (answer as any)?.NEXT
+      if (nextRaw === undefined || nextRaw === null || nextRaw === false || nextRaw === '') {
+        start = null
+      } else {
+        const nextNum = Number(nextRaw)
+        if (Number.isNaN(nextNum)) {
+          start = null
+        } else {
+          start = nextNum
+        }
+      }
+
+      if (!pageResult.length) {
+        break
+      }
     }
-    const response: unknown = await callMethodPromise(b24, 'voximplant.statistic.get', params)
-    const answer = response as { result?: TelephonyCallRecord[] }
-    return Array.isArray(answer?.result) ? answer.result : []
+
+    return all
   } catch (error) {
     console.error('voximplant.statistic.get error:', error)
     return []
