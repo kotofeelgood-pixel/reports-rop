@@ -1,5 +1,5 @@
 import { useB24 } from '../composables/useB24'
-import { callMethodPromise } from './core'
+import { callBatchPromise, callMethodPromise } from './core'
 
 export type TelephonyCallRecord = Record<string, unknown>
 
@@ -96,45 +96,59 @@ type CallListParams = {
 export const telephonyCallList = async ({
   filter = {},
   select = [...DEFAULT_CALL_SELECT_FIELDS],
-  sort = 'CALL_START_DATE',
-  order = 'DESC',
+  // Стараемся повторять "правильный" запрос: sort=ID, order=ASC
+  sort = 'ID',
+  order = 'ASC',
 }: CallListParams = {}): Promise<TelephonyCallRecord[]> => {
   const b24 = await useB24()
   try {
+    const baseParams: Record<string, unknown> = {
+      FILTER: filter,
+      SELECT: select,
+      SORT: sort,
+      ORDER: order,
+    }
+
+    // Первый запрос — как в "правильном" примере, чтобы получить total / next
+    const firstResponse = (await callMethodPromise(
+      b24,
+      'voximplant.statistic.get',
+      baseParams
+    )) as TelephonyStatisticResponse
+
     const all: TelephonyCallRecord[] = []
-    let start: number | null = 0
+    const firstResult = Array.isArray(firstResponse?.result) ? firstResponse.result : []
+    all.push(...firstResult)
+
+    const total = typeof firstResponse?.total === 'number' ? firstResponse.total : firstResult.length
+    const pageSize = firstResult.length || 50
+
+    if (!total || total <= firstResult.length) {
+      return all
+    }
+
+    // Формируем батч-запросы по страницам: start=pageSize, 2*pageSize, ...
+    const batchParams: unknown[] = []
     const MAX_PAGES = 20
+    let pageIndex = 1
+    while (pageIndex * pageSize < total && batchParams.length < MAX_PAGES - 1) {
+      const start = pageIndex * pageSize
+      batchParams.push([
+        'voximplant.statistic.get',
+        {
+          ...baseParams,
+          start,
+        },
+      ])
+      pageIndex += 1
+    }
 
-    for (let page = 0; page < MAX_PAGES && start !== null; page += 1) {
-      const params: Record<string, unknown> = {
-        FILTER: filter,
-        SELECT: select,
-        SORT: sort,
-        ORDER: order,
-      }
-      if (start && start > 0) {
-        params.start = start
-      }
-
-      const response: unknown = await callMethodPromise(b24, 'voximplant.statistic.get', params)
-      const answer = response as TelephonyStatisticResponse
-      const pageResult = Array.isArray(answer?.result) ? answer.result : []
-      all.push(...pageResult)
-
-      const nextRaw = (answer as any)?.next ?? (answer as any)?.NEXT
-      if (nextRaw === undefined || nextRaw === null || nextRaw === false || nextRaw === '') {
-        start = null
-      } else {
-        const nextNum = Number(nextRaw)
-        if (Number.isNaN(nextNum)) {
-          start = null
-        } else {
-          start = nextNum
-        }
-      }
-
-      if (!pageResult.length) {
-        break
+    if (batchParams.length > 0) {
+      const batchResult = (await callBatchPromise(b24, batchParams)) as TelephonyCallRecord[] | unknown
+      if (Array.isArray(batchResult)) {
+        all.push(...batchResult)
+      } else if (batchResult && Array.isArray((batchResult as any).result)) {
+        all.push(...(batchResult as any).result)
       }
     }
 
