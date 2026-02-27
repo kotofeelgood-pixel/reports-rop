@@ -346,7 +346,7 @@ const columns: TableColumn<Row>[] = [
             {
               type: 'button',
               class:
-                'text-white hover:underline text-left bg-transparent border-0 cursor-pointer p-0 font-inherit',
+                'text-gray-900 dark:text-white hover:underline text-left bg-transparent border-0 cursor-pointer p-0 font-inherit',
               onClick: () => openInB24(getUserProfilePath(original.id)),
             },
             original.name,
