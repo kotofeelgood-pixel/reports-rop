@@ -10,6 +10,8 @@ import UserCallsPlayer from './UserCallsPlayer.vue'
 import DownloadIcon from '@bitrix24/b24icons-vue/outline/DownloadIcon'
 import PlayIcon from '@bitrix24/b24icons-vue/common-service/PlayIcon'
 import PauseIcon from '@bitrix24/b24icons-vue/solid/PauseIcon'
+import 'simplebar'
+import 'simplebar/dist/simplebar.css'
 
 type Props = {
   userName: string
@@ -457,7 +459,7 @@ const toggleAutoAdvance = () => {
           </div>
           <!-- Таблица звонков -->
           <div class="flex min-w-0 flex-1 flex-col">
-            <div class="max-h-[60vh] overflow-y-auto">
+            <div data-simplebar class="max-h-[60vh]">
               <B24Table :data="data" :columns="columns" class="min-w-full" />
             </div>
           </div>
