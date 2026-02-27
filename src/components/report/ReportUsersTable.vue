@@ -87,8 +87,9 @@ const rowsFromCalls = computed<Row[]>(() => {
     const isMissed = isMissedCall(call)
 
     const user = usersById.value.get(userId)
-    const name = user?.name ?? `#${userId}`
-    const photo = user?.photo ?? null
+    if (!user) continue
+    const name = user.name
+    const photo = user.photo ?? null
 
     if (!map.has(userId)) {
       map.set(userId, {
@@ -313,13 +314,17 @@ const columns: TableColumn<Row>[] = [
     cell: ({ row }) => {
       const original = row.original as Row
 
+      const user = usersById.value.get(original.id)
+      const hasPersonalPhoto =
+        user && typeof user.raw?.PERSONAL_PHOTO !== 'undefined' && user.raw.PERSONAL_PHOTO !== null && String(user.raw.PERSONAL_PHOTO).trim() !== ''
+
       const initial =
         original.name && original.name.trim().length > 0
           ? original.name.trim().charAt(0).toUpperCase()
           : ''
 
       const avatarNode =
-        original.photo && original.photo.trim().length > 0
+        hasPersonalPhoto && original.photo && original.photo.trim().length > 0
           ? h(B24Avatar, {
               src: original.photo,
               size: 'sm',
@@ -333,7 +338,7 @@ const columns: TableColumn<Row>[] = [
               initial,
             )
 
-      return h('div', { class: 'flex items-center gap-1' }, [
+      return h('div', { class: 'flex items-center gap-2' }, [
         avatarNode,
         h('div', { class: 'max-w-[140px] truncate text-xs' }, [
           h(
