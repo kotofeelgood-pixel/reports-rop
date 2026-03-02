@@ -1,12 +1,11 @@
 import { ref, computed } from 'vue'
 import { defineStore, storeToRefs } from 'pinia'
 import { REPORT_MODES, type ReportModeId } from '@/types/reportMode'
-import type { DealDirectionId } from '@/config/dealDirections'
 
 export const useReportFiltersStore = defineStore('reportFilters', () => {
   const reportMode = ref<ReportModeId>('sales_department')
   const selectedUserIds = ref<string[]>([])
-  const selectedDealDirections = ref<DealDirectionId[]>([])
+  const selectedDealDirections = ref<string[]>([])
   const excludedStages = ref<string[]>([])
   const touchesDays = ref(7)
   const touchesMonths = ref(7)

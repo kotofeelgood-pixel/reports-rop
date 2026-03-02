@@ -1,15 +1,33 @@
 <!-- Блок «3. Выберите направления сделок»: чекбоксы направлений с «Выбрать все». -->
 <script setup lang="ts">
-import { computed } from 'vue'
-import { DEAL_DIRECTIONS, type DealDirectionId } from '@/config/dealDirections'
+import { computed, onMounted, ref } from 'vue'
+import { getDealCategories } from '@/api/routes/crm'
 import FiltersColumn from '../FiltersColumn.vue'
-const model = defineModel<DealDirectionId[]>({ default: () => [] })
 
-const dealItems = DEAL_DIRECTIONS.map((d) => ({ value: d.id, label: d.label }))
+const model = defineModel<string[]>({ default: () => [] })
+
+const categories = ref<{ id: number; name: string }[]>([])
+const loading = ref(true)
+
+onMounted(async () => {
+  try {
+    const list = await getDealCategories()
+    categories.value = list.map((c) => ({ id: c.id, name: c.name }))
+  } catch {
+    categories.value = []
+  } finally {
+    loading.value = false
+  }
+})
+
+const dealItems = computed(() =>
+  categories.value.map((c) => ({ value: String(c.id), label: c.name }))
+)
 const selectAll = computed({
-  get: () => model.value.length === DEAL_DIRECTIONS.length,
+  get: () =>
+    categories.value.length > 0 && model.value.length === categories.value.length,
   set: (v: boolean) => {
-    model.value = v ? [...DEAL_DIRECTIONS.map((d) => d.id)] : []
+    model.value = v ? categories.value.map((c) => String(c.id)) : []
   },
 })
 </script>
@@ -19,6 +37,7 @@ const selectAll = computed({
     <div class="space-y-2">
       <B24Checkbox v-model="selectAll" label="Выбрать все" />
       <B24CheckboxGroup
+        v-if="!loading"
         v-model="model"
         :items="dealItems"
         value-key="value"
@@ -26,6 +45,7 @@ const selectAll = computed({
         variant="list"
         orientation="vertical"
       />
+      <p v-else class="text-sm text-muted">Загрузка...</p>
     </div>
   </FiltersColumn>
 </template>

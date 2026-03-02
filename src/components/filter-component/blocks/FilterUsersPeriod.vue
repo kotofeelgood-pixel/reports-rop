@@ -26,7 +26,7 @@ watch(
   { deep: true },
 )
 
-const df = new DateFormatter('en-US', {
+const df = new DateFormatter('ru-RU', {
   dateStyle: 'medium',
 })
 </script>
@@ -55,7 +55,13 @@ const df = new DateFormatter('en-US', {
           </B24Button>
 
           <template #content>
-            <B24Calendar v-model="modelValue" class="p-2" :number-of-months="2" range />
+            <B24Calendar
+              v-model="modelValue"
+              class="p-2"
+              :number-of-months="2"
+              locale="ru-RU"
+              range
+            />
           </template>
         </B24Popover>
       </div>

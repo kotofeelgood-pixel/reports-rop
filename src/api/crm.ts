@@ -211,6 +211,29 @@ export const crmActivityList = async (
 }
 
 /**
+ * Получить список направлений сделок (категорий CRM).
+ * entityTypeId: 2 — сделки.
+ *
+ * https://dev.1c-bitrix.ru/rest_help/crm/category/crm_category_list.php
+ */
+export type CrmCategory = { id: number; name: string; sort?: number; entityTypeId?: number; isDefault?: string }
+
+export const crmCategoryList = async (entityTypeId: number = 2): Promise<CrmCategory[]> => {
+  const b24 = await useB24()
+  try {
+    const response: any = await callMethodPromise(b24, 'crm.category.list', { entityTypeId })
+    const result = response?.result
+    if (!result) return []
+    const categories = result?.categories ?? result
+    const list = Array.isArray(categories) ? categories : []
+    return list.sort((a, b) => (a.sort ?? 0) - (b.sort ?? 0))
+  } catch (error) {
+    console.error(error)
+    return []
+  }
+}
+
+/**
  * Возвращает список сделок по фильтру.
  *
  * https://dev.1c-bitrix.ru/rest_help/crm/cdeals/crm_deal_list.php
