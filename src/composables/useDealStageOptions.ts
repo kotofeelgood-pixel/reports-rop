@@ -11,6 +11,7 @@ type SelectItem = {
 export const useDealStageOptions = () => {
   const items = ref<SelectItem[]>([])
   const loading = ref(false)
+  const stageLookup = ref<Record<string, { category: string; label: string }>>({})
 
   const load = async () => {
     loading.value = true
@@ -26,6 +27,7 @@ export const useDealStageOptions = () => {
       )
 
       const result: SelectItem[] = []
+      const lookup: Record<string, { category: string; label: string }> = {}
 
       for (const { category, statuses } of statusesByCategory) {
         result.push({
@@ -45,14 +47,22 @@ export const useDealStageOptions = () => {
           const name = String(status.NAME ?? '').trim()
           if (!code || !name) continue
 
+          const label = `- ${name}`
+
           result.push({
             value: code,
-            label: `- ${name}`,
+            label,
           })
+
+          lookup[code] = {
+            category: String(category.name ?? ''),
+            label,
+          }
         }
       }
 
       items.value = result
+      stageLookup.value = lookup
     } catch (error) {
       console.error(error)
       items.value = []
@@ -68,6 +78,7 @@ export const useDealStageOptions = () => {
   return {
     items,
     loading,
+    stageLookup,
     reload: load,
   }
 }
