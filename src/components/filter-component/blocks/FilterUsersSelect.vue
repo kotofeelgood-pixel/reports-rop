@@ -94,9 +94,12 @@ onMounted(() => {
 
     <template #body>
       <div class="min-w-96 max-h-[560px] space-y-4">
-        <p class="text-sm font-medium">Сотрудники</p>
-
-        <B24Input v-model="search" placeholder="Поиск по имени сотрудника" size="sm" />
+        <B24Input
+          v-model="search"
+          placeholder="Поиск по имени сотрудника"
+          size="md"
+          class="w-full"
+        />
 
         <B24Checkbox v-model="selectAll" label="Выбрать все" />
 

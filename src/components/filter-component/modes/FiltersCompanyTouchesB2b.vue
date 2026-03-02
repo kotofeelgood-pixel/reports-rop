@@ -24,6 +24,21 @@ const toComparable = (value: unknown): number | null => {
   }
 
   if (typeof value === 'object') {
+    const anyValue = value as any
+
+    // DateValue из @internationalized/date
+    if (typeof anyValue.toDate === 'function') {
+      try {
+        const jsDate: Date = anyValue.toDate('UTC')
+        const y = jsDate.getUTCFullYear()
+        const m = jsDate.getUTCMonth() + 1
+        const d = jsDate.getUTCDate()
+        return y * 10000 + m * 100 + d
+      } catch {
+        // ignore
+      }
+    }
+
     const v = value as { year?: number; month?: number; day?: number }
     if (typeof v.year === 'number' && typeof v.month === 'number' && typeof v.day === 'number') {
       return v.year * 10000 + v.month * 100 + v.day
