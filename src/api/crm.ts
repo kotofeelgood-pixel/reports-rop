@@ -5,6 +5,16 @@ type CrmContact = { NAME?: string; LAST_NAME?: string; [key: string]: unknown }
 type CrmLead = { TITLE?: string; NAME?: string; LAST_NAME?: string; [key: string]: unknown }
 type CrmCompany = { TITLE?: string; [key: string]: unknown }
 
+export type CrmStatus = {
+  ID?: string | number
+  STATUS_ID: string
+  NAME: string
+  ENTITY_ID?: string
+  CATEGORY_ID?: string | number
+  SORT?: number | string
+  [key: string]: unknown
+}
+
 /**
  * Получить контакт по ID.
  * https://dev.1c-bitrix.ru/rest_help/crm/contacts/crm_contact_get.php
@@ -204,6 +214,28 @@ export const crmActivityList = async (
     }
 
     return data
+  } catch (error) {
+    console.error(error)
+    return []
+  }
+}
+
+/**
+ * Получить список элементов справочника crm.status.* по фильтру.
+ * Используется, в частности, для стадий сделок (ENTITY_ID = DEAL_STAGE / DEAL_STAGE_xx).
+ */
+export const crmStatusList = async (
+  filter: Record<string, unknown> = {},
+  order: Record<string, string> = { SORT: 'ASC' }
+): Promise<CrmStatus[]> => {
+  const b24 = await useB24()
+  try {
+    const response: any = await callMethodPromise(b24, 'crm.status.list', {
+      filter,
+      order,
+    })
+    const result = response?.result
+    return Array.isArray(result) ? (result as CrmStatus[]) : []
   } catch (error) {
     console.error(error)
     return []

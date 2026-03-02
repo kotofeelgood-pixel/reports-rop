@@ -2,9 +2,11 @@
 <script setup lang="ts">
 import { storeToRefs } from 'pinia'
 import { useReportFiltersStore } from '@/stores/reportFilters'
+import { useDealStageOptions } from '@/composables/useDealStageOptions'
 import FiltersColumn from '../FiltersColumn.vue'
 
 const { excludedStages } = storeToRefs(useReportFiltersStore())
+const { items: stageItems } = useDealStageOptions()
 </script>
 
 <template>
@@ -12,10 +14,10 @@ const { excludedStages } = storeToRefs(useReportFiltersStore())
     <div class="space-y-2">
       <B24SelectMenu
         v-model="excludedStages"
-        :items="[{ value: 'negotiations', label: 'Переговоры в процессе' }]"
+        :items="stageItems"
         value-key="value"
         label-key="label"
-        placeholder="- Переговоры в процессе"
+        placeholder="- Новая"
       />
     </div>
   </FiltersColumn>
