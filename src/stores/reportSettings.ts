@@ -1,10 +1,9 @@
 import { ref, watch } from 'vue'
 import { defineStore, storeToRefs } from 'pinia'
+import { shallowRef } from 'vue'
+import { CalendarDate } from '@internationalized/date'
 
 const STORAGE_KEY = 'call-analytics-report-settings'
-
-export type CalendarDate = { day: number; month: number; year: number }
-export type CalendarDateRange = { start: CalendarDate | null; end: CalendarDate | null }
 
 type StoredSettings = {
   chartStartHour?: number
@@ -46,9 +45,7 @@ export const useReportSettingsStore = defineStore('reportSettings', () => {
   const excludedDepartment = ref<string | null>(stored?.excludedDepartment ?? null)
   const excludedEmployeeIds = ref<string[]>(Array.isArray(stored?.excludedEmployeeIds) ? stored.excludedEmployeeIds : [])
   const minCallDurationSeconds = ref(stored?.minCallDurationSeconds ?? 0)
-  // Фильтры даты и пользователей не сохраняются при перезагрузке
-  const dateRange = ref<string>('realtime')
-  const dateValue = ref<CalendarDateRange>({ start: null, end: null })
+  const dateValue = shallowRef<{ start: CalendarDate | null; end: CalendarDate | null }>({ start: null, end: null })
 
   watch(
     [
@@ -82,7 +79,6 @@ export const useReportSettingsStore = defineStore('reportSettings', () => {
     excludedDepartment,
     excludedEmployeeIds,
     minCallDurationSeconds,
-    dateRange,
     dateValue,
   }
 })
