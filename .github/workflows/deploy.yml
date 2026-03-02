@@ -58,6 +58,7 @@ jobs:
           set sftp:connect-program "ssh -a -x -oStrictHostKeyChecking=no"
           set cmd:fail-exit yes
           set ftp:list-options -a
+          set xfer:use-temp-file no
           echo "Текущая директория на сервере:"
           pwd
           echo "Переход в целевую директорию: ${SFTP_DIR}"
