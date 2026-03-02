@@ -26,15 +26,15 @@ onMounted(() => {
 </script>
 
 <template>
-  <B24Drawer direction="right" inset>
+  <B24Modal title="Выбор сотрудников">
     <B24Button
       :label="`Выбрано сотрудников: ${selectedCount}`"
       color="air-secondary-accent-1"
       size="md"
     />
 
-    <template #content>
-      <div class="min-w-96 space-y-4 p-4">
+    <template #body>
+      <div class="min-w-96 space-y-4">
         <p class="text-sm font-medium">Сотрудники</p>
         <B24Checkbox v-model="selectAll" label="Выбрать все" />
         <B24CheckboxGroup
@@ -48,5 +48,5 @@ onMounted(() => {
         <p v-if="isLoading" class="text-sm text-gray-500">Загрузка...</p>
       </div>
     </template>
-  </B24Drawer>
+  </B24Modal>
 </template>
