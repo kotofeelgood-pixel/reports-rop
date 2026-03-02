@@ -1,23 +1,11 @@
-# Правильные MIME типы для JavaScript и статики
-<IfModule mod_mime.c>
-  AddType application/javascript .js
-  AddType application/javascript .mjs
-  AddType text/css .css
-  AddType image/svg+xml .svg
-  AddType image/x-icon .ico
-</IfModule>
-
 <IfModule mod_rewrite.c>
   RewriteEngine On
   RewriteBase /calls/
   
-  # Не перенаправлять запросы к статическим файлам (сервер отдаст с правильным MIME)
-  RewriteRule \.(js|mjs|css|ico|woff2?|ttf|svg|map)$ - [L]
-  
-  # Если запрашивается существующий файл или директория — отдаем как есть
+  # Если запрашивается файл или директория, отдаем как есть
   RewriteCond %{REQUEST_FILENAME} !-f
   RewriteCond %{REQUEST_FILENAME} !-d
   
-  # Остальное — SPA: отдаем index.html
+  # Все остальные запросы перенаправляем на index.html
   RewriteRule ^(.*)$ index.html [L,QSA]
 </IfModule>
