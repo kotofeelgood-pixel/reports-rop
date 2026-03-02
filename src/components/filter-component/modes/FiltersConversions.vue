@@ -11,8 +11,8 @@ const { selectedDealDirections } = useReportFiltersStoreRefs()
 </script>
 
 <template>
-  <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
-    <FilterUsersPeriod />
-    <FilterDealDirections v-model="selectedDealDirections" />
+  <div class="flex flex-wrap gap-4">
+    <FilterUsersPeriod class="grow" />
+    <FilterDealDirections v-model="selectedDealDirections" class="grow" />
   </div>
 </template>

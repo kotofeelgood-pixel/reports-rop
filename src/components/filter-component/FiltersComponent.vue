@@ -16,7 +16,7 @@ const ModeFilters = computed(() => REPORT_MODE_FILTERS[reportMode.value])
       <FiltersComponentHead />
       <div class="flex gap-4">
         <ReportModeSelector class="max-w-[400px] flex-shrink-0 w-full" />
-        <div class="min-w-0">
+        <div class="min-w-0 w-full">
           <component :is="ModeFilters" />
         </div>
       </div>

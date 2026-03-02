@@ -14,7 +14,7 @@ const { touchesMonths, considerResponsible } = storeToRefs(useReportFiltersStore
 </script>
 
 <template>
-  <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+  <div class="flex flex-wrap gap-4">
     <FiltersColumn title="2. Пользователи / период">
       <div class="space-y-4">
         <FilterUsersSelect />

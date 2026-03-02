@@ -7,7 +7,7 @@ import FilterUsersPeriod from '../blocks/FilterUsersPeriod.vue'
 </script>
 
 <template>
-  <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
-    <FilterUsersPeriod />
+  <div class="flex flex-wrap gap-4">
+    <FilterUsersPeriod class="grow" />
   </div>
 </template>

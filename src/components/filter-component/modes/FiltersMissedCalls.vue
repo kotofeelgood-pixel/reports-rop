@@ -8,8 +8,8 @@ import FilterMissedCallsSettings from '../blocks/FilterMissedCallsSettings.vue'
 </script>
 
 <template>
-  <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
-    <FilterUsersPeriod />
-    <FilterMissedCallsSettings />
+  <div class="flex flex-wrap gap-4">
+    <FilterUsersPeriod class="grow" />
+    <FilterMissedCallsSettings class="grow" />
   </div>
 </template>
