@@ -11,9 +11,7 @@ const { selectedUserIds } = storeToRefs(reportFilters)
 const { users, isLoading } = storeToRefs(usersStore)
 
 const selectedCount = computed(() => selectedUserIds.value?.length ?? 0)
-const userItems = computed(() =>
-  users.value.map((u) => ({ value: u.id, label: u.name }))
-)
+const userItems = computed(() => users.value.map((u) => ({ value: u.id, label: u.name })))
 
 const selectAll = computed({
   get: () => users.value.length > 0 && selectedUserIds.value.length === users.value.length,
@@ -28,7 +26,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <B24Drawer direction="right">
+  <B24Drawer direction="right" inset>
     <B24Button
       :label="`Выбрано сотрудников: ${selectedCount}`"
       color="air-secondary-accent-1"
