@@ -24,7 +24,7 @@ const jitiPlugin = (): Plugin => {
 
 // https://vite.dev/config/
 export default defineConfig({
-  base: '/calls/',
+  base: '/reports-rop/',
   plugins: [
     vue(),
     jitiPlugin(),
