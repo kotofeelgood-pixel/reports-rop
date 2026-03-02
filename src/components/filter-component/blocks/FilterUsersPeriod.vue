@@ -4,10 +4,12 @@ import { storeToRefs } from 'pinia'
 import { computed } from 'vue'
 import { useReportSettingsStore } from '@/stores/reportSettings'
 import { useReportFiltersStore } from '@/stores/reportFilters'
+import { useBitrixUserSelector } from '@/composables/useBitrixUserSelector'
 import FiltersColumn from '../FiltersColumn.vue'
 
 const { dateValue } = storeToRefs(useReportSettingsStore())
 const { selectedUserIds } = storeToRefs(useReportFiltersStore())
+const { openUserSelector } = useBitrixUserSelector()
 const selectedCount = computed(() => selectedUserIds.value?.length ?? 0)
 </script>
 
@@ -18,6 +20,7 @@ const selectedCount = computed(() => selectedUserIds.value?.length ?? 0)
         :label="`Выбрано сотрудников: ${selectedCount}`"
         color="air-secondary-accent-1"
         size="md"
+        @click="openUserSelector"
       />
       <div>
         <p class="mb-2 text-sm font-medium">Отчётный период:</p>
