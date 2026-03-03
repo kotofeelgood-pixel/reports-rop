@@ -5,6 +5,7 @@ import { useReportFiltersStore } from '@/stores/reportFilters'
 import FiltersColumn from '../FiltersColumn.vue'
 
 const {
+  reportMode,
   hideCallsSection,
   hideLeadsSection,
   hideDealsSection,
@@ -24,7 +25,7 @@ const {
         <B24InputNumber v-model="minCallDurationSeconds" class="w-20" />
         <span class="text-sm">секунд</span>
       </div>
-      <div>
+      <div v-if="reportMode !== 'sales_department'">
         <p class="mb-1 text-sm font-medium">Поле для группировки:</p>
         <B24SelectMenu
           v-model="groupingField"
