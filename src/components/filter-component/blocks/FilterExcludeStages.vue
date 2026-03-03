@@ -50,6 +50,7 @@ const removeStage = (code: string) => {
         :items="stageItems"
         value-key="value"
         label-key="label"
+        :b24ui="{ value: 'hidden' }"
         placeholder="- Новая"
       />
     </div>
