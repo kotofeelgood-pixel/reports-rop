@@ -1,6 +1,8 @@
 <!-- Блок «2. Пользователи / период» + период группировки (для когортных отчётов). -->
 <script setup lang="ts">
-import { watch } from 'vue'
+import { shallowRef, watch } from 'vue'
+import { CalendarDate, DateFormatter, getLocalTimeZone } from '@internationalized/date'
+import Calendar1Icon from '@bitrix24/b24icons-vue/main/Calendar1Icon'
 import { storeToRefs } from 'pinia'
 import { useReportSettingsStore } from '@/stores/reportSettings'
 import FiltersColumn from '../FiltersColumn.vue'
@@ -9,67 +11,25 @@ import FilterUsersSelect from './FilterUsersSelect.vue'
 
 const { dateValue } = storeToRefs(useReportSettingsStore())
 
-const startDate = defineModel<any>('start')
-const endDate = defineModel<any>('end')
-
-const toComparable = (value: unknown): number | null => {
-  if (!value) return null
-
-  if (typeof value === 'string') {
-    const match = value.match(/^(\d{4})-(\d{2})-(\d{2})$/)
-    if (!match) return null
-    const [, y, m, d] = match
-    return Number(y) * 10000 + Number(m) * 100 + Number(d)
-  }
-
-  if (typeof value === 'object') {
-    const anyValue = value as any
-
-    // DateValue из @internationalized/date
-    if (typeof anyValue.toDate === 'function') {
-      try {
-        const jsDate: Date = anyValue.toDate('UTC')
-        const y = jsDate.getUTCFullYear()
-        const m = jsDate.getUTCMonth() + 1
-        const d = jsDate.getUTCDate()
-        return y * 10000 + m * 100 + d
-      } catch {
-        // ignore
-      }
-    }
-
-    const v = value as { year?: number; month?: number; day?: number }
-    if (typeof v.year === 'number' && typeof v.month === 'number' && typeof v.day === 'number') {
-      return v.year * 10000 + v.month * 100 + v.day
-    }
-  }
-
-  return null
-}
+const modelValue = shallowRef({
+  start: dateValue.value.start as CalendarDate | null,
+  end: dateValue.value.end as CalendarDate | null,
+})
 
 watch(
-  dateValue,
+  modelValue,
   (value) => {
-    startDate.value = value.start as any
-    endDate.value = value.end as any
-  },
-  { immediate: true, deep: true }
-)
-
-watch(
-  [startDate, endDate],
-  ([start, end]) => {
-    const startKey = toComparable(start)
-    const endKey = toComparable(end)
-
-    if (startKey !== null && endKey !== null && endKey < startKey) {
-      end = start
-      endDate.value = start
+    dateValue.value = {
+      start: value.start as CalendarDate | null,
+      end: value.end as CalendarDate | null,
     }
-
-    dateValue.value = { ...dateValue.value, start, end }
-  }
+  },
+  { deep: true },
 )
+
+const df = new DateFormatter('ru-RU', {
+  dateStyle: 'medium',
+})
 </script>
 
 <template>
@@ -78,11 +38,32 @@ watch(
       <FilterUsersSelect />
       <div>
         <p class="mb-2 text-sm font-medium">Отчётный период:</p>
-        <div class="flex items-center gap-2">
-          <B24InputDate v-model="startDate" />
-          <span class="text-sm text-gray-500">—</span>
-          <B24InputDate v-model="endDate" />
-        </div>
+
+        <B24Popover>
+          <B24Button :icon="Calendar1Icon">
+            <template v-if="modelValue.start">
+              <template v-if="modelValue.end">
+                {{ df.format(modelValue.start.toDate(getLocalTimeZone())) }} -
+                {{ df.format(modelValue.end.toDate(getLocalTimeZone())) }}
+              </template>
+
+              <template v-else>
+                {{ df.format(modelValue.start.toDate(getLocalTimeZone())) }}
+              </template>
+            </template>
+            <template v-else> Выбрать период </template>
+          </B24Button>
+
+          <template #content>
+            <B24Calendar
+              v-model="modelValue"
+              class="p-2"
+              :number-of-months="2"
+              locale="ru-RU"
+              range
+            />
+          </template>
+        </B24Popover>
       </div>
       <FilterGroupingPeriod />
     </div>
