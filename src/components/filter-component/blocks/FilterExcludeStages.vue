@@ -4,6 +4,7 @@ import { computed } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useReportFiltersStore } from '@/stores/reportFilters'
 import { useDealStageOptions } from '@/composables/useDealStageOptions'
+import Expand1Icon from '@bitrix24/b24icons-vue/actions/Expand1Icon'
 import FiltersColumn from '../FiltersColumn.vue'
 
 const { excludedStages } = storeToRefs(useReportFiltersStore())
@@ -61,6 +62,7 @@ const removeStage = (code: string) => {
         label-key="label"
         :b24ui="{ value: 'hidden' }"
         placeholder="- Новая"
+        :trailing-icon="Expand1Icon"
       />
     </div>
   </FiltersColumn>
