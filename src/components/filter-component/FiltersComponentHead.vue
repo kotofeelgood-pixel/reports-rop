@@ -1,5 +1,8 @@
 <script setup lang="ts">
 import { ref } from 'vue'
+import { useRouter } from 'vue-router'
+
+const router = useRouter()
 
 const toggleFilters = ref({
   isOpen: false,
@@ -9,6 +12,10 @@ const toggleFilters = ref({
 const toggleFiltersHandler = () => {
   toggleFilters.value.isOpen = !toggleFilters.value.isOpen
   toggleFilters.value.label = toggleFilters.value.isOpen ? 'Свернуть фильтры' : 'Развернуть фильтры'
+}
+
+const openDocumentation = () => {
+  router.push({ name: 'documentation' })
 }
 </script>
 
@@ -24,6 +31,7 @@ const toggleFiltersHandler = () => {
           label="Инструкция по работе с отчетом"
           size="xs"
           color="air-secondary-accent-1"
+          @click="openDocumentation"
         />
       </div>
       <div>

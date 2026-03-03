@@ -11,6 +11,10 @@ const items: NavigationMenuItem[] = [
   {
     label: 'Отчеты',
   },
+  {
+    label: 'Документация',
+    to: '/documentation',
+  },
 ]
 
 const feedbackForm = ref({
