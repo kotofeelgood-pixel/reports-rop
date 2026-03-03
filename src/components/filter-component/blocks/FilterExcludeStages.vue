@@ -9,8 +9,15 @@ import FiltersColumn from '../FiltersColumn.vue'
 const { excludedStages } = storeToRefs(useReportFiltersStore())
 const { items: stageItems, stageLookup } = useDealStageOptions()
 
+const selectedCodes = computed<string[]>(() => {
+  const raw = excludedStages.value as unknown
+  if (Array.isArray(raw)) return raw as string[]
+  if (raw == null || raw === '') return []
+  return [String(raw)]
+})
+
 const selectedStageDisplay = computed(() =>
-  excludedStages.value
+  selectedCodes.value
     .map((code) => {
       const info = stageLookup.value[code]
       if (!info) return null
@@ -24,7 +31,8 @@ const selectedStageDisplay = computed(() =>
 )
 
 const removeStage = (code: string) => {
-  excludedStages.value = excludedStages.value.filter((v) => v !== code)
+  const current = selectedCodes.value
+  excludedStages.value = current.filter((v) => v !== code) as any
 }
 </script>
 
