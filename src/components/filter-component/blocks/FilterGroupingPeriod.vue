@@ -7,6 +7,7 @@ const { groupingPeriod } = storeToRefs(useReportFiltersStore())
 
 const options = [
   { value: 'days', label: 'Дни' },
+  { value: 'weeks', label: 'Недели' },
   { value: 'months', label: 'Месяцы' },
 ]
 </script>
@@ -19,6 +20,7 @@ const options = [
       :items="options"
       value-key="value"
       label-key="label"
+      :search-input="false"
     />
   </div>
 </template>
