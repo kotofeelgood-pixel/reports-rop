@@ -8,6 +8,11 @@ import { useReportSettingsStore } from '@/stores/reportSettings'
 import FiltersColumn from '../FiltersColumn.vue'
 import FilterUsersSelect from './FilterUsersSelect.vue'
 
+const props = defineProps<{
+  hideUsersSelect?: boolean
+}>()
+const hideUsersSelect = props.hideUsersSelect ?? false
+
 const { dateValue } = storeToRefs(useReportSettingsStore())
 
 const modelValue = shallowRef({
@@ -34,7 +39,7 @@ const df = new DateFormatter('ru-RU', {
 <template>
   <FiltersColumn title="2. Пользователи / период">
     <div class="">
-      <FilterUsersSelect class="mb-4" />
+      <FilterUsersSelect v-if="!hideUsersSelect" class="mb-4" />
 
       <div>
         <p class="mb-2 text-sm font-medium">Отчётный период:</p>
