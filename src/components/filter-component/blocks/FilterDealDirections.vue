@@ -4,6 +4,14 @@ import { computed, onMounted, ref } from 'vue'
 import { getDealCategories } from '@/api/routes/crm'
 import FiltersColumn from '../FiltersColumn.vue'
 
+const props = defineProps<{
+  single?: boolean
+  hideSelectAll?: boolean
+}>()
+
+const isSingle = computed(() => props.single === true)
+const showSelectAll = computed(() => !isSingle.value && props.hideSelectAll !== true)
+
 const model = defineModel<string[]>({ default: () => [] })
 
 const categories = ref<{ id: number; name: string }[]>([])
@@ -21,8 +29,9 @@ onMounted(async () => {
 })
 
 const dealItems = computed(() =>
-  categories.value.map((c) => ({ value: String(c.id), label: c.name }))
+  categories.value.map((c) => ({ value: String(c.id), label: c.name })),
 )
+
 const selectAll = computed({
   get: () =>
     categories.value.length > 0 && model.value.length === categories.value.length,
@@ -30,15 +39,26 @@ const selectAll = computed({
     model.value = v ? categories.value.map((c) => String(c.id)) : []
   },
 })
+
+const handleChange = (values: string[] | string) => {
+  const arr = Array.isArray(values) ? values : [values]
+  if (!isSingle.value) {
+    model.value = arr
+  } else {
+    const last = arr[arr.length - 1]
+    model.value = last ? [last] : []
+  }
+}
 </script>
 
 <template>
   <FiltersColumn title="3. Выберите направления сделок">
     <div class="space-y-2">
-      <B24Checkbox v-model="selectAll" label="Выбрать все" />
+      <B24Checkbox v-if="showSelectAll" v-model="selectAll" label="Выбрать все" />
       <B24CheckboxGroup
         v-if="!loading"
-        v-model="model"
+        :model-value="model"
+        @update:model-value="handleChange"
         :items="dealItems"
         value-key="value"
         label-key="label"
