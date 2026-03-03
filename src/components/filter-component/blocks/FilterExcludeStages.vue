@@ -53,6 +53,7 @@ const removeStage = (code: string) => {
       </div>
 
       <B24SelectMenu
+        virtualize
         v-model="excludedStages"
         multiple
         :items="stageItems"

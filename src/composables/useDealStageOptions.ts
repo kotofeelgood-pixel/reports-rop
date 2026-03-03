@@ -1,15 +1,10 @@
 import { onMounted, ref } from 'vue'
+import type { SelectMenuItem } from '@bitrix24/b24ui-nuxt'
 import { getDealCategories } from '@/api/routes/crm'
 import { crmStatusList, type CrmStatus } from '@/api/crm'
 
-type SelectItem = {
-  value: string
-  label: string
-  disabled?: boolean
-}
-
 export const useDealStageOptions = () => {
-  const items = ref<SelectItem[]>([])
+  const items = ref<SelectMenuItem[]>([])
   const loading = ref(false)
   const stageLookup = ref<Record<string, { category: string; label: string }>>({})
 
@@ -26,14 +21,16 @@ export const useDealStageOptions = () => {
         }),
       )
 
-      const result: SelectItem[] = []
+      const result: SelectMenuItem[] = []
       const lookup: Record<string, { category: string; label: string }> = {}
 
-      for (const { category, statuses } of statusesByCategory) {
+      statusesByCategory.forEach(({ category, statuses }, index) => {
+        const categoryName = String(category.name ?? '')
+
+        // Заголовок группы: название воронки
         result.push({
-          value: `category-${category.id}`,
-          label: `Воронка: ${category.name}`,
-          disabled: true,
+          type: 'label',
+          label: categoryName,
         })
 
         const sorted = [...statuses].sort((a: CrmStatus, b: CrmStatus) => {
@@ -55,11 +52,18 @@ export const useDealStageOptions = () => {
           })
 
           lookup[code] = {
-            category: String(category.name ?? ''),
+            category: categoryName,
             label,
           }
         }
-      }
+
+        // Сепаратор между воронками (кроме последней)
+        if (index < statusesByCategory.length - 1) {
+          result.push({
+            type: 'separator',
+          })
+        }
+      })
 
       items.value = result
       stageLookup.value = lookup
