@@ -89,14 +89,6 @@ const endDate = computed({
     <FiltersColumn title="2. Пользователи / период">
       <div class="space-y-4">
         <FilterUsersSelect />
-        <div>
-          <p class="mb-2 text-sm font-medium">Отчётный период:</p>
-          <div class="flex items-center gap-2">
-            <B24InputDate v-model="startDate" />
-            <span class="text-sm text-gray-500">—</span>
-            <B24InputDate v-model="endDate" />
-          </div>
-        </div>
         <div class="flex items-center gap-2">
           <span class="text-sm">Касания за:</span>
           <B24InputNumber v-model="touchesMonths" class="w-24" />
