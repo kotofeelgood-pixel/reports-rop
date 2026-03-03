@@ -60,7 +60,7 @@ const removeStage = (code: string) => {
         :items="stageItems"
         value-key="value"
         label-key="label"
-        class="w-48"
+        class="w-[350px]"
         :b24ui="{ value: 'hidden' }"
         placeholder="- Новая"
         :trailing-icon="Expand1Icon"
