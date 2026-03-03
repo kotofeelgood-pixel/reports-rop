@@ -14,6 +14,7 @@ const props = defineProps<{
 }>()
 const hideUsersSelect = props.hideUsersSelect ?? false
 const calendarMonths = props.calendarMonths ?? 2
+const hidePeriod = (props as { hidePeriod?: boolean }).hidePeriod ?? false
 
 const { dateValue } = storeToRefs(useReportSettingsStore())
 
@@ -43,7 +44,7 @@ const df = new DateFormatter('ru-RU', {
     <div class="">
       <FilterUsersSelect v-if="!hideUsersSelect" class="mb-4" />
 
-      <div>
+      <div v-if="!hidePeriod">
         <p class="mb-2 text-sm font-medium">Отчётный период:</p>
 
         <B24Popover>

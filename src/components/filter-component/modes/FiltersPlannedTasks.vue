@@ -8,6 +8,6 @@ import FilterUsersPeriod from '../blocks/FilterUsersPeriod.vue'
 
 <template>
   <div class="flex flex-wrap gap-4">
-    <FilterUsersPeriod class="grow" />
+    <FilterUsersPeriod :hide-period="true" class="grow" />
   </div>
 </template>
