@@ -33,7 +33,7 @@ const selectedStageDisplay = computed(() =>
 
 const removeStage = (code: string) => {
   const current = selectedCodes.value
-  excludedStages.value = current.filter((v) => v !== code) as any
+  excludedStages.value = current.filter((v) => v !== code)
 }
 </script>
 
