@@ -12,7 +12,7 @@ const { selectedDealDirections } = useReportFiltersStoreRefs()
 
 <template>
   <div class="flex flex-wrap gap-4">
-    <FilterUsersPeriod class="grow" />
+    <FilterUsersPeriod :calendar-months="1" class="grow" />
     <FilterDealDirections v-model="selectedDealDirections" class="grow" />
   </div>
 </template>

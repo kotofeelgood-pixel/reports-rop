@@ -10,8 +10,10 @@ import FilterUsersSelect from './FilterUsersSelect.vue'
 
 const props = defineProps<{
   hideUsersSelect?: boolean
+  calendarMonths?: number
 }>()
 const hideUsersSelect = props.hideUsersSelect ?? false
+const calendarMonths = props.calendarMonths ?? 2
 
 const { dateValue } = storeToRefs(useReportSettingsStore())
 
@@ -63,7 +65,7 @@ const df = new DateFormatter('ru-RU', {
             <B24Calendar
               v-model="modelValue"
               class="p-2"
-              :number-of-months="2"
+              :number-of-months="calendarMonths"
               locale="ru-RU"
               range
             />
