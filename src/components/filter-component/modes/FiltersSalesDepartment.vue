@@ -26,12 +26,7 @@ const handleMakeReport = () => {
     </div>
 
     <div class="flex justify-end pt-2">
-      <B24Button
-        label="Сделать отчёт"
-        color="air-primary"
-        size="md"
-        @click="handleMakeReport"
-      />
+      <B24Button label="Сделать отчёт" color="air-primary" size="md" @click="handleMakeReport" />
     </div>
   </div>
 </template>
