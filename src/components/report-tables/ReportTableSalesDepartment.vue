@@ -10,12 +10,27 @@ import { fetchSalesDepartmentCounters, type SalesDepartmentCounters } from '@/ap
 import { useUsersStore, useUsersStoreRefs } from '@/stores/users'
 
 const { dateValue } = useReportSettingsStoreRefs()
-const { selectedUserIds, refreshToken } = useReportFiltersStoreRefs()
+const { selectedUserIds, selectedDealDirections, minCallDurationSeconds, refreshToken } = useReportFiltersStoreRefs()
 const { users } = useUsersStoreRefs()
 const usersStore = useUsersStore()
 
 const rows = ref<SalesDepartmentCounters[]>([])
 const isLoading = ref(false)
+
+const formatDuration = (seconds: number): string => {
+  const total = Math.max(0, Math.round(Number(seconds || 0)))
+  const m = Math.floor(total / 60)
+  const s = total % 60
+  return `${m}м. ${s}с.`
+}
+
+const formatPercent = (value: number): string => `${Number(value || 0).toFixed(2)}%`
+
+const toCategoryIds = (value: string[]): number[] => {
+  return value
+    .map((v) => Number(v))
+    .filter((n) => Number.isFinite(n))
+}
 
 const formatDate = (value: any): string | null => {
   if (!value) return null
@@ -62,6 +77,7 @@ const loadData = async () => {
   }
 
   const userIds = selectedUserIds.value.length ? selectedUserIds.value : ['812']
+  const categoryIds = toCategoryIds(selectedDealDirections.value)
 
   isLoading.value = true
   try {
@@ -72,6 +88,8 @@ const loadData = async () => {
         userId,
         dateStart: start,
         dateEnd: end,
+        categoryIds,
+        minCallDurationSeconds: minCallDurationSeconds.value,
       })
       results.push(counters)
     }
@@ -85,6 +103,16 @@ const loadData = async () => {
 const totals = computed(() => {
   return rows.value.reduce(
     (acc, row) => {
+      acc.incomingMissed += row.incomingMissed
+      acc.incomingAnswered += row.incomingAnswered
+      acc.incomingEffective += row.incomingEffective
+      acc.incomingDurationSec += row.incomingDurationSec
+      acc.incomingEffectiveDurationSec += row.incomingEffectiveDurationSec
+      acc.outgoingMissed += row.outgoingMissed
+      acc.outgoingAnswered += row.outgoingAnswered
+      acc.outgoingEffective += row.outgoingEffective
+      acc.outgoingDurationSec += row.outgoingDurationSec
+      acc.outgoingEffectiveDurationSec += row.outgoingEffectiveDurationSec
       acc.leadsFromPrevious += row.leadsFromPrevious
       acc.leadsNew += row.leadsNew
       acc.leadsInWorkAtStart += row.leadsInWorkAtStart
@@ -97,6 +125,16 @@ const totals = computed(() => {
       return acc
     },
     {
+      incomingMissed: 0,
+      incomingAnswered: 0,
+      incomingEffective: 0,
+      incomingDurationSec: 0,
+      incomingEffectiveDurationSec: 0,
+      outgoingMissed: 0,
+      outgoingAnswered: 0,
+      outgoingEffective: 0,
+      outgoingDurationSec: 0,
+      outgoingEffectiveDurationSec: 0,
       leadsFromPrevious: 0,
       leadsNew: 0,
       leadsInWorkAtStart: 0,
@@ -109,6 +147,30 @@ const totals = computed(() => {
     },
   )
 })
+
+const totalsIncomingRate = computed(() =>
+  totals.value.incomingAnswered
+    ? (totals.value.incomingEffective / totals.value.incomingAnswered) * 100
+    : 0,
+)
+
+const totalsOutgoingRate = computed(() =>
+  totals.value.outgoingAnswered
+    ? (totals.value.outgoingEffective / totals.value.outgoingAnswered) * 100
+    : 0,
+)
+
+const totalsIncomingAvgDuration = computed(() =>
+  totals.value.incomingAnswered
+    ? totals.value.incomingDurationSec / totals.value.incomingAnswered
+    : 0,
+)
+
+const totalsOutgoingAvgDuration = computed(() =>
+  totals.value.outgoingAnswered
+    ? totals.value.outgoingDurationSec / totals.value.outgoingAnswered
+    : 0,
+)
 
 const getUserNameById = (id: string): string => {
   const user = users.value.find((u) => u.id === id)
@@ -232,63 +294,69 @@ watch(
           </TCell>
 
           <!-- Звонки входящие — пока без фактических расчётов -->
-          <TCell :title="`${getUserNameById(row.userId)} - Пропущенные звонки`"> 0 </TCell>
-          <TCell :title="`${getUserNameById(row.userId)} - Успешные звонки за период`"> 0 </TCell>
+          <TCell :title="`${getUserNameById(row.userId)} - Пропущенные звонки`">
+            {{ row.incomingMissed }}
+          </TCell>
+          <TCell :title="`${getUserNameById(row.userId)} - Успешные звонки за период`">
+            {{ row.incomingAnswered }}
+          </TCell>
           <TCell
             :title="`${getUserNameById(row.userId)} - Успешные звонки за период, с длительностью больше фильтра Результативные звонки`"
           >
-            0
+            {{ row.incomingEffective }}
           </TCell>
           <TCell :title="`${getUserNameById(row.userId)} - Результативных от успешных`">
-            0%
+            {{ formatPercent(row.incomingEffectiveRate) }}
           </TCell>
           <TCell
             :title="`${getUserNameById(row.userId)} - Сумма времени всех входящих вызовов`"
             data-order="0"
           >
-            0
+            {{ formatDuration(row.incomingDurationSec) }}
           </TCell>
           <TCell
             :title="`${getUserNameById(row.userId)} - Сумма времени всех результативных входящих вызовов`"
             data-order="0"
           >
-            0
+            {{ formatDuration(row.incomingEffectiveDurationSec) }}
           </TCell>
           <TCell
             :title="`${getUserNameById(row.userId)} - Средняя длительность всех успешных входящих вызовов`"
             data-order="0"
           >
-            0
+            {{ formatDuration(row.incomingAvgDurationSec) }}
           </TCell>
 
           <!-- Звонки исходящие — пока без фактических расчётов -->
-          <TCell :title="`${getUserNameById(row.userId)} - Недозвон`"> 0 </TCell>
+          <TCell :title="`${getUserNameById(row.userId)} - Недозвон`">
+            {{ row.outgoingMissed }}
+          </TCell>
           <TCell
             :title="`${getUserNameById(row.userId)} - Успешные исходящие звонки за период`"
           >
-            0
+            {{ row.outgoingAnswered }}
           </TCell>
           <TCell
             :title="`${getUserNameById(row.userId)} - Успешные звонки за период, с длительностью больше фильтра Результативные звонки`"
           >
-            0
+            {{ row.outgoingEffective }}
           </TCell>
           <TCell :title="`${getUserNameById(row.userId)} - Результативных от успешных`">
-            0%
+            {{ formatPercent(row.outgoingEffectiveRate) }}
           </TCell>
           <TCell :title="`${getUserNameById(row.userId)} - Сумма времени всех исходящих вызовов`">
-            0
+            {{ formatDuration(row.outgoingDurationSec) }}
           </TCell>
           <TCell
             :title="`${getUserNameById(row.userId)} - Сумма времени всех результативных исходящих вызовов`"
             data-order="0"
           >
-            0
+            {{ formatDuration(row.outgoingEffectiveDurationSec) }}
           </TCell>
           <TCell
             :title="`${getUserNameById(row.userId)} - Средняя длительность всех успешных исходящих вызовов`"
           >
-            0
+            {{ formatDuration(row.outgoingAvgDurationSec) }}
           </TCell>
 
           <!-- Лиды -->
@@ -409,32 +477,52 @@ watch(
       <tfoot>
         <TRow class-name="row0" user-id="0">
           <TCell class="bg-white sticky-first-col"> ИТОГО </TCell>
-          <TCell title="ИТОГО - Пропущенные звонки"> 0 </TCell>
-          <TCell title="ИТОГО - Успешные звонки за период"> 0 </TCell>
+          <TCell title="ИТОГО - Пропущенные звонки">
+            {{ totals.incomingMissed }}
+          </TCell>
+          <TCell title="ИТОГО - Успешные звонки за период">
+            {{ totals.incomingAnswered }}
+          </TCell>
           <TCell
             title="ИТОГО - Успешные звонки за период, с длительностью больше фильтра Результативные звонки"
           >
-            0
+            {{ totals.incomingEffective }}
           </TCell>
-          <TCell title="ИТОГО - Результативных от успешных"> 0.00% </TCell>
-          <TCell title="ИТОГО - Сумма времени всех входящих вызовов"> 0м. 0с. </TCell>
+          <TCell title="ИТОГО - Результативных от успешных">
+            {{ formatPercent(totalsIncomingRate) }}
+          </TCell>
+          <TCell title="ИТОГО - Сумма времени всех входящих вызовов">
+            {{ formatDuration(totals.incomingDurationSec) }}
+          </TCell>
           <TCell title="ИТОГО - Сумма времени всех результативных входящих вызовов">
-            0м. 0с.
+            {{ formatDuration(totals.incomingEffectiveDurationSec) }}
           </TCell>
-          <TCell title="ИТОГО - Средняя длительность всех успешных входящих вызовов"> 0 </TCell>
-          <TCell title="ИТОГО - Недозвон"> 0 </TCell>
-          <TCell title="ИТОГО - Успешные исходящие звонки за период"> 0 </TCell>
+          <TCell title="ИТОГО - Средняя длительность всех успешных входящих вызовов">
+            {{ formatDuration(totalsIncomingAvgDuration) }}
+          </TCell>
+          <TCell title="ИТОГО - Недозвон">
+            {{ totals.outgoingMissed }}
+          </TCell>
+          <TCell title="ИТОГО - Успешные исходящие звонки за период">
+            {{ totals.outgoingAnswered }}
+          </TCell>
           <TCell
             title="ИТОГО - Успешные звонки за период, с длительностью больше фильтра Результативные звонки"
           >
-            0
+            {{ totals.outgoingEffective }}
           </TCell>
-          <TCell title="ИТОГО - Результативных от успешных"> 0.00% </TCell>
-          <TCell title="ИТОГО - Сумма времени всех исходящих вызовов"> 0м. 0с. </TCell>
+          <TCell title="ИТОГО - Результативных от успешных">
+            {{ formatPercent(totalsOutgoingRate) }}
+          </TCell>
+          <TCell title="ИТОГО - Сумма времени всех исходящих вызовов">
+            {{ formatDuration(totals.outgoingDurationSec) }}
+          </TCell>
           <TCell title="ИТОГО - Сумма времени всех результативных исходящих вызовов">
-            0м. 0с.
+            {{ formatDuration(totals.outgoingEffectiveDurationSec) }}
           </TCell>
-          <TCell title="ИТОГО - Средняя длительность всех успешных исходящих вызовов"> 0 </TCell>
+          <TCell title="ИТОГО - Средняя длительность всех успешных исходящих вызовов">
+            {{ formatDuration(totalsOutgoingAvgDuration) }}
+          </TCell>
           <TCell title="ИТОГО - Лиды - Не завершенные с прошлых периодов">
             {{ totals.leadsFromPrevious }}
           </TCell>

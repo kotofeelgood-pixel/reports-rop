@@ -1,5 +1,6 @@
 import { useB24 } from '../composables/useB24'
 import { callMethodPromise } from './core'
+import { telephonyCallList, isIncomingCallType, isOutgoingCallType, isMissedCall } from './calls'
 
 type BitrixListResponse = {
   result?: unknown
@@ -11,6 +12,20 @@ type AnyRecord = Record<string, any>
 
 export type SalesDepartmentCounters = {
   userId: string
+  incomingMissed: number
+  incomingAnswered: number
+  incomingEffective: number
+  incomingEffectiveRate: number
+  incomingDurationSec: number
+  incomingEffectiveDurationSec: number
+  incomingAvgDurationSec: number
+  outgoingMissed: number
+  outgoingAnswered: number
+  outgoingEffective: number
+  outgoingEffectiveRate: number
+  outgoingDurationSec: number
+  outgoingEffectiveDurationSec: number
+  outgoingAvgDurationSec: number
   leadsFromPrevious: number
   leadsNew: number
   leadsInWorkAtStart: number
@@ -39,6 +54,10 @@ export type SalesDepartmentParams = {
    * Набор направлений сделок (CATEGORY_ID), как в примерах из test.md.
    */
   categoryIds?: number[]
+  /**
+   * Порог длительности результативного звонка в секундах.
+   */
+  minCallDurationSeconds?: number
 }
 
 const DEFAULT_CATEGORIES: number[] = [10, 12, 14, 24, 16, 22, 0, 20, 4, 6, 8, 18, 2, 26]
@@ -67,6 +86,11 @@ const buildDateRange = (field: string, start: string, end: string) => ({
   [`<=${field}`]: `${end} 23:59:59`,
 })
 
+const safeRate = (part: number, whole: number): number => {
+  if (!whole) return 0
+  return (part / whole) * 100
+}
+
 /**
  * Выполняет набор CRM‑запросов для «Отчёта по отделу продаж»
  * (режим sales_department) по аналогии с примерами из test.md
@@ -79,6 +103,7 @@ export const fetchSalesDepartmentCounters = async (
   params: SalesDepartmentParams,
 ): Promise<SalesDepartmentCounters> => {
   const b24 = await useB24()
+  const minCallDurationSeconds = Math.max(0, Number(params.minCallDurationSeconds ?? 0))
 
   const categoryIds = params.categoryIds && params.categoryIds.length > 0
     ? params.categoryIds
@@ -91,6 +116,73 @@ export const fetchSalesDepartmentCounters = async (
 
   const dateCreateRange = buildDateRange('DATE_CREATE', params.dateStart, params.dateEnd)
   const closeDateRange = buildDateRange('CLOSEDATE', params.dateStart, params.dateEnd)
+
+  // Звонки (аналог voximplant.statistic.get из test.md)
+  const callRecords = await telephonyCallList({
+    filter: {
+      '>CALL_START_DATE': `${params.dateStart}T00:00:00`,
+      '<CALL_START_DATE': `${params.dateEnd}T23:59:59`,
+      PORTAL_USER_ID: params.userId,
+    },
+    sort: 'ID',
+    order: 'ASC',
+  })
+
+  const incomingAnsweredDurations: number[] = []
+  const incomingEffectiveDurations: number[] = []
+  let incomingMissed = 0
+  let incomingAnswered = 0
+  let incomingEffective = 0
+
+  const outgoingAnsweredDurations: number[] = []
+  const outgoingEffectiveDurations: number[] = []
+  let outgoingMissed = 0
+  let outgoingAnswered = 0
+  let outgoingEffective = 0
+
+  for (const record of callRecords) {
+    const duration = Number((record as AnyRecord).CALL_DURATION ?? 0)
+    const missed = isMissedCall(record as Record<string, unknown>)
+    const callType = (record as AnyRecord).CALL_TYPE
+
+    if (isIncomingCallType(callType)) {
+      if (missed) {
+        incomingMissed += 1
+      } else {
+        incomingAnswered += 1
+        incomingAnsweredDurations.push(Math.max(0, duration))
+        if (duration > minCallDurationSeconds) {
+          incomingEffective += 1
+          incomingEffectiveDurations.push(Math.max(0, duration))
+        }
+      }
+    }
+
+    if (isOutgoingCallType(callType)) {
+      if (missed) {
+        outgoingMissed += 1
+      } else {
+        outgoingAnswered += 1
+        outgoingAnsweredDurations.push(Math.max(0, duration))
+        if (duration > minCallDurationSeconds) {
+          outgoingEffective += 1
+          outgoingEffectiveDurations.push(Math.max(0, duration))
+        }
+      }
+    }
+  }
+
+  const incomingDurationSec = incomingAnsweredDurations.reduce((sum, d) => sum + d, 0)
+  const incomingEffectiveDurationSec = incomingEffectiveDurations.reduce((sum, d) => sum + d, 0)
+  const incomingAvgDurationSec = incomingAnswered
+    ? incomingDurationSec / incomingAnswered
+    : 0
+
+  const outgoingDurationSec = outgoingAnsweredDurations.reduce((sum, d) => sum + d, 0)
+  const outgoingEffectiveDurationSec = outgoingEffectiveDurations.reduce((sum, d) => sum + d, 0)
+  const outgoingAvgDurationSec = outgoingAnswered
+    ? outgoingDurationSec / outgoingAnswered
+    : 0
 
   // Сделки
   const [
@@ -204,6 +296,20 @@ export const fetchSalesDepartmentCounters = async (
 
   const counters: SalesDepartmentCounters = {
     userId: params.userId,
+    incomingMissed,
+    incomingAnswered,
+    incomingEffective,
+    incomingEffectiveRate: safeRate(incomingEffective, incomingAnswered),
+    incomingDurationSec,
+    incomingEffectiveDurationSec,
+    incomingAvgDurationSec,
+    outgoingMissed,
+    outgoingAnswered,
+    outgoingEffective,
+    outgoingEffectiveRate: safeRate(outgoingEffective, outgoingAnswered),
+    outgoingDurationSec,
+    outgoingEffectiveDurationSec,
+    outgoingAvgDurationSec,
     leadsFromPrevious: leadsFromPreviousList.length,
     leadsNew: leadsNewList.length,
     leadsInWorkAtStart: leadsInWorkAtStartList.length,
