@@ -13,6 +13,7 @@ type StoredSettings = {
   excludedDepartment?: string | null
   excludedEmployeeIds?: string[]
   minCallDurationSeconds?: number
+  employeeColors?: Record<string, string>
 }
 
 function loadStored(): StoredSettings | null {
@@ -45,6 +46,7 @@ export const useReportSettingsStore = defineStore('reportSettings', () => {
   const excludedDepartment = ref<string | null>(stored?.excludedDepartment ?? null)
   const excludedEmployeeIds = ref<string[]>(Array.isArray(stored?.excludedEmployeeIds) ? stored.excludedEmployeeIds : [])
   const minCallDurationSeconds = ref(stored?.minCallDurationSeconds ?? 0)
+  const employeeColors = ref<Record<string, string>>(stored?.employeeColors ?? {})
   const dateValue = shallowRef<{ start: CalendarDate | null; end: CalendarDate | null }>({ start: null, end: null })
 
   watch(
@@ -56,6 +58,7 @@ export const useReportSettingsStore = defineStore('reportSettings', () => {
       excludedDepartment,
       excludedEmployeeIds,
       minCallDurationSeconds,
+      employeeColors,
     ],
     () => {
       saveStored({
@@ -66,6 +69,7 @@ export const useReportSettingsStore = defineStore('reportSettings', () => {
         excludedDepartment: excludedDepartment.value,
         excludedEmployeeIds: excludedEmployeeIds.value,
         minCallDurationSeconds: minCallDurationSeconds.value,
+        employeeColors: employeeColors.value,
       })
     },
     { deep: true }
@@ -79,6 +83,7 @@ export const useReportSettingsStore = defineStore('reportSettings', () => {
     excludedDepartment,
     excludedEmployeeIds,
     minCallDurationSeconds,
+    employeeColors,
     dateValue,
   }
 })

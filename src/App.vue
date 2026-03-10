@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { ref } from 'vue'
 import { RouterView } from 'vue-router'
 import type { NavigationMenuItem } from '@bitrix24/b24ui-nuxt'
 import TelegramIcon from '@bitrix24/b24icons-vue/social/TelegramIcon'
@@ -14,8 +13,16 @@ const items: NavigationMenuItem[] = [
     to: '/report',
   },
   {
+    label: 'Таблицы',
+    to: '/report/tables',
+  },
+  {
     label: 'Документация',
     to: '/documentation',
+  },
+  {
+    label: 'Настройки',
+    to: '/settings',
   },
 ]
 

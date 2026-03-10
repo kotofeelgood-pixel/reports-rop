@@ -49,3 +49,13 @@ html.dark .settings-button:active {
   z-index: 999999 !important;
   position: fixed !important;
 }
+
+/* SimpleBar — всегда видимый скроллбар в таблицах */
+[data-simplebar-auto-hide='false'] .simplebar-scrollbar:before {
+  opacity: 0.8;
+  transition: none;
+}
+
+[data-simplebar-auto-hide='false'] .simplebar-track {
+  pointer-events: all;
+}

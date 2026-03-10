@@ -1,3 +1,6 @@
+import 'simplebar/dist/simplebar.min.css'
+import 'simplebar'
+
 import './assets/main.css'
 
 import { createApp } from 'vue'

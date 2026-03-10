@@ -14,6 +14,11 @@ const router = createRouter({
       component: () => import('../views/HomeView.vue'),
     },
     {
+      path: '/report/tables',
+      name: 'report-tables',
+      component: () => import('../views/ReportTablesView.vue'),
+    },
+    {
       path: '/analytics',
       name: 'analytics',
       component: () => import('../views/HomeView.vue'),
@@ -22,6 +27,11 @@ const router = createRouter({
       path: '/documentation',
       name: 'documentation',
       component: () => import('../views/DocumentationView.vue'),
+    },
+    {
+      path: '/settings',
+      name: 'settings',
+      component: () => import('../views/SettingsView.vue'),
     },
   ],
 })
