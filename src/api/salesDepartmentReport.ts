@@ -249,23 +249,9 @@ export const fetchSalesDepartmentCounters = async (
     ASSIGNED_BY_ID: params.userId,
   }
 
-  const [
-    // Лиды, созданные до периода, но закрытые в нём (аналог строки 11 в test.md)
-    leadsFromPreviousList,
-    // Лиды в работе на начало периода (аналог строки 13 в test.md)
-    leadsInWorkAtStartList,
-    // Новые лиды за период (аналог строки 15 в test.md)
-    leadsNewList,
-  ] = await Promise.all([
-    callCrmList(b24, 'crm.lead.list', {
-      filter: {
-        ...commonLeadFilter,
-        [`<DATE_CREATE`]: `${params.dateStart} 00:00:00`,
-        ...buildDateRange('DATE_CLOSED', params.dateStart, params.dateEnd),
-      },
-      order: { ID: 'ASC' },
-      select: ['ID', 'ASSIGNED_BY_ID', 'STATUS_SEMANTIC_ID'],
-    }),
+  const [leadsFromPreviousList, leadsNewList] = await Promise.all([
+    // Лиды из прошлых периодов, которые на конец периода остаются в работе:
+    // созданы до начала периода и статус P.
     callCrmList(b24, 'crm.lead.list', {
       filter: {
         ...commonLeadFilter,
@@ -275,6 +261,7 @@ export const fetchSalesDepartmentCounters = async (
       order: { ID: 'ASC' },
       select: ['ID', 'ASSIGNED_BY_ID', 'STATUS_SEMANTIC_ID'],
     }),
+    // Новые лиды, созданные в период (любого финального статуса).
     callCrmList(b24, 'crm.lead.list', {
       filter: {
         ...commonLeadFilter,
@@ -284,6 +271,15 @@ export const fetchSalesDepartmentCounters = async (
       select: ['ID', 'ASSIGNED_BY_ID', 'STATUS_SEMANTIC_ID'],
     }),
   ])
+
+  const leadsNewOpen = leadsNewList.filter((lead) => {
+    const status = String((lead as AnyRecord).STATUS_SEMANTIC_ID ?? '').trim().toUpperCase()
+    return status === 'P'
+  })
+
+  const leadsFromPrevious = leadsFromPreviousList.length
+  const leadsNew = leadsNewList.length
+  const leadsInWorkTotal = leadsFromPrevious + leadsNewOpen.length
 
   const dealsWon = dealsWonList.length
   const dealsLost = dealsLostList.length
@@ -310,9 +306,9 @@ export const fetchSalesDepartmentCounters = async (
     outgoingDurationSec,
     outgoingEffectiveDurationSec,
     outgoingAvgDurationSec,
-    leadsFromPrevious: leadsFromPreviousList.length,
-    leadsNew: leadsNewList.length,
-    leadsInWorkAtStart: leadsInWorkAtStartList.length,
+    leadsFromPrevious,
+    leadsNew,
+    leadsInWorkAtStart: leadsInWorkTotal,
     dealsFromPrevious: dealsFromPrevious.length,
     dealsNew: dealsNew.length,
     dealsInWorkAtStart: dealsInWorkAtStart.length,

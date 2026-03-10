@@ -39,6 +39,16 @@ function saveStored(data: StoredSettings) {
 export const useReportSettingsStore = defineStore('reportSettings', () => {
   const stored = loadStored()
 
+  const createCurrentMonthRange = () => {
+    const now = new Date()
+    const year = now.getFullYear()
+    const month = now.getMonth() + 1 // CalendarDate uses 1-12
+    const start = new CalendarDate(year, month, 1)
+    const lastDayDate = new Date(year, month, 0)
+    const end = new CalendarDate(year, month, lastDayDate.getDate())
+    return { start, end }
+  }
+
   const chartStartHour = ref(stored?.chartStartHour ?? 0)
   const chartEndHour = ref(stored?.chartEndHour ?? 24)
   const chartType = ref<'line' | 'bar'>(stored?.chartType ?? 'line')
@@ -47,7 +57,11 @@ export const useReportSettingsStore = defineStore('reportSettings', () => {
   const excludedEmployeeIds = ref<string[]>(Array.isArray(stored?.excludedEmployeeIds) ? stored.excludedEmployeeIds : [])
   const minCallDurationSeconds = ref(stored?.minCallDurationSeconds ?? 0)
   const employeeColors = ref<Record<string, string>>(stored?.employeeColors ?? {})
-  const dateValue = shallowRef<{ start: CalendarDate | null; end: CalendarDate | null }>({ start: null, end: null })
+  const initialRange = createCurrentMonthRange()
+  const dateValue = shallowRef<{ start: CalendarDate | null; end: CalendarDate | null }>({
+    start: initialRange.start,
+    end: initialRange.end,
+  })
 
   watch(
     [
