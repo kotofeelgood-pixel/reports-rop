@@ -18,6 +18,7 @@ export const useReportFiltersStore = defineStore('reportFilters', () => {
   const groupingField = ref('UTM_SOURCE')
   const onlySuccessfulCallbacks = ref(false)
   const successfulCallbackMinSeconds = ref(5)
+  const refreshToken = ref(0)
 
   const reportModeLabel = computed(() => {
     const mode = REPORT_MODES.find((m) => m.id === reportMode.value)
@@ -41,6 +42,7 @@ export const useReportFiltersStore = defineStore('reportFilters', () => {
     groupingField,
     onlySuccessfulCallbacks,
     successfulCallbackMinSeconds,
+    refreshToken,
   }
 })
 

@@ -10,7 +10,7 @@ import { fetchSalesDepartmentCounters, type SalesDepartmentCounters } from '@/ap
 import { useUsersStore, useUsersStoreRefs } from '@/stores/users'
 
 const { dateValue } = useReportSettingsStoreRefs()
-const { selectedUserIds } = useReportFiltersStoreRefs()
+const { selectedUserIds, refreshToken } = useReportFiltersStoreRefs()
 const { users } = useUsersStoreRefs()
 const usersStore = useUsersStore()
 
@@ -122,7 +122,12 @@ onMounted(async () => {
 })
 
 watch(
-  () => ({ start: dateValue.value?.start, end: dateValue.value?.end, ids: [...selectedUserIds.value] }),
+  () => ({
+    start: dateValue.value?.start,
+    end: dateValue.value?.end,
+    ids: [...selectedUserIds.value],
+    refresh: refreshToken.value,
+  }),
   () => {
     void loadData()
   },
