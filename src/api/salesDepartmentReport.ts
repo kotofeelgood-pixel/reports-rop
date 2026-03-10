@@ -272,14 +272,11 @@ export const fetchSalesDepartmentCounters = async (
     }),
   ])
 
-  const leadsNewOpen = leadsNewList.filter((lead) => {
-    const status = String((lead as AnyRecord).STATUS_SEMANTIC_ID ?? '').trim().toUpperCase()
-    return status === 'P'
-  })
-
   const leadsFromPrevious = leadsFromPreviousList.length
   const leadsNew = leadsNewList.length
-  const leadsInWorkTotal = leadsFromPrevious + leadsNewOpen.length
+  // В отчёте «В работе» = лиды из прошлого периода + все новые за период,
+  // как в эталонной таблице (178 + 13 = 191).
+  const leadsInWorkTotal = leadsFromPrevious + leadsNew
 
   const dealsWon = dealsWonList.length
   const dealsLost = dealsLostList.length
