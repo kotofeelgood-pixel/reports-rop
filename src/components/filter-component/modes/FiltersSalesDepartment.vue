@@ -3,16 +3,22 @@
   Содержит: пользователи/период, направления сделок, этапы воронки, настройки отчёта.
 -->
 <script setup lang="ts">
+import { useRouter } from 'vue-router'
 import FilterUsersPeriod from '../blocks/FilterUsersPeriod.vue'
 import FilterDealDirections from '../blocks/FilterDealDirections.vue'
 import FilterFunnelStages from '../blocks/FilterFunnelStages.vue'
 import FilterReportSettings from '../blocks/FilterReportSettings.vue'
 import { useReportFiltersStoreRefs } from '@/stores/reportFilters'
 
+const router = useRouter()
+
 const { selectedDealDirections, refreshToken } = useReportFiltersStoreRefs()
 
 const handleMakeReport = () => {
+  // Обновляем токен, чтобы таблица пересчитала данные, если уже открыта.
   refreshToken.value += 1
+  // Переходим на страницу с таблицей отчёта.
+  router.push({ name: 'report-tables' })
 }
 </script>
 
