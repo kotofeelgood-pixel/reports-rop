@@ -4,13 +4,8 @@ import { useReportSettingsStoreRefs } from '@/stores/reportSettings'
 import { useUsersStore, useUsersStoreRefs } from '@/stores/users'
 import { useReportFiltersStoreRefs } from '@/stores/reportFilters'
 
-const {
-  excludedEmployeeIds,
-  employeeColors,
-  chartType,
-  layoutType,
-  minCallDurationSeconds,
-} = useReportSettingsStoreRefs()
+const { excludedEmployeeIds, employeeColors, chartType, layoutType, minCallDurationSeconds } =
+  useReportSettingsStoreRefs()
 
 const { hideCallsSection, hideLeadsSection, hideDealsSection } = useReportFiltersStoreRefs()
 const { users, isLoading } = useUsersStoreRefs()
@@ -51,7 +46,9 @@ const userItems = computed(() =>
 )
 
 const currentColorUser = computed(() =>
-  colorUserId.value ? users.value.find((u) => u.id === colorUserId.value) ?? undefined : undefined,
+  colorUserId.value
+    ? (users.value.find((u) => u.id === colorUserId.value) ?? undefined)
+    : undefined,
 )
 
 const applySavedColor = () => {
@@ -109,11 +106,7 @@ const resetUserColor = () => {
 
             <div>
               <B24Modal title="Исключение сотрудников">
-                <B24Button
-                  label="Настроить исключения"
-                  color="air-secondary-accent-1"
-                  size="md"
-                />
+                <B24Button label="Настроить исключения" color="air-secondary-accent-1" size="md" />
 
                 <template #body>
                   <div class="min-w-96 max-h-[560px] space-y-4">
@@ -222,8 +215,18 @@ const resetUserColor = () => {
                         />
                       </div>
                       <div class="flex gap-2">
-                        <B24Button label="Сбросить" size="xs" variant="outline" @click="resetUserColor" />
-                        <B24Button label="Сохранить" size="xs" color="air-primary" @click="saveUserColor" />
+                        <B24Button
+                          label="Сбросить"
+                          size="xs"
+                          variant="outline"
+                          @click="resetUserColor"
+                        />
+                        <B24Button
+                          label="Сохранить"
+                          size="xs"
+                          color="air-primary"
+                          @click="saveUserColor"
+                        />
                       </div>
                     </div>
                   </div>
