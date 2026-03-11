@@ -311,13 +311,11 @@ export const fetchSalesDepartmentCounters = async (
   }
 
   const [leadsFromPreviousList, leadsNewList] = await Promise.all([
-    // Лиды из прошлых периодов, которые на конец периода остаются в работе:
-    // созданы до начала периода и статус P.
+    // Лиды из прошлых периодов — созданы до начала периода (любой итоговый статус).
     callCrmList(b24, 'crm.lead.list', {
       filter: {
         ...commonLeadFilter,
         [`<DATE_CREATE`]: `${params.dateStart} 00:00:00`,
-        STATUS_SEMANTIC_ID: 'P',
       },
       order: { ID: 'ASC' },
       select: ['ID', 'ASSIGNED_BY_ID', 'STATUS_SEMANTIC_ID'],
