@@ -6,11 +6,15 @@ import TCell from '@/components/t-ui/TCell.vue'
 import TRow from '@/components/t-ui/TRow.vue'
 import { useReportSettingsStoreRefs } from '@/stores/reportSettings'
 import { useReportFiltersStoreRefs } from '@/stores/reportFilters'
-import { fetchSalesDepartmentCounters, type SalesDepartmentCounters } from '@/api/salesDepartmentReport'
+import {
+  fetchSalesDepartmentCounters,
+  type SalesDepartmentCounters,
+} from '@/api/salesDepartmentReport'
 import { useUsersStore, useUsersStoreRefs } from '@/stores/users'
 
 const { dateValue } = useReportSettingsStoreRefs()
-const { selectedUserIds, selectedDealDirections, minCallDurationSeconds, refreshToken } = useReportFiltersStoreRefs()
+const { selectedUserIds, selectedDealDirections, minCallDurationSeconds, refreshToken } =
+  useReportFiltersStoreRefs()
 const { users } = useUsersStoreRefs()
 const usersStore = useUsersStore()
 
@@ -27,9 +31,7 @@ const formatDuration = (seconds: number): string => {
 const formatPercent = (value: number): string => `${Number(value || 0).toFixed(2)}%`
 
 const toCategoryIds = (value: string[]): number[] => {
-  return value
-    .map((v) => Number(v))
-    .filter((n) => Number.isFinite(n))
+  return value.map((v) => Number(v)).filter((n) => Number.isFinite(n))
 }
 
 const formatDate = (value: any): string | null => {
@@ -233,10 +235,10 @@ watch(
       <thead>
         <TRow>
           <TCol title="" :colspan="1" />
-          <TCol title="Звонки входящие" :colspan="7" />
-          <TCol title="Звонки исходящие" :colspan="7" />
-          <TCol title="Лиды" :colspan="16" />
-          <TCol title="Сделки" :colspan="20" />
+          <TCol title="➡📞 Звонки входящие" :colspan="7" />
+          <TCol title="📞➡ Звонки исходящие" :colspan="7" />
+          <TCol title="📥 Лиды" :colspan="16" />
+          <TCol title="💰 Сделки" :colspan="20" />
         </TRow>
         <!-- -------------------Первая линия заголовка -->
         <TRow>
@@ -254,6 +256,7 @@ watch(
           <TCol title="Дозвонился" class="leading-3" font-size="12px" />
           <TCol title="Результативно" class="leading-3" font-size="12px" />
           <TCol title="Процент результативных" class="leading-3" font-size="12px" />
+          <TCol title="Длительность" class="leading-3" font-size="12px" />
           <TCol title="Длительность результативных" class="leading-3" font-size="12px" />
           <TCol title="Средняя длительность" class="leading-3" font-size="12px" />
           <!-- Звонки Лиды -->
@@ -261,22 +264,22 @@ watch(
           <TCol title="Новые" class="leading-3" font-size="12px" />
           <TCol title="В работе" class="leading-3" font-size="12px" />
           <TCol title="С движениями по статусам" class="leading-3" font-size="12px" />
-          <TCol title="Без движения по статусам" class="leading-3" font-size="12px" />
+          <TCol title="Без движений по статусам" class="leading-3" font-size="12px" />
           <TCol title="Брак" class="leading-3" font-size="12px" />
-          <TCol title="Цикл брако" class="leading-3" font-size="12px" />
+          <TCol title="Цикл брак" class="leading-3" font-size="12px" />
           <TCol title="Конвертированные" class="leading-3" font-size="12px" />
           <TCol title="Цикл конверсии" class="leading-3" font-size="12px" />
           <TCol title="Всего обработано" class="leading-3" font-size="12px" />
           <TCol title="Оставил не закрытыми" class="leading-3" font-size="12px" />
           <TCol title="Дней в работе" class="leading-3" font-size="12px" />
-          <TCol title="Общая конверсия" class="leading-3" font-size="12px" />
+          <TCol title="Общ Конв" class="leading-3" font-size="12px" />
           <TCol title="Брак" class="leading-3" font-size="12px" />
           <TCol title="Успех" class="leading-3" font-size="12px" />
           <TCol title="% Успех" class="leading-3" font-size="12px" />
           <!-- Звонки Лиды -->
           <TCol title="С прошлого периода" class="leading-3" font-size="12px" />
-          <TCol title="Новые" class="leading-3" font-size="12px" />
-          <TCol title="В работе" class="leading-3" font-size="12px" />
+          <TCol title="Новые сделки" class="leading-3" font-size="12px" />
+          <TCol title="Всего в работе" class="leading-3" font-size="12px" />
           <TCol title="Потенциал" class="leading-3" font-size="12px" />
           <TCol title="С движениями по стадиям" class="leading-3" font-size="12px" />
           <TCol title="Без движения по стадиям" class="leading-3" font-size="12px" />
@@ -290,7 +293,7 @@ watch(
           <TCol title="Доведено до конца" class="leading-3" font-size="12px" />
           <TCol title="Оставил не закрытыми" class="leading-3" font-size="12px" />
           <TCol title="Длительность не закрытых" class="leading-3" font-size="12px" />
-          <TCol title="Общая конверсия" class="leading-3" font-size="12px" />
+          <TCol title="Общая Конверсия" class="leading-3" font-size="12px" />
           <TCol title="Конверсия в отказ" class="leading-3" font-size="12px" />
           <TCol title="Конверсия в продажу" class="leading-3" font-size="12px" />
           <TCol title="Процент успеха" class="leading-3" font-size="12px" />
@@ -299,17 +302,12 @@ watch(
 
       <tbody>
         <TRow v-if="isLoading">
-          <TCell class="bg-white sticky-first-col" :colspan="48">
+          <TCell class="bg-white sticky-first-col" :colspan="51">
             Загрузка данных по отделу продаж…
           </TCell>
         </TRow>
 
-        <TRow
-          v-for="row in rows"
-          v-else
-          :key="row.userId"
-          :user-id="row.userId"
-        >
+        <TRow v-for="row in rows" v-else :key="row.userId" :user-id="row.userId">
           <TCell class="bg-white sticky-first-col">
             <a
               :href="`//itsolutions.bitrix24.ru/company/personal/user/${row.userId}/`"
@@ -357,9 +355,7 @@ watch(
           <TCell :title="`${getUserNameById(row.userId)} - Недозвон`">
             {{ row.outgoingMissed }}
           </TCell>
-          <TCell
-            :title="`${getUserNameById(row.userId)} - Успешные исходящие звонки за период`"
-          >
+          <TCell :title="`${getUserNameById(row.userId)} - Успешные исходящие звонки за период`">
             {{ row.outgoingAnswered }}
           </TCell>
           <TCell
@@ -386,9 +382,7 @@ watch(
           </TCell>
 
           <!-- Лиды -->
-          <TCell
-            :title="`${getUserNameById(row.userId)} - Лиды - С прошлого периода`"
-          >
+          <TCell :title="`${getUserNameById(row.userId)} - Лиды - С прошлого периода`">
             {{ row.leadsFromPrevious }}
           </TCell>
           <TCell :title="`${getUserNameById(row.userId)} - Лиды - Созданные за период`">
@@ -416,9 +410,7 @@ watch(
             0дн.
           </TCell>
           <TCell :title="`${getUserNameById(row.userId)} - Лиды - Завершённые`"> 0 </TCell>
-          <TCell
-            :title="`${getUserNameById(row.userId)} - Лиды - Не закрытые до 08.02.2026`"
-          >
+          <TCell :title="`${getUserNameById(row.userId)} - Лиды - Не закрытые до 31.03.2026`">
             0
           </TCell>
           <TCell :title="`${getUserNameById(row.userId)} - Среднее время жизни незакрытых лидов`">
@@ -426,7 +418,9 @@ watch(
           </TCell>
           <TCell :title="`${getUserNameById(row.userId)} - Лиды - Конверсия Всего`"> 0.00% </TCell>
           <TCell :title="`${getUserNameById(row.userId)} - Лиды - Конверсия Брак`"> 0.00% </TCell>
-          <TCell :title="`${getUserNameById(row.userId)} - Лиды - Конверсия Успешно`"> 0.00% </TCell>
+          <TCell :title="`${getUserNameById(row.userId)} - Лиды - Конверсия Успешно`">
+            0.00%
+          </TCell>
           <TCell :title="`${getUserNameById(row.userId)} - Лиды - Доля успешных`"> 0.00% </TCell>
 
           <!-- Сделки -->
@@ -473,7 +467,7 @@ watch(
           <TCell :title="`${getUserNameById(row.userId)} - Сделки - Завершённые`">
             {{ row.finishedCount }}
           </TCell>
-          <TCell :title="`${getUserNameById(row.userId)} - Сделки - Не закрытые до 08.02.2026`">
+          <TCell :title="`${getUserNameById(row.userId)} - Сделки - Не закрытые до 31.03.2026`">
             {{ row.notFinishedCount }}
           </TCell>
           <TCell :title="`${getUserNameById(row.userId)} - Среднее время жизни незакрытых сделок`">
@@ -490,21 +484,6 @@ watch(
           </TCell>
           <TCell :title="`${getUserNameById(row.userId)} - Сделки - Доля успешных`">
             {{ formatPercent(row.successShare) }}
-          </TCell>
-          <TCell
-            :title="`${getUserNameById(row.userId)} - Сделки в стадии Общая: - Переговоры в процессе`"
-          >
-            0
-          </TCell>
-          <TCell
-            :title="`${getUserNameById(row.userId)} - Сделки в стадии разработка сайтов: - Новая`"
-          >
-            0
-          </TCell>
-          <TCell
-            :title="`${getUserNameById(row.userId)} - Сделки в стадии разработка сайтов: - В работе`"
-          >
-            0
           </TCell>
         </TRow>
       </tbody>
@@ -573,7 +552,7 @@ watch(
           <TCell title="ИТОГО - Лиды - Рабочие"> 0 </TCell>
           <TCell title="ИТОГО - Среднее время жизни успешных лидов"> 0дн. </TCell>
           <TCell title="ИТОГО - Лиды - Завершённые"> 0 </TCell>
-          <TCell title="ИТОГО - Лиды - Не закрытые до 08.02.2026"> 0 </TCell>
+          <TCell title="ИТОГО - Лиды - Не закрытые до 31.03.2026"> 0 </TCell>
           <TCell title="ИТОГО - Среднее время жизни незакрытых лидов"> 0дн. </TCell>
           <TCell title="ИТОГО - Лиды - Конверсия Всего"> 0.00% </TCell>
           <TCell title="ИТОГО - Лиды - Конверсия Брак"> 0.00% </TCell>
@@ -611,7 +590,7 @@ watch(
           <TCell title="ИТОГО - Сделки - Завершённые">
             {{ totals.finishedCount }}
           </TCell>
-          <TCell title="ИТОГО - Сделки - Не закрытые до 08.02.2026">
+          <TCell title="ИТОГО - Сделки - Не закрытые до 31.03.2026">
             {{ totals.notFinishedCount }}
           </TCell>
           <TCell title="ИТОГО - Среднее время жизни незакрытых сделок">
