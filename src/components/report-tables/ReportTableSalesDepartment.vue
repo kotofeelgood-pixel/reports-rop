@@ -122,6 +122,15 @@ const totals = computed(() => {
       acc.dealsWon += row.dealsWon
       acc.dealsLost += row.dealsLost
       acc.revenue += row.revenue
+      acc.avgCheck += row.avgCheck
+      acc.saleCycleDays += row.saleCycleDays
+      acc.finishedCount += row.finishedCount
+      acc.notFinishedCount += row.notFinishedCount
+      acc.notFinishedAvgDays += row.notFinishedAvgDays
+      acc.totalConversion += row.totalConversion
+      acc.lostConversion += row.lostConversion
+      acc.wonConversion += row.wonConversion
+      acc.successShare += row.successShare
       return acc
     },
     {
@@ -144,6 +153,15 @@ const totals = computed(() => {
       dealsWon: 0,
       dealsLost: 0,
       revenue: 0,
+      avgCheck: 0,
+      saleCycleDays: 0,
+      finishedCount: 0,
+      notFinishedCount: 0,
+      notFinishedAvgDays: 0,
+      totalConversion: 0,
+      lostConversion: 0,
+      wonConversion: 0,
+      successShare: 0,
     },
   )
 })
@@ -170,6 +188,18 @@ const totalsOutgoingAvgDuration = computed(() =>
   totals.value.outgoingAnswered
     ? totals.value.outgoingDurationSec / totals.value.outgoingAnswered
     : 0,
+)
+
+const totalsAvgCheck = computed(() =>
+  rows.value.length ? totals.value.avgCheck / rows.value.length : 0,
+)
+
+const totalsSaleCycleDays = computed(() =>
+  rows.value.length ? totals.value.saleCycleDays / rows.value.length : 0,
+)
+
+const totalsNotFinishedAvgDays = computed(() =>
+  rows.value.length ? totals.value.notFinishedAvgDays / rows.value.length : 0,
 )
 
 const getUserNameById = (id: string): string => {
@@ -206,7 +236,7 @@ watch(
           <TCol title="Звонки входящие" :colspan="7" />
           <TCol title="Звонки исходящие" :colspan="7" />
           <TCol title="Лиды" :colspan="16" />
-          <TCol title="Сделки" :colspan="24" />
+          <TCol title="Сделки" :colspan="20" />
         </TRow>
         <!-- -------------------Первая линия заголовка -->
         <TRow>
@@ -264,10 +294,6 @@ watch(
           <TCol title="Конверсия в отказ" class="leading-3" font-size="12px" />
           <TCol title="Конверсия в продажу" class="leading-3" font-size="12px" />
           <TCol title="Процент успеха" class="leading-3" font-size="12px" />
-          <TCol title="О: -Пвп" class="leading-3" font-size="12px" />
-          <TCol title="рс: -Н" class="leading-3" font-size="12px" />
-          <TCol title="рс: -Вр" class="leading-3" font-size="12px" />
-          <TCol title="рм: -Н" class="leading-3" font-size="12px" />
         </TRow>
       </thead>
 
@@ -438,25 +464,33 @@ watch(
             {{ row.revenue.toFixed(2) }}
           </TCell>
           <TCell :title="`${getUserNameById(row.userId)} - Средний чек (по успешным сделкам)`">
-            0.00
+            {{ row.avgCheck.toFixed(2) }}
           </TCell>
 
           <TCell :title="`${getUserNameById(row.userId)} - Среднее время жизни успешных сделок`">
-            0дн.
+            {{ Math.round(row.saleCycleDays) }}дн.
           </TCell>
-          <TCell :title="`${getUserNameById(row.userId)} - Сделки - Завершённые`"> 0 </TCell>
+          <TCell :title="`${getUserNameById(row.userId)} - Сделки - Завершённые`">
+            {{ row.finishedCount }}
+          </TCell>
           <TCell :title="`${getUserNameById(row.userId)} - Сделки - Не закрытые до 08.02.2026`">
-            0
+            {{ row.notFinishedCount }}
           </TCell>
           <TCell :title="`${getUserNameById(row.userId)} - Среднее время жизни незакрытых сделок`">
-            0дн.
+            {{ Math.round(row.notFinishedAvgDays) }}дн.
           </TCell>
-          <TCell :title="`${getUserNameById(row.userId)} - Сделки - Конверсия Всего`"> 0.00% </TCell>
-          <TCell :title="`${getUserNameById(row.userId)} - Сделки - Конверсия Брак`"> 0.00% </TCell>
+          <TCell :title="`${getUserNameById(row.userId)} - Сделки - Конверсия Всего`">
+            {{ formatPercent(row.totalConversion) }}
+          </TCell>
+          <TCell :title="`${getUserNameById(row.userId)} - Сделки - Конверсия Брак`">
+            {{ formatPercent(row.lostConversion) }}
+          </TCell>
           <TCell :title="`${getUserNameById(row.userId)} - Сделки - Конверсия Успешно`">
-            0.00%
+            {{ formatPercent(row.wonConversion) }}
           </TCell>
-          <TCell :title="`${getUserNameById(row.userId)} - Сделки - Доля успешных`"> 0.00% </TCell>
+          <TCell :title="`${getUserNameById(row.userId)} - Сделки - Доля успешных`">
+            {{ formatPercent(row.successShare) }}
+          </TCell>
           <TCell
             :title="`${getUserNameById(row.userId)} - Сделки в стадии Общая: - Переговоры в процессе`"
           >
@@ -568,18 +602,33 @@ watch(
           <TCell title="ИТОГО - Выручка (сумма по успешным сделкам)">
             {{ totals.revenue.toFixed(2) }}
           </TCell>
-          <TCell title="ИТОГО - Средний чек (по успешным сделкам)"> 0.00 </TCell>
-          <TCell title="ИТОГО - Среднее время жизни успешных сделок"> 0дн. </TCell>
-          <TCell title="ИТОГО - Сделки - Завершённые"> 0 </TCell>
-          <TCell title="ИТОГО - Сделки - Не закрытые до 08.02.2026"> 0 </TCell>
-          <TCell title="ИТОГО - Среднее время жизни незакрытых сделок"> 0дн. </TCell>
-          <TCell title="ИТОГО - Сделки - Конверсия Всего"> 0.00% </TCell>
-          <TCell title="ИТОГО - Сделки - Конверсия Брак"> 0.00% </TCell>
-          <TCell title="ИТОГО - Сделки - Конверсия Успешно"> 0.00% </TCell>
-          <TCell title="ИТОГО - Сделки - Доля успешных"> 0.00% </TCell>
-          <TCell title="ИТОГО - Сделки в стадии Общая: - Переговоры в процессе"> 0 </TCell>
-          <TCell title="ИТОГО - Сделки в стадии разработка сайтов: - Новая"> 0 </TCell>
-          <TCell title="ИТОГО - Сделки в стадии разработка сайтов: - В работе"> 0 </TCell>
+          <TCell title="ИТОГО - Средний чек (по успешным сделкам)">
+            {{ totalsAvgCheck.toFixed(2) }}
+          </TCell>
+          <TCell title="ИТОГО - Среднее время жизни успешных сделок">
+            {{ Math.round(totalsSaleCycleDays) }}дн.
+          </TCell>
+          <TCell title="ИТОГО - Сделки - Завершённые">
+            {{ totals.finishedCount }}
+          </TCell>
+          <TCell title="ИТОГО - Сделки - Не закрытые до 08.02.2026">
+            {{ totals.notFinishedCount }}
+          </TCell>
+          <TCell title="ИТОГО - Среднее время жизни незакрытых сделок">
+            {{ Math.round(totalsNotFinishedAvgDays) }}дн.
+          </TCell>
+          <TCell title="ИТОГО - Сделки - Конверсия Всего">
+            {{ formatPercent(totals.totalConversion / (rows.length || 1)) }}
+          </TCell>
+          <TCell title="ИТОГО - Сделки - Конверсия Брак">
+            {{ formatPercent(totals.lostConversion / (rows.length || 1)) }}
+          </TCell>
+          <TCell title="ИТОГО - Сделки - Конверсия Успешно">
+            {{ formatPercent(totals.wonConversion / (rows.length || 1)) }}
+          </TCell>
+          <TCell title="ИТОГО - Сделки - Доля успешных">
+            {{ formatPercent(totals.successShare / (rows.length || 1)) }}
+          </TCell>
         </TRow>
       </tfoot>
     </table>
@@ -610,6 +659,30 @@ th {
   padding: 4px 8px;
   box-sizing: border-box;
   overflow: hidden;
+}
+
+/* Толстые разделители между группами колонок:
+   Менеджер | Входящие | Исходящие | Лиды | Сделки */
+thead tr:nth-child(1) th:nth-child(2),
+thead tr:nth-child(1) th:nth-child(3),
+thead tr:nth-child(1) th:nth-child(4),
+thead tr:nth-child(1) th:nth-child(5) {
+  border-left: 3px solid #aeb7c2;
+}
+
+thead tr:nth-child(2) th:nth-child(2),
+thead tr:nth-child(2) th:nth-child(9),
+thead tr:nth-child(2) th:nth-child(16),
+thead tr:nth-child(2) th:nth-child(32),
+tbody tr td:nth-child(2),
+tbody tr td:nth-child(9),
+tbody tr td:nth-child(16),
+tbody tr td:nth-child(32),
+tfoot tr td:nth-child(2),
+tfoot tr td:nth-child(9),
+tfoot tr td:nth-child(16),
+tfoot tr td:nth-child(32) {
+  border-left: 3px solid #aeb7c2;
 }
 
 thead tr th:first-child,

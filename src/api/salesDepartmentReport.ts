@@ -35,6 +35,15 @@ export type SalesDepartmentCounters = {
   dealsWon: number
   dealsLost: number
   revenue: number
+  avgCheck: number
+  saleCycleDays: number
+  finishedCount: number
+  notFinishedCount: number
+  notFinishedAvgDays: number
+  totalConversion: number
+  lostConversion: number
+  wonConversion: number
+  successShare: number
 }
 
 export type SalesDepartmentParams = {
@@ -205,7 +214,7 @@ export const fetchSalesDepartmentCounters = async (
         STAGE_SEMANTIC_ID: ['S', 'F'],
       },
       order: { ID: 'ASC' },
-      select: ['ID', 'OPPORTUNITY', 'ASSIGNED_BY_ID', 'STAGE_SEMANTIC_ID', 'CATEGORY_ID'],
+      select: ['ID', 'OPPORTUNITY', 'ASSIGNED_BY_ID', 'STAGE_SEMANTIC_ID', 'CATEGORY_ID', 'DATE_CREATE', 'CLOSEDATE'],
     }),
     callCrmList(b24, 'crm.deal.list', {
       filter: {
@@ -213,7 +222,7 @@ export const fetchSalesDepartmentCounters = async (
         ...dateCreateRange,
       },
       order: { ID: 'ASC' },
-      select: ['ID', 'OPPORTUNITY', 'ASSIGNED_BY_ID', 'STAGE_SEMANTIC_ID', 'CATEGORY_ID'],
+      select: ['ID', 'OPPORTUNITY', 'ASSIGNED_BY_ID', 'STAGE_SEMANTIC_ID', 'CATEGORY_ID', 'DATE_CREATE', 'CLOSEDATE'],
     }),
     callCrmList(b24, 'crm.deal.list', {
       filter: {
@@ -222,7 +231,7 @@ export const fetchSalesDepartmentCounters = async (
         STAGE_SEMANTIC_ID: 'P',
       },
       order: { ID: 'ASC' },
-      select: ['ID', 'ASSIGNED_BY_ID', 'STAGE_SEMANTIC_ID', 'CATEGORY_ID'],
+      select: ['ID', 'ASSIGNED_BY_ID', 'STAGE_SEMANTIC_ID', 'CATEGORY_ID', 'DATE_CREATE'],
     }),
     callCrmList(b24, 'crm.deal.list', {
       filter: {
@@ -231,7 +240,7 @@ export const fetchSalesDepartmentCounters = async (
         STAGE_SEMANTIC_ID: 'S',
       },
       order: { ID: 'ASC' },
-      select: ['ID', 'OPPORTUNITY', 'ASSIGNED_BY_ID', 'STAGE_SEMANTIC_ID', 'CATEGORY_ID'],
+      select: ['ID', 'OPPORTUNITY', 'ASSIGNED_BY_ID', 'STAGE_SEMANTIC_ID', 'CATEGORY_ID', 'DATE_CREATE', 'CLOSEDATE'],
     }),
     callCrmList(b24, 'crm.deal.list', {
       filter: {
@@ -240,7 +249,7 @@ export const fetchSalesDepartmentCounters = async (
         STAGE_SEMANTIC_ID: 'F',
       },
       order: { ID: 'ASC' },
-      select: ['ID', 'OPPORTUNITY', 'ASSIGNED_BY_ID', 'STAGE_SEMANTIC_ID', 'CATEGORY_ID'],
+      select: ['ID', 'OPPORTUNITY', 'ASSIGNED_BY_ID', 'STAGE_SEMANTIC_ID', 'CATEGORY_ID', 'DATE_CREATE', 'CLOSEDATE'],
     }),
   ])
 
@@ -287,6 +296,74 @@ export const fetchSalesDepartmentCounters = async (
     return sum
   }, 0)
 
+  const avgCheck = dealsWon ? revenue / dealsWon : 0
+
+  const parseDate = (raw: unknown): Date | null => {
+    if (!raw) return null
+    const d = new Date(String(raw))
+    return Number.isNaN(d.getTime()) ? null : d
+  }
+
+  const diffInDays = (start: Date | null, end: Date | null): number | null => {
+    if (!start || !end) return null
+    const ms = end.getTime() - start.getTime()
+    return ms >= 0 ? ms / (1000 * 60 * 60 * 24) : null
+  }
+
+  const saleCycleDays = (() => {
+    const diffs: number[] = []
+    for (const deal of dealsWonList) {
+      const d = deal as AnyRecord
+      const created = parseDate(d.DATE_CREATE)
+      const closed = parseDate(d.CLOSEDATE)
+      const days = diffInDays(created, closed)
+      if (days != null) diffs.push(days)
+    }
+    if (!diffs.length) return 0
+    const total = diffs.reduce((s, v) => s + v, 0)
+    return total / diffs.length
+  })()
+
+  const finishedCount = dealsWon + dealsLost
+
+  const notFinishedCount = (() => {
+    const openFromPrevious = dealsInWorkAtStart.length
+    const openNew = dealsNew.filter((deal) => {
+      const d = deal as AnyRecord
+      const sem = String(d.STAGE_SEMANTIC_ID ?? '').trim().toUpperCase()
+      return sem === 'P'
+    }).length
+    return openFromPrevious + openNew
+  })()
+
+  const notFinishedAvgDays = (() => {
+    if (!notFinishedCount) return 0
+    const periodEnd = parseDate(`${params.dateEnd}T23:59:59`)
+    if (!periodEnd) return 0
+    const openDeals: AnyRecord[] = []
+    for (const deal of dealsInWorkAtStart) openDeals.push(deal as AnyRecord)
+    for (const deal of dealsNew) {
+      const d = deal as AnyRecord
+      const sem = String(d.STAGE_SEMANTIC_ID ?? '').trim().toUpperCase()
+      if (sem === 'P') openDeals.push(d)
+    }
+    const diffs: number[] = []
+    for (const d of openDeals) {
+      const created = parseDate(d.DATE_CREATE)
+      const days = diffInDays(created, periodEnd)
+      if (days != null) diffs.push(days)
+    }
+    if (!diffs.length) return 0
+    const total = diffs.reduce((s, v) => s + v, 0)
+    return total / diffs.length
+  })()
+
+  const totalStarted = dealsFromPrevious.length + dealsNew.length
+  const totalConversion = totalStarted ? safeRate(finishedCount, totalStarted) : 0
+  const lostConversion = totalStarted ? safeRate(dealsLost, totalStarted) : 0
+  const wonConversion = totalStarted ? safeRate(dealsWon, totalStarted) : 0
+  const successShare = finishedCount ? safeRate(dealsWon, finishedCount) : 0
+
   const counters: SalesDepartmentCounters = {
     userId: params.userId,
     incomingMissed,
@@ -312,6 +389,15 @@ export const fetchSalesDepartmentCounters = async (
     dealsWon,
     dealsLost,
     revenue,
+    avgCheck,
+    saleCycleDays,
+    finishedCount,
+    notFinishedCount,
+    notFinishedAvgDays,
+    totalConversion,
+    lostConversion,
+    wonConversion,
+    successShare,
   }
 
   // Явно используем вспомогательную функцию, чтобы линтер не ругался на asArray
