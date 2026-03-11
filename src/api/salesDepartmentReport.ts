@@ -1,11 +1,13 @@
 import { useB24 } from '../composables/useB24'
-import { callMethodPromise } from './core'
+import { callMethodPromise, callBatchPromise } from './core'
 import { telephonyCallList, isIncomingCallType, isOutgoingCallType, isMissedCall } from './calls'
 
 type BitrixListResponse = {
   result?: unknown
   deals?: unknown[]
   leads?: unknown[]
+  total?: number
+  next?: number
 }
 
 type AnyRecord = Record<string, any>
@@ -80,14 +82,64 @@ async function callCrmList(
   params: AnyRecord,
 ): Promise<AnyRecord[]> {
   const response = (await callMethodPromise(b24, method, params)) as BitrixListResponse
-  const base = (response?.result ?? response) as AnyRecord
+  const answer = response as AnyRecord
+  const base = (answer?.result ?? answer) as AnyRecord
 
-  if (Array.isArray(base)) return base as AnyRecord[]
-  if (Array.isArray((base as AnyRecord)?.deals)) return (base as AnyRecord).deals as AnyRecord[]
-  if (Array.isArray((base as AnyRecord)?.leads)) return (base as AnyRecord).leads as AnyRecord[]
-  if (Array.isArray((base as AnyRecord)?.items)) return (base as AnyRecord).items as AnyRecord[]
+  if (answer?.next === undefined || answer?.next === null) {
+    if (Array.isArray(base)) return base as AnyRecord[]
+    if (Array.isArray((base as AnyRecord)?.deals)) return (base as AnyRecord).deals as AnyRecord[]
+    if (Array.isArray((base as AnyRecord)?.leads)) return (base as AnyRecord).leads as AnyRecord[]
+    if (Array.isArray((base as AnyRecord)?.items)) return (base as AnyRecord).items as AnyRecord[]
+    return []
+  }
 
-  return []
+  const total = Number(answer.total ?? 0)
+  let next = Number(answer.next ?? 0)
+
+  const all: AnyRecord[] = []
+
+  const extractPage = (data: AnyRecord): AnyRecord[] => {
+    if (Array.isArray(data)) return data
+    if (Array.isArray(data.deals)) return data.deals
+    if (Array.isArray(data.leads)) return data.leads
+    if (Array.isArray(data.items)) return data.items
+    if (Array.isArray(data.result)) return data.result
+    return []
+  }
+
+  all.push(...extractPage(base))
+
+  const batchParams: unknown[] = [
+    [
+      method,
+      {
+        ...params,
+        start: 0,
+      },
+    ],
+  ]
+
+  while (next && next <= total) {
+    batchParams.push([
+      method,
+      {
+        ...params,
+        start: next,
+      },
+    ])
+    next += Number(answer.next ?? 0)
+  }
+
+  const chunkSize = 50
+  for (let i = 0; i < batchParams.length; i += chunkSize) {
+    const chunk = batchParams.slice(i, i + chunkSize)
+    const batchResult = (await callBatchPromise(b24, chunk)) as unknown
+    if (Array.isArray(batchResult)) {
+      all.push(...(batchResult as AnyRecord[]))
+    }
+  }
+
+  return all
 }
 
 const buildDateRange = (field: string, start: string, end: string) => ({
