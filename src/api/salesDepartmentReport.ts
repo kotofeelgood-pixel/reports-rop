@@ -333,9 +333,13 @@ export const fetchSalesDepartmentCounters = async (
   ])
 
   const leadsFromPrevious = leadsFromPreviousList.length
-  const leadsNew = leadsNewList.length
-  // В отчёте «В работе» = лиды из прошлого периода + все новые за период,
-  // как в эталонной таблице (178 + 13 = 191).
+  const leadsNewOpen = leadsNewList.filter((lead) => {
+    const status = String((lead as AnyRecord).STATUS_SEMANTIC_ID ?? '').trim().toUpperCase()
+    return status === 'P'
+  })
+  const leadsNew = leadsNewOpen.length
+  // В отчёте «В работе» = лиды из прошлого периода + новые открытые за период
+  // (пример 178 + 18 = 196).
   const leadsInWorkTotal = leadsFromPrevious + leadsNew
 
   const dealsWon = dealsWonList.length
