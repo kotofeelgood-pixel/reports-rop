@@ -109,15 +109,7 @@ async function callCrmList(
 
   all.push(...extractPage(base))
 
-  const batchParams: unknown[] = [
-    [
-      method,
-      {
-        ...params,
-        start: 0,
-      },
-    ],
-  ]
+  const batchParams: unknown[] = []
 
   while (next && next <= total) {
     batchParams.push([
