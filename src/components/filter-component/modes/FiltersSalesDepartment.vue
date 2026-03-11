@@ -17,7 +17,6 @@ const { selectedDealDirections, refreshToken } = useReportFiltersStoreRefs()
 const handleMakeReport = () => {
   // Обновляем токен, чтобы таблица пересчитала данные, если уже открыта.
   refreshToken.value += 1
-  // Переходим на страницу с таблицей отчёта.
   router.push({ name: 'report-tables' })
 }
 </script>
