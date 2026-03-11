@@ -257,7 +257,7 @@ watch(
           <TCol title="Длительность результативных" class="leading-3" font-size="12px" />
           <TCol title="Средняя длительность" class="leading-3" font-size="12px" />
           <!-- Звонки Лиды -->
-          <TCol title="С прошлого периода" class="leading-3" font-size="12px" />
+          <TCol title="C прошлого периода" class="leading-3" font-size="12px" />
           <TCol title="Новые" class="leading-3" font-size="12px" />
           <TCol title="В работе" class="leading-3" font-size="12px" />
           <TCol title="С движениями по статусам" class="leading-3" font-size="12px" />
@@ -387,7 +387,7 @@ watch(
 
           <!-- Лиды -->
           <TCell
-            :title="`${getUserNameById(row.userId)} - Лиды - Не завершенные с прошлых периодов`"
+            :title="`${getUserNameById(row.userId)} - Лиды - C прошлого периода`"
           >
             {{ row.leadsFromPrevious }}
           </TCell>
@@ -557,7 +557,7 @@ watch(
           <TCell title="ИТОГО - Средняя длительность всех успешных исходящих вызовов">
             {{ formatDuration(totalsOutgoingAvgDuration) }}
           </TCell>
-          <TCell title="ИТОГО - Лиды - Не завершенные с прошлых периодов">
+          <TCell title="ИТОГО - Лиды - C прошлого периода">
             {{ totals.leadsFromPrevious }}
           </TCell>
           <TCell title="ИТОГО - Лиды - Созданные за период">
