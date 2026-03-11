@@ -31,6 +31,19 @@ export type SalesDepartmentCounters = {
   leadsFromPrevious: number
   leadsNew: number
   leadsInWorkAtStart: number
+  leadsWithStatusChange: number
+  leadsWithoutStatusChange: number
+  leadsRejectCount: number
+  leadsRejectCycleDays: number
+  leadsConvertedCount: number
+  leadsConvertedCycleDays: number
+  leadsFinishedCount: number
+  leadsNotFinishedCount: number
+  leadsNotFinishedAvgDays: number
+  leadsTotalConversion: number
+  leadsRejectConversion: number
+  leadsSuccessConversion: number
+  leadsSuccessShare: number
   dealsFromPrevious: number
   dealsNew: number
   dealsInWorkAtStart: number
@@ -302,8 +315,16 @@ export const fetchSalesDepartmentCounters = async (
     ASSIGNED_BY_ID: params.userId,
   }
 
-  const [leadsFromPreviousList, leadsNewList] = await Promise.all([
-    // Лиды из прошлых периодов — созданы до начала периода и на начало периода в работе (STATUS_SEMANTIC_ID = P).
+  const leadCloseDateRange = buildDateRange('DATE_CLOSED', params.dateStart, params.dateEnd)
+
+  const [
+    leadsFromPreviousList,
+    leadsNewList,
+    leadsRejectedList,
+    leadsConvertedList,
+    leadsStageHistory,
+  ] = await Promise.all([
+    // Лиды из прошлых периодов — созданы до начала периода и на начало периода в работе (STATUS_SEMАНTIC_ID = P).
     callCrmList(b24, 'crm.lead.list', {
       filter: {
         ...commonLeadFilter,
@@ -311,7 +332,7 @@ export const fetchSalesDepartmentCounters = async (
         STATUS_SEMANTIC_ID: 'P',
       },
       order: { ID: 'ASC' },
-      select: ['ID', 'ASSIGNED_BY_ID', 'STATUS_SEMANTIC_ID'],
+      select: ['ID', 'ASSIGNED_BY_ID', 'STATUS_SEMANTIC_ID', 'DATE_CREATE'],
     }),
     // Новые лиды, созданные в период (любого финального статуса).
     callCrmList(b24, 'crm.lead.list', {
@@ -320,20 +341,46 @@ export const fetchSalesDepartmentCounters = async (
         ...dateCreateRange,
       },
       order: { ID: 'ASC' },
-      select: ['ID', 'ASSIGNED_BY_ID', 'STATUS_SEMANTIC_ID'],
+      select: ['ID', 'ASSIGNED_BY_ID', 'STATUS_SEMANTIC_ID', 'DATE_CREATE', 'DATE_CLOSED'],
+    }),
+    // Бракованные лиды (финальный статус F) закрытые в период.
+    callCrmList(b24, 'crm.lead.list', {
+      filter: {
+        ...commonLeadFilter,
+        ...leadCloseDateRange,
+        STATUS_SEMANTIC_ID: 'F',
+      },
+      order: { ID: 'ASC' },
+      select: ['ID', 'ASSIGNED_BY_ID', 'STATUS_SEMANTIC_ID', 'DATE_CREATE', 'DATE_CLOSED'],
+    }),
+    // Конвертированные лиды (финальный статус S) закрытые в период.
+    callCrmList(b24, 'crm.lead.list', {
+      filter: {
+        ...commonLeadFilter,
+        ...leadCloseDateRange,
+        STATUS_SEMANTIC_ID: 'S',
+      },
+      order: { ID: 'ASC' },
+      select: ['ID', 'ASSIGNED_BY_ID', 'STATUS_SEMANTIC_ID', 'DATE_CREATE', 'DATE_CLOSED'],
+    }),
+    // История стадий по лидам — для подсчёта движений по статусам.
+    callCrmList(b24, 'crm.stagehistory.list', {
+      entityTypeId: 1,
+      filter: {
+        ...buildDateRange('CREATED_TIME', params.dateStart, params.dateEnd),
+        TYPE_ID: [2, 3],
+      },
+      order: { ID: 'ASC' },
+      select: ['ID', 'OWNER_ID'],
     }),
   ])
 
   const leadsFromPrevious = leadsFromPreviousList.length
   const leadsNewTotal = leadsNewList.length
-  const leadsNewOpen = leadsNewList.filter((lead) => {
-    const status = String((lead as AnyRecord).STATUS_SEMANTIC_ID ?? '').trim().toUpperCase()
-    return status === 'P'
-  })
   const leadsNew = leadsNewTotal
-  // В отчёте «В работе» = лиды из прошлого периода + новые открытые за период
+  // В отчёте «В работе» = лиды из прошлого периода + все новые лиды за период
   // (пример 178 + 18 = 196).
-  const leadsInWorkTotal = leadsFromPrevious + leadsNewOpen.length
+  const leadsInWorkTotal = leadsFromPrevious + leadsNewTotal
 
   const dealsWon = dealsWonList.length
   const dealsLost = dealsLostList.length
@@ -412,6 +459,104 @@ export const fetchSalesDepartmentCounters = async (
   const wonConversion = totalStarted ? safeRate(dealsWon, totalStarted) : 0
   const successShare = finishedCount ? safeRate(dealsWon, finishedCount) : 0
 
+  // Лиды — дополнительные показатели
+  const leadsRejectCount = leadsRejectedList.length
+  const leadsConvertedCount = leadsConvertedList.length
+  const leadsFinishedCount = leadsRejectCount + leadsConvertedCount
+
+  const leadsRejectCycleDays = (() => {
+    const diffs: number[] = []
+    for (const lead of leadsRejectedList) {
+      const l = lead as AnyRecord
+      const created = parseDate(l.DATE_CREATE)
+      const closed = parseDate(l.DATE_CLOSED)
+      const days = diffInDays(created, closed)
+      if (days != null) diffs.push(days)
+    }
+    if (!diffs.length) return 0
+    const total = diffs.reduce((s, v) => s + v, 0)
+    return total / diffs.length
+  })()
+
+  const leadsConvertedCycleDays = (() => {
+    const diffs: number[] = []
+    for (const lead of leadsConvertedList) {
+      const l = lead as AnyRecord
+      const created = parseDate(l.DATE_CREATE)
+      const closed = parseDate(l.DATE_CLOSED)
+      const days = diffInDays(created, closed)
+      if (days != null) diffs.push(days)
+    }
+    if (!diffs.length) return 0
+    const total = diffs.reduce((s, v) => s + v, 0)
+    return total / diffs.length
+  })()
+
+  // Лиды с/без движений по статусам
+  const leadsInWorkIds = new Set<string>()
+  for (const lead of leadsFromPreviousList) {
+    const l = lead as AnyRecord
+    leadsInWorkIds.add(String(l.ID))
+  }
+  for (const lead of leadsNewList) {
+    const l = lead as AnyRecord
+    leadsInWorkIds.add(String(l.ID))
+  }
+
+  const movedLeadIds = new Set<string>()
+  for (const item of leadsStageHistory) {
+    const h = item as AnyRecord
+    const ownerId = h.OWNER_ID != null ? String(h.OWNER_ID) : ''
+    if (ownerId && leadsInWorkIds.has(ownerId)) {
+      movedLeadIds.add(ownerId)
+    }
+  }
+
+  const leadsWithStatusChange = movedLeadIds.size
+  const leadsWithoutStatusChange = Math.max(0, leadsInWorkTotal - leadsWithStatusChange)
+
+  // Незавершённые лиды и их «возраст»
+  const leadsNotFinishedList: AnyRecord[] = []
+  for (const lead of leadsFromPreviousList) {
+    leadsNotFinishedList.push(lead as AnyRecord)
+  }
+  for (const lead of leadsNewList) {
+    const l = lead as AnyRecord
+    const status = String(l.STATUS_SEMANTIC_ID ?? '').trim().toUpperCase()
+    if (status === 'P') {
+      leadsNotFinishedList.push(l)
+    }
+  }
+
+  const leadsNotFinishedCount = leadsNotFinishedList.length
+  const leadsNotFinishedAvgDays = (() => {
+    if (!leadsNotFinishedCount) return 0
+    const periodEnd = parseDate(`${params.dateEnd}T23:59:59`)
+    if (!periodEnd) return 0
+    const diffs: number[] = []
+    for (const l of leadsNotFinishedList) {
+      const created = parseDate((l as AnyRecord).DATE_CREATE)
+      const days = diffInDays(created, periodEnd)
+      if (days != null) diffs.push(days)
+    }
+    if (!diffs.length) return 0
+    const total = diffs.reduce((s, v) => s + v, 0)
+    return total / diffs.length
+  })()
+
+  const leadsTotalConversion = leadsInWorkTotal
+    ? safeRate(leadsFinishedCount, leadsInWorkTotal)
+    : 0
+  const leadsRejectConversion = leadsInWorkTotal
+    ? safeRate(leadsRejectCount, leadsInWorkTotal)
+    : 0
+  const leadsSuccessConversion = leadsInWorkTotal
+    ? safeRate(leadsConvertedCount, leadsInWorkTotal)
+    : 0
+  const leadsSuccessShare = leadsFinishedCount
+    ? safeRate(leadsConvertedCount, leadsFinishedCount)
+    : 0
+
   const counters: SalesDepartmentCounters = {
     userId: params.userId,
     incomingMissed,
@@ -431,6 +576,19 @@ export const fetchSalesDepartmentCounters = async (
     leadsFromPrevious,
     leadsNew,
     leadsInWorkAtStart: leadsInWorkTotal,
+    leadsWithStatusChange,
+    leadsWithoutStatusChange,
+    leadsRejectCount,
+    leadsRejectCycleDays,
+    leadsConvertedCount,
+    leadsConvertedCycleDays,
+    leadsFinishedCount,
+    leadsNotFinishedCount,
+    leadsNotFinishedAvgDays,
+    leadsTotalConversion,
+    leadsRejectConversion,
+    leadsSuccessConversion,
+    leadsSuccessShare,
     dealsFromPrevious: dealsFromPrevious.length,
     dealsNew: dealsNew.length,
     dealsInWorkAtStart: dealsInWorkAtStart.length,

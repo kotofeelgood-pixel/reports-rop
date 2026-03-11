@@ -118,6 +118,19 @@ const totals = computed(() => {
       acc.leadsFromPrevious += row.leadsFromPrevious
       acc.leadsNew += row.leadsNew
       acc.leadsInWorkAtStart += row.leadsInWorkAtStart
+      acc.leadsWithStatusChange += row.leadsWithStatusChange
+      acc.leadsWithoutStatusChange += row.leadsWithoutStatusChange
+      acc.leadsRejectCount += row.leadsRejectCount
+      acc.leadsRejectCycleDays += row.leadsRejectCycleDays
+      acc.leadsConvertedCount += row.leadsConvertedCount
+      acc.leadsConvertedCycleDays += row.leadsConvertedCycleDays
+      acc.leadsFinishedCount += row.leadsFinishedCount
+      acc.leadsNotFinishedCount += row.leadsNotFinishedCount
+      acc.leadsNotFinishedAvgDays += row.leadsNotFinishedAvgDays
+      acc.leadsTotalConversion += row.leadsTotalConversion
+      acc.leadsRejectConversion += row.leadsRejectConversion
+      acc.leadsSuccessConversion += row.leadsSuccessConversion
+      acc.leadsSuccessShare += row.leadsSuccessShare
       acc.dealsFromPrevious += row.dealsFromPrevious
       acc.dealsNew += row.dealsNew
       acc.dealsInWorkAtStart += row.dealsInWorkAtStart
@@ -149,6 +162,19 @@ const totals = computed(() => {
       leadsFromPrevious: 0,
       leadsNew: 0,
       leadsInWorkAtStart: 0,
+      leadsWithStatusChange: 0,
+      leadsWithoutStatusChange: 0,
+      leadsRejectCount: 0,
+      leadsRejectCycleDays: 0,
+      leadsConvertedCount: 0,
+      leadsConvertedCycleDays: 0,
+      leadsFinishedCount: 0,
+      leadsNotFinishedCount: 0,
+      leadsNotFinishedAvgDays: 0,
+      leadsTotalConversion: 0,
+      leadsRejectConversion: 0,
+      leadsSuccessConversion: 0,
+      leadsSuccessShare: 0,
       dealsFromPrevious: 0,
       dealsNew: 0,
       dealsInWorkAtStart: 0,
@@ -392,36 +418,46 @@ watch(
             {{ row.leadsInWorkAtStart }}
           </TCell>
 
-          <TCell :title="`${getUserNameById(row.userId)} - Лиды - Смена стадий`"> 0 </TCell>
-          <TCell :title="`${getUserNameById(row.userId)} - Лиды - Без смены стадий`"> 0 </TCell>
+          <TCell :title="`${getUserNameById(row.userId)} - Лиды - Смена стадий`">
+            {{ row.leadsWithStatusChange }}
+          </TCell>
+          <TCell :title="`${getUserNameById(row.userId)} - Лиды - Без смены стадий`">
+            {{ row.leadsWithoutStatusChange }}
+          </TCell>
 
-          <TCell
-            :title="`${getUserNameById(row.userId)} - Лиды - Брак`"
-            class="L dt-type-numeric"
-            data-key="L_B"
-          >
-            0
+          <TCell :title="`${getUserNameById(row.userId)} - Лиды - Брак`">
+            {{ row.leadsRejectCount }}
           </TCell>
           <TCell :title="`${getUserNameById(row.userId)} - Среднее время жизни бракованных лидов`">
-            0дн.
+            {{ Math.round(row.leadsRejectCycleDays) }}дн.
           </TCell>
-          <TCell :title="`${getUserNameById(row.userId)} - Лиды - Рабочие`"> 0 </TCell>
+          <TCell :title="`${getUserNameById(row.userId)} - Лиды - Рабочие`">
+            {{ row.leadsConvertedCount }}
+          </TCell>
           <TCell :title="`${getUserNameById(row.userId)} - Среднее время жизни успешных лидов`">
-            0дн.
+            {{ Math.round(row.leadsConvertedCycleDays) }}дн.
           </TCell>
-          <TCell :title="`${getUserNameById(row.userId)} - Лиды - Завершённые`"> 0 </TCell>
+          <TCell :title="`${getUserNameById(row.userId)} - Лиды - Завершённые`">
+            {{ row.leadsFinishedCount }}
+          </TCell>
           <TCell :title="`${getUserNameById(row.userId)} - Лиды - Не закрытые до 31.03.2026`">
-            0
+            {{ row.leadsNotFinishedCount }}
           </TCell>
           <TCell :title="`${getUserNameById(row.userId)} - Среднее время жизни незакрытых лидов`">
-            0дн.
+            {{ Math.round(row.leadsNotFinishedAvgDays) }}дн.
           </TCell>
-          <TCell :title="`${getUserNameById(row.userId)} - Лиды - Конверсия Всего`"> 0.00% </TCell>
-          <TCell :title="`${getUserNameById(row.userId)} - Лиды - Конверсия Брак`"> 0.00% </TCell>
+          <TCell :title="`${getUserNameById(row.userId)} - Лиды - Конверсия Всего`">
+            {{ formatPercent(row.leadsTotalConversion) }}
+          </TCell>
+          <TCell :title="`${getUserNameById(row.userId)} - Лиды - Конверсия Брак`">
+            {{ formatPercent(row.leadsRejectConversion) }}
+          </TCell>
           <TCell :title="`${getUserNameById(row.userId)} - Лиды - Конверсия Успешно`">
-            0.00%
+            {{ formatPercent(row.leadsSuccessConversion) }}
           </TCell>
-          <TCell :title="`${getUserNameById(row.userId)} - Лиды - Доля успешных`"> 0.00% </TCell>
+          <TCell :title="`${getUserNameById(row.userId)} - Лиды - Доля успешных`">
+            {{ formatPercent(row.leadsSuccessShare) }}
+          </TCell>
 
           <!-- Сделки -->
           <TCell
@@ -545,19 +581,45 @@ watch(
           <TCell title="ИТОГО - Лиды - Всего в работе">
             {{ totals.leadsInWorkAtStart }}
           </TCell>
-          <TCell title="ИТОГО - Лиды - Смена стадий"> 0 </TCell>
-          <TCell title="ИТОГО - Лиды - Без смены стадий"> 0 </TCell>
-          <TCell title="ИТОГО - Лиды - Брак"> 0 </TCell>
-          <TCell title="ИТОГО - Среднее время жизни бракованных лидов"> 0дн. </TCell>
-          <TCell title="ИТОГО - Лиды - Рабочие"> 0 </TCell>
-          <TCell title="ИТОГО - Среднее время жизни успешных лидов"> 0дн. </TCell>
-          <TCell title="ИТОГО - Лиды - Завершённые"> 0 </TCell>
-          <TCell title="ИТОГО - Лиды - Не закрытые до 31.03.2026"> 0 </TCell>
-          <TCell title="ИТОГО - Среднее время жизни незакрытых лидов"> 0дн. </TCell>
-          <TCell title="ИТОГО - Лиды - Конверсия Всего"> 0.00% </TCell>
-          <TCell title="ИТОГО - Лиды - Конверсия Брак"> 0.00% </TCell>
-          <TCell title="ИТОГО - Лиды - Конверсия Успешно"> 0.00% </TCell>
-          <TCell title="ИТОГО - Лиды - Доля успешных"> 0.00% </TCell>
+          <TCell title="ИТОГО - Лиды - Смена стадий">
+            {{ totals.leadsWithStatusChange }}
+          </TCell>
+          <TCell title="ИТОГО - Лиды - Без смены стадий">
+            {{ totals.leadsWithoutStatusChange }}
+          </TCell>
+          <TCell title="ИТОГО - Лиды - Брак">
+            {{ totals.leadsRejectCount }}
+          </TCell>
+          <TCell title="ИТОГО - Среднее время жизни бракованных лидов">
+            {{ Math.round(totals.leadsRejectCycleDays / (rows.length || 1)) }}дн.
+          </TCell>
+          <TCell title="ИТОГО - Лиды - Рабочие">
+            {{ totals.leadsConvertedCount }}
+          </TCell>
+          <TCell title="ИТОГО - Среднее время жизни успешных лидов">
+            {{ Math.round(totals.leadsConvertedCycleDays / (rows.length || 1)) }}дн.
+          </TCell>
+          <TCell title="ИТОГО - Лиды - Завершённые">
+            {{ totals.leadsFinishedCount }}
+          </TCell>
+          <TCell title="ИТОГО - Лиды - Не закрытые до 31.03.2026">
+            {{ totals.leadsNotFinishedCount }}
+          </TCell>
+          <TCell title="ИТОГО - Среднее время жизни незакрытых лидов">
+            {{ Math.round(totals.leadsNotFinishedAvgDays / (rows.length || 1)) }}дн.
+          </TCell>
+          <TCell title="ИТОГО - Лиды - Конверсия Всего">
+            {{ formatPercent(totals.leadsTotalConversion / (rows.length || 1)) }}
+          </TCell>
+          <TCell title="ИТОГО - Лиды - Конверсия Брак">
+            {{ formatPercent(totals.leadsRejectConversion / (rows.length || 1)) }}
+          </TCell>
+          <TCell title="ИТОГО - Лиды - Конверсия Успешно">
+            {{ formatPercent(totals.leadsSuccessConversion / (rows.length || 1)) }}
+          </TCell>
+          <TCell title="ИТОГО - Лиды - Доля успешных">
+            {{ formatPercent(totals.leadsSuccessShare / (rows.length || 1)) }}
+          </TCell>
           <TCell title="ИТОГО - Сделок не завершенных с прошлых периодов">
             {{ totals.dealsFromPrevious }}
           </TCell>
